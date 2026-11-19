@@ -60,7 +60,7 @@ const COLUMNS: Column[] = [
   {
     title: "Dialvo",
     links: [
-      { href: START_HREF, label: "Get early access" },
+      { href: START_HREF, label: "Join the waitlist" },
       { href: `mailto:${CONTACT_EMAIL}`, label: "Contact" },
     ],
   },

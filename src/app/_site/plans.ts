@@ -24,7 +24,7 @@ export const PLAN_CARDS: Plan[] = [
     name: PLANS.starter.name,
     price: PLANS.starter.price,
     lead: "For founders and small teams who want every inbound lead answered and followed up.",
-    cta: "Get early access",
+    cta: "Join the waitlist",
     intro: "Includes",
     features: [
       "Voice agent for inbound leads: speed to lead, qualification and booking",
@@ -43,7 +43,7 @@ export const PLAN_CARDS: Plan[] = [
     name: PLANS.pro.name,
     price: PLANS.pro.price,
     lead: "For agencies and sales teams running inbound, outbound and expansion on every channel.",
-    cta: "Get early access",
+    cta: "Join the waitlist",
     intro: "Everything in Starter, plus",
     features: [
       "All channels: chat, social and WhatsApp agents as well",

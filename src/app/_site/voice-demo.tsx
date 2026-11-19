@@ -315,7 +315,7 @@ export function VoiceDemo({
               href={startHref()}
               className="ml-auto inline-flex h-10 items-center gap-2 rounded-full bg-[#0B0B0C] px-4 text-[13.5px] font-medium text-white transition-colors hover:bg-black/85"
             >
-              Get early access
+              Join the waitlist
               <ArrowRight aria-hidden className="size-4" />
             </a>
           </div>

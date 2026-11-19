@@ -112,6 +112,6 @@ AI voice agents call people who asked to hear from you or opted in; Dialvo's AI 
 - [Inbound](https://trydialvo.com/inbound), [Outbound](https://trydialvo.com/outbound), [Expansion](https://trydialvo.com/expansion): the three motions in full
 - [Platform](https://trydialvo.com/platform): the six feature groups
 - [Pricing](https://trydialvo.com/pricing): plans and a full comparison
-- Get early access: email contact@trydialvo.com
+- Join the waitlist: email contact@trydialvo.com
 - [Privacy](https://trydialvo.com/privacy) (draft)
 - [Terms](https://trydialvo.com/terms) (draft)

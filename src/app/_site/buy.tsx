@@ -21,7 +21,7 @@ export function BuyStrip({ line }: { line: string }) {
           href={startHref()}
           className="inline-flex h-10 items-center rounded-full bg-[#0B0B0C] px-5 text-[14.5px] font-medium text-white transition-colors hover:bg-black/85"
         >
-          Get early access
+          Join the waitlist
         </a>
         <a
           href="/pricing"

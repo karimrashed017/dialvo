@@ -13,6 +13,7 @@ import { SITE_URL } from "@/lib/site";
 const PAGES: { path: string; priority: number }[] = [
   { path: "/", priority: 1 },
   { path: "/pricing", priority: 0.9 },
+  { path: "/waitlist", priority: 0.8 },
   ...MOTIONS.map((m) => ({ path: m.href, priority: 0.9 })),
   { path: "/platform", priority: 0.8 },
   ...PLAY_SLUGS.map((s) => ({ path: playHref(s), priority: 0.7 })),

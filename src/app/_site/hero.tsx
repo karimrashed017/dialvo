@@ -79,7 +79,7 @@ export function Hero() {
           <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
             <CtaButton
               href={startHref()}
-              label="Get early access"
+              label="Join the waitlist"
               icon={<Mark className="size-[18px]" />}
               primary
             />

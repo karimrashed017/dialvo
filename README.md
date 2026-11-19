@@ -4,7 +4,7 @@ The marketing site for Dialvo, an AI sales team: agents that work every
 channel (voice, email, chat, social, SMS and WhatsApp) to find, engage, qualify
 and book, across inbound, outbound and expansion, with a human dialer for
 reps. Next.js 16 (App Router, Cache Components), Tailwind CSS 4. Early access:
-every "Get early access" button opens an email to contact@trydialvo.com.
+every "Join the waitlist" button opens the waitlist form at /waitlist, which saves each sign-up as a private file in the Vercel Blob store "dialvo-waitlist".
 
 ## Run it
 

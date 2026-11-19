@@ -13,12 +13,8 @@ export const TAGLINE =
 export const DESCRIPTION =
   "Dialvo is your AI sales team: agents that work voice, email, chat, social, SMS and WhatsApp to find, engage, qualify and book, across inbound, outbound and expansion, with a human dialer for your reps.";
 
-/**
- * Where every "Get early access" button leads: an email to us, until signups
- * open.
- */
-export const START_HREF =
-  "mailto:contact@trydialvo.com?subject=Dialvo%20early%20access";
+/** Where every "Join the waitlist" button leads: the waitlist form. */
+export const START_HREF = "/waitlist";
 
 /** The free trial: it ends at the first booked meeting. */
 export const TRIAL = { calls: 300 } as const;

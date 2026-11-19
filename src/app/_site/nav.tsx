@@ -376,7 +376,7 @@ export function SiteNav() {
                 ring,
               )}
             >
-              Get early access
+              Join the waitlist
             </a>
             <button
               ref={sheetButton}
@@ -473,7 +473,7 @@ export function SiteNav() {
               href={startHref()}
               className="mt-1 flex h-11 items-center justify-center rounded-xl bg-[#0B0B0C] text-[15px] font-medium text-white"
             >
-              Get early access
+              Join the waitlist
             </a>
             <Link
               href="/#channels"

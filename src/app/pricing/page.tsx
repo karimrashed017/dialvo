@@ -114,7 +114,7 @@ export default function Pricing() {
                           href={startHref({ plan: c.id })}
                           className="mt-3 inline-flex h-8 items-center rounded-full border border-black/15 px-3.5 text-[13px] hover:bg-black/[0.06]"
                         >
-                          Get early access
+                          Join the waitlist
                         </a>
                       </th>
                     ))}
