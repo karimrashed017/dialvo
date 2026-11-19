@@ -1,9 +1,10 @@
 # Dialvo
 
-The marketing site for Dialvo, an AI sales team: agents that work every
-channel (voice, email, chat, social, SMS and WhatsApp) to find, engage, qualify
-and book, across inbound, outbound and expansion, with a human dialer for
-reps. Next.js 16 (App Router, Cache Components), Tailwind CSS 4. Early access:
+The marketing site for Dialvo: inbound and outbound sales, run by AI agents.
+They answer every lead within a minute, go out to find new business, follow up
+on every channel (voice, email, chat, social, SMS and WhatsApp), book the
+meetings and close simple sales; bigger deals go to the customer's team, and
+reps get a human dialer. Next.js 16 (App Router, Cache Components), Tailwind CSS 4. Early access:
 every "Join the waitlist" button opens the waitlist form at /waitlist, which saves each sign-up as a private file in the Vercel Blob store "dialvo-waitlist".
 
 ## Run it
@@ -19,14 +20,24 @@ npm test        # the tests alone (vitest)
 ## Where things are
 
 - `src/app/page.tsx`: the home page, built from the sections in `src/app/_site/`.
+  In order: hero, the problem, the three jobs (inbound, outbound, closing),
+  the live voice demo, the channel tabs, one line on existing customers,
+  control, what it replaces, trust, pricing, FAQ, last call.
   - `hero.tsx` and `dashboard.tsx`: the hero and its example workspace.
-  - `channels.tsx`: the six channel tabs and their panels.
-  - `sections.tsx`: tools, the three motions, plays, platform, compliance, last call.
-  - `voice-demo.tsx`, `voice-call.tsx` and `voice-parts.tsx`: the live voice
-    demo in the Voice tab (see "The live voice demo" below).
-  - `listen.tsx` and `call-player.tsx`: "You stay in control" and the sample call.
-- `src/app/inbound`, `outbound`, `expansion`: the three motion pages.
-- `src/app/plays/[slug]`: one page per play (14).
+  - `sections.tsx`: the problem, the three jobs, existing customers, what it
+    replaces (with the tools Dialvo connects to), trust, last call.
+  - `voice-section.tsx`, `voice-demo.tsx`, `voice-call.tsx` and
+    `voice-parts.tsx`: the live voice demo, in its own section (see "The live
+    voice demo" below). It is the only live demo on the page.
+  - `channels.tsx`: the six channel tabs and their example panels. The Voice
+    tab is a sample transcript that links up to the live demo.
+  - `listen.tsx` and `call-player.tsx`: "Nothing happens out of sight" and the
+    sample call.
+- `src/app/inbound`, `outbound`, `closing`, `expansion`: the four motion pages.
+  Closing has no plays; its page has a "what it will and won't close" section
+  instead (`scope` in its content).
+- `src/app/plays`: every play as a card (the grid that used to be on the home
+  page), and `src/app/plays/[slug]`: one page per play (14).
 - `src/app/platform` and `src/app/platform/[slug]`: the platform overview and
   one page per feature (23).
 - `src/lib/content/`: all the copy for those pages, typed. `catalog.ts` is the
@@ -52,9 +63,12 @@ npm test        # the tests alone (vitest)
 ## Honesty rules for the site
 
 - No customers, logos, quotes, ratings or result numbers until there are real ones.
-- Product visuals use made-up businesses and are marked "Example". The Voice
-  tab is the exception: it's a real AI agent, marked "Live demo", and it says
-  it's an AI in its first sentence and that nothing in the demo is booked.
+- Product visuals use made-up businesses and are marked "Example". The live
+  voice demo is the exception: it's a real AI agent, marked "Live demo", and it
+  says it's an AI in its first sentence and that nothing in the demo is booked.
+- The closer is for simple sales with a clear price. Never say it handles
+  complex, negotiated or high-value deals: those go to the customer's team.
+  Payments go through a secure link; the agent never takes card details.
 - No certifications are claimed.
 - The whole product is in early access; individual features aren't tagged.
 - AI voice calls go only to people who asked or opted in, and say they're an
@@ -78,8 +92,9 @@ sparing accent (the active channel tab, live dots, small marks).
 
 ## The live voice demo
 
-The Voice tab on the home page is a real conversation: the visitor presses the
-orb (or "Talk to the agent" in the hero), allows the microphone, and talks with
+The "Talk to it" section on the home page is a real conversation: the visitor
+presses the orb (or "Talk to the agent" in the hero, which scrolls there and
+puts focus on the button), allows the microphone, and talks with
 Dialvo's AI sales agent, which answers in an ElevenLabs voice. It runs on
 ElevenLabs Agents ("ElevenAgents") through `@elevenlabs/react`, over WebRTC.
 
@@ -113,7 +128,7 @@ ElevenLabs Agents ("ElevenAgents") through `@elevenlabs/react`, over WebRTC.
 
 ## The sample call
 
-"You stay in control" plays `public/audio/demo-call.mp3` if it exists, in sync
+"Nothing happens out of sight" plays `public/audio/demo-call.mp3` if it exists, in sync
 with the transcript in `public/audio/demo-call.json`
 (`[{ "t": seconds, "speaker": "Dialvo" | "Lead", "text": "..." }]`). Without
 the mp3, the transcript plays on a timer. It's a sample script of an inbound
@@ -125,5 +140,5 @@ timings.
 
 All public domain: William Bradford, Coast of Labrador; Martin Johnson Heade,
 York Harbor, Coast of Maine (1877); John Frederick Kensett, Rocky Coast.
-The meadow photo behind the channel panels (`public/images/art/meadow.jpg`)
+The meadow photo behind the voice demo and the channel panels (`public/images/art/meadow.jpg`)
 was generated for Dialvo.

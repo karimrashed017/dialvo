@@ -7,11 +7,10 @@ export const SITE_URL = "https://trydialvo.com";
 export const CONTACT_EMAIL = "contact@trydialvo.com";
 
 /** The one-liner, used in the footer and the share image. */
-export const TAGLINE =
-  "AI sales agents for every channel, across inbound, outbound and expansion.";
+export const TAGLINE = "Inbound and outbound sales, run by AI agents.";
 
 export const DESCRIPTION =
-  "Dialvo is your AI sales team: agents that work voice, email, chat, social, SMS and WhatsApp to find, engage, qualify and book, across inbound, outbound and expansion, with a human dialer for your reps.";
+  "Dialvo runs inbound and outbound sales with AI agents. They answer every lead within a minute, go out to find new business, follow up on voice, email, chat, social, SMS and WhatsApp, book the meetings, close simple sales and hand your team the bigger deals.";
 
 /** Where every "Join the waitlist" button leads: the waitlist form. */
 export const START_HREF = "/waitlist";

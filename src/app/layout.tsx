@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const TITLE = "Dialvo · AI sales agents for every channel";
+const TITLE = "Dialvo · Inbound and outbound sales, run by AI agents";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
