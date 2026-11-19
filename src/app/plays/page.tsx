@@ -18,7 +18,7 @@ export const metadata: Metadata = pageMetadata({
 });
 
 // Every play as a card. This grid used to be on the home page; it lives here
-// so the home page can stay on the problem and the three jobs.
+// so the home page can stay on the problem and the four jobs.
 export default function Page() {
   return (
     <PageShell>

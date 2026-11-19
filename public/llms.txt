@@ -1,6 +1,6 @@
 # Dialvo
 
-> Dialvo runs inbound and outbound sales with AI agents. They answer every lead within a minute, go out to find new business, follow up on every channel (voice, email, chat, social, SMS and WhatsApp), book the meetings and close simple sales. Bigger or more complex deals go to your team, and your reps get a human dialer.
+> Dialvo runs inbound and outbound sales with AI agents. They answer every lead within a minute, go out to find new business, follow up on every channel (voice, email, chat, social, SMS and WhatsApp), book the meetings, close simple sales and grow existing customers with onboarding, renewals and upgrades. Bigger or more complex deals go to your team, and your reps get a human dialer.
 
 Dialvo is in early access: teams are brought on in small groups, and channels are switched on as each account needs them. Website: https://trydialvo.com. Contact: contact@trydialvo.com.
 
@@ -104,7 +104,7 @@ AI voice agents call people who asked to hear from you or opted in; Dialvo's AI 
 
 - Free trial: free until Dialvo books your first meeting, up to 300 AI calls, card required.
 - Starter: $99 a month. Inbound: every lead answered, qualified and booked. Voice agent for inbound leads, email agent from your own inbox, SMS follow-up, 1,000 AI calls and 500 lead credits a month.
-- Pro: $299 a month. Inbound, outbound and closing. Every channel including chat, social and WhatsApp, the AI closer for simple sales (payment links, bookings and agreements), human dialer seats, CRM sync, premium voices, 3,000 AI calls and 1,500 lead credits a month.
+- Pro: $299 a month. Inbound, outbound, closing and expansion. Every channel including chat, social and WhatsApp, the AI closer for simple sales (payment links, bookings and agreements), human dialer seats, CRM sync, premium voices, 3,000 AI calls and 1,500 lead credits a month.
 - Scale: $799 a month. For agencies and several brands. Everything in Pro (the AI closer included) with 10,000 AI calls, 6,000 lead credits, 10 sending inboxes, 10 dialer seats and 5 workspaces for separate clients or brands, plus priority support and hands-on setup.
 - Add-ons: extra AI calls, lead credits, inboxes and dialer seats. Cancel anytime, no contract.
 

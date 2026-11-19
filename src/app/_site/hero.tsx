@@ -41,7 +41,7 @@ export function Hero() {
             <span className="rounded-full bg-[#1F3BFF] px-2 py-0.5 text-[11.5px] font-medium text-white">
               Early access
             </span>
-            Inbound, outbound and closing
+            Inbound, outbound, closing and expansion
             <ArrowRight aria-hidden className="size-3.5" />
           </a>
         </Rise>
@@ -52,11 +52,11 @@ export function Hero() {
           className={`${serif} mt-7 text-[44px] leading-[1] sm:text-[76px]`}
         />
         <Rise delay={0.6}>
-          <p className="mx-auto mt-6 max-w-[680px] text-[17px] leading-[1.55] text-[#0B0B0C]/70 sm:text-[18px]">
-            Dialvo answers every lead within a minute and goes out to find new
-            ones. Its agents call, email, message and follow up on every
-            channel, book the meetings, close the simple sales and hand your
-            team the big ones.
+          <p className="mx-auto mt-6 max-w-[680px] text-[17px] leading-[1.55] text-balance text-[#0B0B0C]/70 sm:text-[18px]">
+            Dialvo answers every lead within a minute, goes out to find new ones
+            and grows the customers you already have. Its agents call, email,
+            message and follow up on every channel, book the meetings, close the
+            simple sales and hand your team the big ones.
           </p>
         </Rise>
         <Rise delay={0.8} className="mt-9">

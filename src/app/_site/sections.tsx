@@ -22,6 +22,7 @@ import { featureHref, playHref, type MotionId } from "@/lib/content/catalog";
 import type { Visual } from "@/lib/content/types";
 import { cn } from "@/lib/utils";
 import labrador from "../../../public/images/art/bradford-coast-of-labrador.jpg";
+import niagara from "../../../public/images/art/cole-niagara.jpg";
 import heade from "../../../public/images/art/heade-york-harbor.jpg";
 import kensett from "../../../public/images/art/kensett-rocky-coast.jpg";
 import { STARTER_DEAL, startHref } from "./links";
@@ -33,8 +34,8 @@ import { card, GRAIN, muted, serif } from "./theme";
 // The home page's sections between the hero and pricing, apart from the two
 // with moving parts (the live voice demo in voice-section.tsx and the channel
 // tabs in channels.tsx) and "Nothing happens out of sight" (listen.tsx):
-// the problem, the three jobs, existing customers, what Dialvo replaces,
-// trust, and the last call to action.
+// the problem, the four jobs (inbound, outbound, closing, expansion), what
+// Dialvo replaces, trust, and the last call to action.
 
 export function Head({
   title,
@@ -86,6 +87,7 @@ const WASTE = [
   "Follow-ups that never get sent.",
   "New accounts nobody has time to research.",
   "Buyers who were ready to say yes and got no answer.",
+  "Customers who would buy more if someone asked.",
 ];
 
 export function Problem() {
@@ -116,7 +118,7 @@ export function Problem() {
   );
 }
 
-// --- Three jobs --------------------------------------------------------------------
+// --- Four jobs ---------------------------------------------------------------------
 
 type Tag = { label: string; href?: string };
 
@@ -261,6 +263,56 @@ const JOBS: {
       foot: "Sample conversation. The agent never asks for card details; payment happens on the secure page.",
     },
   },
+  {
+    id: "expansion",
+    title: "Expansion: more from the customers you already have.",
+    body: "Winning a customer is the expensive part. Dialvo checks in after they buy, helps them get set up, raises renewals before they lapse and offers the upgrade at the right moment, with every customer and not just your biggest ones. Old leads and lost deals get worked again when something changes.",
+    tags: [
+      {
+        label: "Customer onboarding",
+        href: playHref("customer-onboarding-operations"),
+      },
+      { label: "Renewals" },
+      {
+        label: "Upgrades and cross-sell",
+        href: playHref("customer-expansion"),
+      },
+      { label: "PLG conversion", href: playHref("plg-conversion") },
+      { label: "Lead reactivation", href: playHref("lead-reactivation") },
+      { label: "Closed-lost win-back", href: playHref("closed-lost") },
+    ],
+    art: niagara,
+    // Statuses only: no revenue or result numbers, even as samples.
+    visual: {
+      kind: "list",
+      title: "Accounts · this month",
+      note: "Northwind Agency",
+      rows: [
+        {
+          name: "Harbor Fitness · Care plan",
+          detail: "Renewal in 21 days · check-in sent",
+          tag: "Renewal",
+        },
+        {
+          name: "Fernhill Logistics · Team plan",
+          detail: "Hit seat limit · upgrade offered",
+          tag: "Upgrade",
+          strong: true,
+        },
+        {
+          name: "Bright Smile Dental · new this week",
+          detail: "Onboarding call booked for Thursday 10:00",
+          tag: "Onboarding",
+        },
+        {
+          name: "Cedar Lane Fitness · Care plan",
+          detail: "Went quiet · re-engaged by email",
+          tag: "Re-engaged",
+        },
+      ],
+      foot: "Sample data. Every person and business here is made up.",
+    },
+  },
 ];
 
 export function Jobs() {
@@ -364,39 +416,6 @@ export function Jobs() {
             />
           </Link>
         ))}
-      </Rise>
-    </section>
-  );
-}
-
-// --- Existing customers -------------------------------------------------------------
-
-/** One line between the channels and control: expansion, and where to read on. */
-export function ExistingCustomers() {
-  return (
-    <section className="px-5">
-      <Rise className="mx-auto max-w-[1180px]">
-        <Link
-          href="/expansion"
-          className={cn(
-            card,
-            "group flex flex-col items-start justify-between gap-4 px-6 py-6 transition-colors hover:bg-white sm:flex-row sm:items-center sm:px-9 sm:py-7",
-          )}
-        >
-          <span
-            className={`${serif} text-[24px] leading-[1.15] sm:text-[28px]`}
-          >
-            And once they&apos;re customers: check-ins, renewals and upgrades,
-            handled the same way.
-          </span>
-          <span className="inline-flex shrink-0 items-center gap-1.5 text-[14.5px] font-medium">
-            Expansion
-            <ArrowRight
-              aria-hidden
-              className="size-4 transition-transform group-hover:translate-x-0.5"
-            />
-          </span>
-        </Link>
       </Rise>
     </section>
   );

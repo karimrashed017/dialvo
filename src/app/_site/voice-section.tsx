@@ -10,7 +10,7 @@ import { GRAIN, muted, serif } from "./theme";
 import { VoiceDemo } from "./voice-demo";
 
 // "Don't take our word for it. Talk to it.": the live voice demo, in its own
-// section straight after the three jobs. This is the only place on the page
+// section straight after the four jobs. This is the only place on the page
 // where the real agent runs (voice-demo.tsx); the Voice tab further down is
 // a sample transcript that links back here. Every "Talk to the agent" link
 // (#voice-demo) scrolls to the panel and puts focus on its button.

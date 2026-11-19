@@ -46,7 +46,7 @@ export const PLAN_CARDS: Plan[] = [
     id: "pro",
     name: PLANS.pro.name,
     price: PLANS.pro.price,
-    tagline: "Inbound, outbound and closing.",
+    tagline: "Inbound, outbound, closing and expansion.",
     lead: "For agencies and sales teams that want every channel worked, new business opened and simple sales closed.",
     cta: "Join the waitlist",
     intro: "Everything in Starter, plus",

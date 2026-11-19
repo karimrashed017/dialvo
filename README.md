@@ -20,12 +20,12 @@ npm test        # the tests alone (vitest)
 ## Where things are
 
 - `src/app/page.tsx`: the home page, built from the sections in `src/app/_site/`.
-  In order: hero, the problem, the three jobs (inbound, outbound, closing),
-  the live voice demo, the channel tabs, one line on existing customers,
-  control, what it replaces, trust, pricing, FAQ, last call.
+  In order: hero, the problem, the four jobs (inbound, outbound, closing,
+  expansion), the live voice demo, the channel tabs, control, what it
+  replaces, trust, pricing, FAQ, last call.
   - `hero.tsx` and `dashboard.tsx`: the hero and its example workspace.
-  - `sections.tsx`: the problem, the three jobs, existing customers, what it
-    replaces (with the tools Dialvo connects to), trust, last call.
+  - `sections.tsx`: the problem, the four jobs, what it replaces (with the
+    tools Dialvo connects to), trust, last call.
   - `voice-section.tsx`, `voice-demo.tsx`, `voice-call.tsx` and
     `voice-parts.tsx`: the live voice demo, in its own section (see "The live
     voice demo" below). It is the only live demo on the page.

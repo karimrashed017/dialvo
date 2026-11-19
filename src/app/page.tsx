@@ -18,7 +18,6 @@ import { SiteNav } from "./_site/nav";
 import { PricingSection } from "./_site/pricing";
 import {
   Compliance,
-  ExistingCustomers,
   FinalCall,
   Jobs,
   Problem,
@@ -57,6 +56,7 @@ const STRUCTURED = [
       "Inbound: every lead answered, qualified and booked within a minute",
       "Outbound: lead lists, research, cold email and LinkedIn outreach",
       "AI closer for simple sales: payment links, bookings and agreements",
+      "Expansion: onboarding, renewals and upgrades with existing customers",
       "AI voice agents for inbound leads and existing customers",
       "AI email agents",
       "Website chat agents",
@@ -95,7 +95,6 @@ export default function Home() {
         <Jobs />
         <VoiceSection />
         <Channels />
-        <ExistingCustomers />
         <ControlSection />
         <Replaces />
         <Compliance />

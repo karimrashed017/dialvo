@@ -17,7 +17,7 @@ export const viewport = siteViewport;
 
 export const metadata: Metadata = pageMetadata({
   title: "Pricing · Dialvo, inbound and outbound sales run by AI agents",
-  description: `Dialvo is free until it books your first meeting. Then Starter at $${PLANS.starter.price} a month (voice, email and SMS agents for inbound leads), Pro at $${PLANS.pro.price} a month (inbound, outbound and closing on every channel, with human dialer seats and CRM sync) or Scale at $${PLANS.scale.price} a month (several workspaces and much higher limits). Cancel anytime.`,
+  description: `Dialvo is free until it books your first meeting. Then Starter at $${PLANS.starter.price} a month (voice, email and SMS agents for inbound leads), Pro at $${PLANS.pro.price} a month (inbound, outbound, closing and expansion on every channel, with human dialer seats and CRM sync) or Scale at $${PLANS.scale.price} a month (several workspaces and much higher limits). Cancel anytime.`,
   path: "/pricing",
 });
 
