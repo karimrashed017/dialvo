@@ -36,10 +36,10 @@ const menuLink = cn(
   ring,
 );
 
-/** The three motions as large links. */
+/** The four motions as large links. */
 function MotionLinks({ compact }: { compact?: boolean }) {
   return (
-    <ul className={cn("grid gap-1", !compact && "grid-cols-3")}>
+    <ul className={cn("grid gap-1", !compact && "grid-cols-4")}>
       {MOTIONS.map((m) => (
         <li key={m.id}>
           <Link
@@ -71,7 +71,7 @@ function MotionLinks({ compact }: { compact?: boolean }) {
 function PlayColumns({ compact }: { compact?: boolean }) {
   return (
     <div className={cn("grid gap-x-4 gap-y-5", !compact && "grid-cols-3")}>
-      {MOTIONS.map((m) => (
+      {MOTIONS.filter((m) => MENU_PLAYS[m.id].length > 0).map((m) => (
         <div key={m.id}>
           <p className="px-2.5 text-[12px] tracking-wide text-[#0B0B0C]/45 uppercase">
             {m.name}

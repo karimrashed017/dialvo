@@ -1,7 +1,7 @@
 import type { MotionId } from "./catalog";
 import type { MotionContent } from "./types";
 
-// The three motion pages: /inbound, /outbound and /expansion. Figures in the
+// The four motion pages: /inbound, /outbound, /closing and /expansion. Figures in the
 // sample boards are invented and marked as examples.
 
 export const MOTION_PAGES: Record<MotionId, MotionContent> = {
@@ -57,7 +57,7 @@ export const MOTION_PAGES: Record<MotionId, MotionContent> = {
         },
         {
           title: "The meeting is booked, or the call transferred",
-          body: "Good fits choose a time on the rep's calendar, or are put through live with a short briefing for the rep first.",
+          body: "Good fits choose a time on the rep's calendar, or are put through live with a short briefing for the rep first. For a simple offer with a clear price, the agent can close the sale there and then with a secure payment link.",
         },
         {
           title: "Everyone else gets a next step",
@@ -262,7 +262,7 @@ export const MOTION_PAGES: Record<MotionId, MotionContent> = {
         },
         {
           title: "Handle every reply",
-          body: "Replies are read as they arrive: questions answered from your knowledge base, objections addressed, meetings booked, referrals followed, opt-outs honoured immediately.",
+          body: "Replies are read as they arrive: questions answered from your knowledge base, objections addressed, meetings booked, referrals followed, opt-outs honoured immediately. When a reply is a clear yes to a simple offer, the agent can close it with a secure payment link.",
         },
         {
           title: "Put reps on the calls that matter",
@@ -591,6 +591,216 @@ export const MOTION_PAGES: Record<MotionId, MotionContent> = {
       {
         q: "Which plan includes expansion?",
         a: "Expansion plays are part of Pro, along with CRM sync and the API they rely on.",
+      },
+    ],
+  },
+  closing: {
+    id: "closing",
+    title: "Closing · AI agents that finish simple sales on the spot",
+    headline: "Simple sales, finished on the spot",
+    intro:
+      "When a buyer says yes to an offer with a clear price, the agent doesn't book a meeting to take the order. It confirms the offer, answers the last questions and sends a secure payment link, a booking or an agreement to sign, in the same call or chat. Bigger or more complex deals go to your team with everything already covered.",
+    description:
+      "Dialvo Closing finishes simple, fixed-price sales in the conversation: the agent confirms the offer, answers the last questions and sends a secure payment link, booking or agreement. Complex deals go to your team.",
+    problem: {
+      title: "They said yes at 9pm. Then they waited for a meeting.",
+      lead: "For a simple offer, the gap between a yes and a way to pay is where the sale is lost.",
+      points: [
+        {
+          title: "The yes arrives out of hours",
+          body: "A buyer decides in the evening, on a chat or a callback. The only next step on offer is a meeting two days away.",
+        },
+        {
+          title: "The meeting kills the momentum",
+          body: "By the time it comes round they've cooled, compared, or simply forgotten why they were sure.",
+        },
+        {
+          title: "Reps take orders instead of selling",
+          body: "Half an hour on a call to confirm a price that's on your website and send a link anyone could have sent.",
+        },
+        {
+          title: "The last question goes unanswered",
+          body: '"Does that include setup?" is often all that stands between a buyer and paying. Nobody is there to answer it.',
+        },
+      ],
+    },
+    steps: {
+      title: "From a clear yes to a finished sale, in the same conversation",
+      lead: "Five steps, and a person steps in the moment anything falls outside your rules.",
+      items: [
+        {
+          title: "It recognises a clear yes",
+          body: "The buyer says they want to go ahead with a specific offer. A maybe, or a yes with conditions, is not treated as a yes: the agent keeps helping or books a meeting.",
+        },
+        {
+          title: "It confirms the offer and the price",
+          body: "What's included, what it costs and when it starts, read back from your knowledge base so both sides agree on what's being bought.",
+        },
+        {
+          title: "It answers the last questions",
+          body: "Final questions and common objections are answered from what you've written. If the answer isn't in your knowledge base, the agent says so and brings in a person.",
+        },
+        {
+          title: "It sends the way to finish",
+          body: "A secure payment link, a booking, or an agreement to sign, sent by text, email or in the chat while the buyer is still there.",
+        },
+        {
+          title: "It logs the sale and hands off",
+          body: "The outcome, the transcript and what was agreed go to your CRM and to the person who looks after the customer next. Anything outside your rules goes to a person instead.",
+        },
+      ],
+    },
+    playsLead: "",
+    scope: {
+      title: "What it will close, and what it won't",
+      lead: "You set which offers the agent may close, the price limits and the discount rules. Everything else goes to your team.",
+      yes: {
+        title: "The agent can close",
+        items: [
+          "Paid bookings: a consultation, a class, a call-out, a deposit",
+          "Fixed-price offers and packages with a published price",
+          "Plan upgrades and extra seats, at your listed prices",
+          "Renewals on the same terms as before",
+        ],
+      },
+      no: {
+        title: "Always goes to your team",
+        items: [
+          "Complex or custom deals, and anything that needs a quote",
+          "Negotiated prices, and discounts beyond the rules you set",
+          "High-value deals above the price limit you choose",
+          "Contract changes and anything the buyer wants to discuss with a person",
+        ],
+      },
+    },
+    channels: {
+      lead: "The agent closes on the channel the buyer said yes on.",
+      items: [
+        {
+          id: "voice",
+          body: "Confirms the offer on the call and sends the payment link by text or email. Card details are never taken or read out on a call.",
+        },
+        {
+          id: "chat",
+          body: "Answers the last question on your site and puts the link, booking or agreement in the conversation.",
+        },
+        {
+          id: "messages",
+          body: "Closes over SMS and WhatsApp with people who opted in, with the link in the thread.",
+        },
+        {
+          id: "email",
+          body: "When a reply says yes, the answer carries the link, booking or agreement, from your own inbox.",
+        },
+      ],
+    },
+    board: {
+      title: "Closing · today",
+      tiles: [
+        { label: "Clear yeses", value: "9" },
+        { label: "Links and agreements sent", value: "9" },
+        { label: "Completed", value: "6" },
+        { label: "Passed to the team", value: "4" },
+      ],
+      feed: [
+        {
+          name: "Lena Ortiz · Bright Smile Dental",
+          detail: "Chat 21:07 · Care plan, $150 a month · link sent",
+          tag: "Paid 21:12",
+          strong: true,
+        },
+        {
+          name: "Marcus Hale · Harbor Fitness",
+          detail: "Call · site audit, $450 fixed price · link sent by text",
+          tag: "Paid 14:31",
+          strong: true,
+        },
+        {
+          name: "Maya Chen · Cedar Lane Fitness",
+          detail: "WhatsApp · paid consultation, Thu 10:00",
+          tag: "Booked and paid",
+          strong: true,
+        },
+        {
+          name: "Tom Avery · Fernhill Vets",
+          detail: "Email reply · renewal, same terms · agreement sent",
+          tag: "Awaiting signature",
+        },
+        {
+          name: "Dana Whitlock · Fernhill Logistics",
+          detail: "Call · asked for a custom quote for four sites",
+          tag: "Passed to Priya",
+        },
+      ],
+      stages: [
+        { label: "Offer and price confirmed", value: 100, note: "9 of 9" },
+        { label: "Link or agreement sent", value: 100, note: "9" },
+        { label: "Paid or signed", value: 67, note: "6" },
+        { label: "Link sent, not yet paid", value: 33, note: "3" },
+      ],
+    },
+    controls: {
+      title: "Guardrails that don't bend",
+      lead: "Closing is the part of a sale where mistakes cost most. These rules are fixed, and the rest are yours to set.",
+      items: [
+        {
+          title: "Never takes card details",
+          body: "Payments always go through a secure link. The agent never asks for card numbers, and never reads them out or back.",
+        },
+        {
+          title: "Never invents prices or terms",
+          body: "Offers, prices and terms come only from your knowledge base. If it isn't written there, the agent doesn't say it.",
+        },
+        {
+          title: "Says it's an AI",
+          body: "Every call and chat opens by saying it's an AI assistant working for your business. Anyone can ask for a person.",
+        },
+        {
+          title: "Your approval rules",
+          body: "Require your yes before any link or agreement is sent: for everything, for first sales, or above a price you set.",
+        },
+        {
+          title: "Offers, limits and discounts",
+          body: "You choose which offers can be closed, the highest price the agent may close at, and any discount it may give.",
+        },
+        {
+          title: "Every sale on the record",
+          body: "The recording or thread, the offer as confirmed and the link sent are kept together, for you and for your CRM.",
+        },
+      ],
+    },
+    features: [
+      "knowledge-base",
+      "ai-phone-agent",
+      "smart-replies",
+      "crm-integration",
+      "slack-integration",
+      "analytics",
+    ],
+    faqs: [
+      {
+        q: "Can it really close a sale?",
+        a: "Yes, for simple offers with a clear price. The agent confirms the offer and sends a payment link, booking or agreement. Complex or high-value deals go to your team with everything already covered.",
+      },
+      {
+        q: "Does it take card details?",
+        a: "No. Payments always go through a secure link. The agent never asks for or reads out card numbers.",
+      },
+      {
+        q: "Who decides what it's allowed to close?",
+        a: "You do. You pick the offers, set a price limit and write the discount rules. Anything outside them goes to a person, and you can require your approval before any link is sent.",
+      },
+      {
+        q: "What if the buyer hesitates or wants to negotiate?",
+        a: "The agent answers what it can from your knowledge base. It doesn't push, and it doesn't bargain beyond your rules. A buyer who wants to negotiate or talk to a person is handed to your team with the conversation so far.",
+      },
+      {
+        q: "Can it make up a price or a promise to get the sale?",
+        a: "No. Prices and terms come only from what you've written. Conversations are checked for answers your knowledge base doesn't support, and flagged for review.",
+      },
+      {
+        q: "Which plan includes closing?",
+        a: "The AI closer is part of Pro and Scale. Dialvo is in early access, and we'll tell you plainly what's ready for your use case when you join.",
       },
     ],
   },

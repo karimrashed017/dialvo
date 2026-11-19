@@ -1,4 +1,4 @@
-// The site's map: the three motions, every play and every platform feature,
+// The site's map: the four motions, every play and every platform feature,
 // with the one line each gets in the menus, the footer and the cards. The
 // full page copy lives beside this file (plays-*.ts, platform-*.ts,
 // motions.ts); this file stays small because the navigation ships it to the
@@ -18,6 +18,7 @@ import {
   Filter,
   Globe,
   GraduationCap,
+  Handshake,
   Hash,
   History,
   Inbox,
@@ -55,7 +56,7 @@ import {
 
 // --- Motions ---------------------------------------------------------------------
 
-export type MotionId = "inbound" | "outbound" | "expansion";
+export type MotionId = "inbound" | "outbound" | "closing" | "expansion";
 
 export const MOTIONS: {
   id: MotionId;
@@ -77,6 +78,14 @@ export const MOTIONS: {
     href: "/outbound",
     icon: Send,
     blurb: "Researched email and LinkedIn outreach; reps make the calls.",
+  },
+  // Closing has no plays of its own: it finishes what the others start.
+  {
+    id: "closing",
+    name: "Closing",
+    href: "/closing",
+    icon: Handshake,
+    blurb: "Simple sales finished on the spot, with a secure payment link.",
   },
   {
     id: "expansion",
@@ -239,6 +248,7 @@ export const MENU_PLAYS: Record<MotionId, PlaySlug[]> = {
     "closed-lost",
     "competitive-takeout",
   ],
+  closing: [],
   expansion: ["customer-expansion", "plg-conversion"],
 };
 

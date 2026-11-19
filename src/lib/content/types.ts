@@ -92,6 +92,13 @@ export type MotionContent = {
   problem: { title: string; lead: string; points: Point[] };
   steps: { title: string; lead: string; items: Point[] };
   playsLead: string;
+  /** What the motion will and won't take on, where that needs spelling out. */
+  scope?: {
+    title: string;
+    lead: string;
+    yes: { title: string; items: string[] };
+    no: { title: string; items: string[] };
+  };
   channels: { lead: string; items: { id: ChannelId; body: string }[] };
   /** The dashboard-style panel. */
   board: {

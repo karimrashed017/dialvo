@@ -14,8 +14,8 @@ export const ANALYTICS_RESEARCH_FEATURES = {
       "Dialvo's analytics show conversations, replies, qualified leads and meetings by channel, play and region, with the outcome of every conversation and CRM-linked pipeline.",
     capabilities: [
       {
-        title: "One dashboard for all three motions",
-        body: "Inbound, outbound and expansion side by side: leads answered, conversations held, meetings booked, opportunities opened.",
+        title: "One dashboard for every motion",
+        body: "Inbound, outbound, closing and expansion side by side: leads answered, conversations held, meetings booked, simple sales closed, opportunities opened.",
       },
       {
         title: "By play and by channel",

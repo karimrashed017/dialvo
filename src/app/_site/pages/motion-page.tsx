@@ -6,12 +6,13 @@ import {
   playsIn,
   type MotionId,
 } from "@/lib/content";
-import { LayoutDashboard } from "lucide-react";
+import { Check, LayoutDashboard, Minus } from "lucide-react";
+import { cn } from "@/lib/utils";
 import heade from "../../../../public/images/art/heade-york-harbor.jpg";
 import kensett from "../../../../public/images/art/kensett-rocky-coast.jpg";
 import meadow from "../../../../public/images/art/meadow.jpg";
 import { Rise, Words } from "../motion";
-import { muted, serif } from "../theme";
+import { card, muted, serif } from "../theme";
 import {
   Backdrop,
   Band,
@@ -30,19 +31,22 @@ import { Bars, panel, PanelBar, Rows, Tiles } from "./visual";
 
 // What sits behind each motion's board: two of the site's public-domain
 // paintings and the meadow. (The Bradford is behind the last call below.)
+// There are four motions and three pictures, so closing shares inbound's.
 const ART: Record<MotionId, StaticImageData> = {
   inbound: heade,
   outbound: kensett,
+  closing: heade,
   expansion: meadow,
 };
 
 const BOARD_SIDE: Record<MotionId, string> = {
   inbound: "Today's funnel",
   outbound: "Sending health",
+  closing: "Today's yeses",
   expansion: "Signals this month",
 };
 
-/** /inbound, /outbound and /expansion, from MOTION_PAGES. */
+/** /inbound, /outbound, /closing and /expansion, from MOTION_PAGES. */
 export function MotionPage({ id }: { id: MotionId }) {
   const page = MOTION_PAGES[id];
   const motion = motionById(id);
@@ -60,7 +64,7 @@ export function MotionPage({ id }: { id: MotionId }) {
           />
           <div className="mx-auto mt-8 max-w-[880px] text-center">
             <Rise>
-              <Eyebrow label={`${motion.name} · one of three motions`} />
+              <Eyebrow label={`${motion.name} · one of four motions`} />
             </Rise>
             <Words
               as="h1"
@@ -132,9 +136,49 @@ export function MotionPage({ id }: { id: MotionId }) {
         <Steps items={page.steps.items} />
       </Split>
 
-      <Band id="plays" title={`${motion.name} plays`} lead={page.playsLead}>
-        <PlayCards slugs={plays} />
-      </Band>
+      {plays.length > 0 && (
+        <Band id="plays" title={`${motion.name} plays`} lead={page.playsLead}>
+          <PlayCards slugs={plays} />
+        </Band>
+      )}
+
+      {page.scope && (
+        <Band id="scope" title={page.scope.title} lead={page.scope.lead}>
+          <div className="grid gap-3 md:grid-cols-2">
+            {[
+              { ...page.scope.yes, icon: Check, on: true },
+              { ...page.scope.no, icon: Minus, on: false },
+            ].map((col, i) => (
+              <Rise
+                key={col.title}
+                delay={i * 0.07}
+                className={cn(card, "p-6 sm:p-7")}
+              >
+                <h3 className={`${serif} text-[26px] leading-[1.1]`}>
+                  {col.title}
+                </h3>
+                <ul className="mt-5 divide-y divide-black/[0.07] border-y border-black/[0.07]">
+                  {col.items.map((t) => (
+                    <li
+                      key={t}
+                      className="flex gap-3 py-3.5 text-[15px] leading-[1.5]"
+                    >
+                      <col.icon
+                        aria-hidden
+                        className={cn(
+                          "mt-[4px] size-4 shrink-0",
+                          col.on ? "text-[#1F3BFF]" : "text-[#0B0B0C]/40",
+                        )}
+                      />
+                      {t}
+                    </li>
+                  ))}
+                </ul>
+              </Rise>
+            ))}
+          </div>
+        </Band>
+      )}
 
       <Band id="channels" title="Channels used" lead={page.channels.lead}>
         <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
