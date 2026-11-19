@@ -1,4 +1,4 @@
-import { Inter, Newsreader } from "next/font/google";
+import { Newsreader } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { SmoothAnchors } from "./smooth-scroll";
 
@@ -13,9 +13,6 @@ const newsreader = Newsreader({
   style: ["normal", "italic"],
   variable: "--font-newsreader",
 });
-
-// The phone screens' font where San Francisco isn't installed (phone.tsx).
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const INK = "#0B0B0C";
 
@@ -50,7 +47,6 @@ export function SiteFrame({
     <div
       className={cn(
         newsreader.variable,
-        inter.variable,
         "flex min-h-full flex-1 flex-col font-[family-name:var(--font-geist-sans)] text-[#0B0B0C] selection:bg-[#0B0B0C] selection:text-white",
         className,
       )}

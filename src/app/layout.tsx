@@ -6,7 +6,7 @@ import { DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 // Geist for everything but headlines; the site frame (_site/theme.tsx) adds
-// the Newsreader serif for headlines and Inter for the phone screens.
+// the Newsreader serif for headlines.
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],

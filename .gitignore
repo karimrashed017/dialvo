@@ -16,3 +16,6 @@ next-env.d.ts
 *.pem
 npm-debug.log*
 .vercel
+
+# local Playwright screenshots
+/screenshots/
