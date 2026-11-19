@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { ArrowDown, ArrowRight, LayoutDashboard } from "lucide-react";
+import { ArrowDown, ArrowRight, Mic } from "lucide-react";
 import { CloudShader } from "@/components/ui/cloud-shader";
 import { Mark } from "@/components/brand/logo";
 import { PLANS } from "@/lib/site";
@@ -84,9 +84,9 @@ export function Hero() {
               primary
             />
             <CtaButton
-              href="#channels"
-              label="See the product"
-              icon={<LayoutDashboard aria-hidden className="size-[17px]" />}
+              href="#voice-demo"
+              label="Talk to the agent"
+              icon={<Mic aria-hidden className="size-[17px]" />}
             />
           </div>
           <a
