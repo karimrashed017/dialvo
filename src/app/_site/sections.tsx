@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
-  Bot,
   Database,
   Lock,
   Mail,
@@ -160,7 +159,7 @@ const JOBS: {
         {
           when: "21:14",
           channel: "Voice",
-          text: "Called back, said it's an AI and asked your qualifying questions",
+          text: "Called back and asked your qualifying questions",
           done: true,
         },
         {
@@ -515,11 +514,6 @@ const RULES: { icon: LucideIcon; title: string; body: string }[] = [
     body: "AI calls go to people who asked to hear from you or opted in: form leads, callers and your own customers.",
   },
   {
-    icon: Bot,
-    title: "Says it's an AI",
-    body: "Every call and chat opens by saying it's an AI assistant working for you. It never pretends to be a person.",
-  },
-  {
     icon: Mic,
     title: "Recorded, with notice",
     body: "Calls are recorded and transcribed, and the person on the line is told so at the start.",
@@ -548,7 +542,10 @@ const RULES: { icon: LucideIcon; title: string; body: string }[] = [
 
 // Pills set in pairs either side of the shield, mirrored.
 const SEALS = [
-  { text: "Says it's an AI", className: "left-[4%] top-[26%] sm:left-[17%]" },
+  {
+    text: "Secure payment links",
+    className: "left-[4%] top-[26%] sm:left-[15%]",
+  },
   {
     text: "Recorded with notice",
     className: "right-[4%] top-[26%] sm:right-[14%]",
@@ -617,7 +614,7 @@ export function Compliance() {
       <Head
         center
         title="Your name is on every call. We protect it."
-        lead="Voice agents call only people who asked or agreed. They say they're an AI. Calls are recorded with notice. Opt-outs and Do Not Call lists are honoured automatically. Every email has an unsubscribe link. Payments go through a secure link, never read out over a call."
+        lead="Voice agents call only people who asked or agreed. Calls are recorded with notice. Opt-outs and Do Not Call lists are honoured automatically. Every email has an unsubscribe link. Payments go through a secure link, never read out over a call."
       />
       <Rise delay={0.15}>
         <Shield />
@@ -638,10 +635,10 @@ export function Compliance() {
             </p>
           </Rise>
         ))}
-        {/* The eighth cell: what Dialvo doesn't claim. */}
+        {/* The last two cells: what Dialvo doesn't claim. */}
         <Rise
-          delay={0.24}
-          className="flex items-center rounded-[22px] border border-dashed border-black/20 p-6"
+          delay={0.16}
+          className="flex items-center rounded-[22px] border border-dashed border-black/20 p-6 sm:col-span-2"
         >
           <p className="text-[13.5px] leading-[1.55] text-[#0B0B0C]/60">
             Dialvo holds no certifications yet and doesn&apos;t claim any. The

@@ -21,8 +21,7 @@ const TIMER_LENGTH = LINES[LINES.length - 1].t + 3.5;
 
 // What the call gets done, and when, so the checklist fills in as it plays.
 const MOMENTS = [
-  { at: 0, label: "Says it's an AI" },
-  { at: 4, label: "Says it's recorded" },
+  { at: 0, label: "Says it's recorded" },
   { at: 13.5, label: "Qualifies the lead" },
   { at: 39.5, label: "Doesn't guess a price" },
   { at: 54.5, label: "Books Thu 2pm" },

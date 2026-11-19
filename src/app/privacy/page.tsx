@@ -25,8 +25,8 @@ export default function Privacy() {
       <p>
         Once Dialvo makes calls and sends messages for you, it records and
         transcribes calls and keeps the messages, so you can review them. Every
-        call says it&apos;s an AI and that it&apos;s recorded. We keep a log of
-        opt-outs so nobody who asked to stop is contacted again.
+        call says that it&apos;s recorded. We keep a log of opt-outs so nobody
+        who asked to stop is contacted again.
       </p>
       <h2>The live voice demo</h2>
       <p>

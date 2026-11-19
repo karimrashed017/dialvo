@@ -133,19 +133,19 @@ conversion · competitor switch campaigns.
 
 ## 9. Dialvo's homepage (what we built)
 
-| #   | Section                                           | Covers                                             |
-| --- | ------------------------------------------------- | -------------------------------------------------- |
-| 1   | Hero with the example workspace dashboard         | Positioning; all channels in one inbox             |
-| 2   | Integrations strip                                | CRM, inbox, calendar, Slack, WhatsApp              |
-| 3   | Channels (six tabs, auto-advancing)               | Section 2 above                                    |
-| 4   | Three motions                                     | Sections 3, 4, 5                                   |
-| 5   | Plays grid (14, each linking to its page)         | Section 6                                          |
-| 6   | Platform (six groups linking to 23 feature pages) | Section 7                                          |
-| 7   | You stay in control, with the sample call player  | Audit trail, approvals, handoff                    |
-| 8   | Trust and compliance                              | Consent, AI disclosure, recording notice, opt-outs |
-| 9   | Pricing                                           | Starter $99, Pro $299                              |
-| 10  | FAQ                                               |                                                    |
-| 11  | Final call to action                              |                                                    |
+| #   | Section                                           | Covers                                            |
+| --- | ------------------------------------------------- | ------------------------------------------------- |
+| 1   | Hero with the example workspace dashboard         | Positioning; all channels in one inbox            |
+| 2   | Integrations strip                                | CRM, inbox, calendar, Slack, WhatsApp             |
+| 3   | Channels (six tabs, auto-advancing)               | Section 2 above                                   |
+| 4   | Three motions                                     | Sections 3, 4, 5                                  |
+| 5   | Plays grid (14, each linking to its page)         | Section 6                                         |
+| 6   | Platform (six groups linking to 23 feature pages) | Section 7                                         |
+| 7   | You stay in control, with the sample call player  | Audit trail, approvals, handoff                   |
+| 8   | Trust and compliance                              | Consent, recording notice, opt-outs, secure links |
+| 9   | Pricing                                           | Starter $99, Pro $299                             |
+| 10  | FAQ                                               |                                                   |
+| 11  | Final call to action                              |                                                   |
 
 ## 10. Where we differ on purpose
 

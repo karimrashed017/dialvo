@@ -95,9 +95,8 @@ What to cut or shrink on the home page: the 16-feature platform grid and the 14-
 **Hear it**
 
 > **Don't take our word for it. Talk to it.**
-> This is a live Dialvo voice agent. Pick a scenario, press talk, and see how it handles you. It says it's an AI, because yours always will.
-
-**Three jobs**
+> This is a live Dialvo voice agent. Pick a scenario, press talk, and see how it handles you.
+> **Three jobs**
 
 > **Answer.** Every form, call and chat gets a reply in seconds, day or night. The agent asks your qualifying questions and books the ones worth your time.
 > **Reach.** Dialvo finds accounts that fit, researches each one and writes to them for a reason: email from your own inboxes, messages from your reps' own profiles, and a ready call list for your team.
@@ -121,7 +120,7 @@ What to cut or shrink on the home page: the 16-feature platform grid and the 14-
 **Built to be trusted**
 
 > **Your name is on every call. We protect it.**
-> Voice agents call only people who asked or agreed. They say they're an AI. Calls are recorded with notice. Opt-outs and Do Not Call lists are honoured automatically. Every email has an unsubscribe link.
+> Voice agents call only people who asked or agreed. Calls are recorded with notice. Opt-outs and Do Not Call lists are honoured automatically. Every email has an unsubscribe link.
 
 **Final call**
 
@@ -171,7 +170,7 @@ The four differentiators worth building the brand on, in order:
 1. **Free until the first booked meeting.** Nobody selling on annual contracts can match it.
 2. **You see and hear everything.** The category's known weakness is black-box agents and inflated claims. Transparency is a position.
 3. **One team across every channel,** at a self-serve price.
-4. **It protects your reputation:** consent-based calling and honest AI disclosure, built in.
+4. **It protects your reputation:** consent-based calling, recording notice and opt-outs, built in.
 
 Do not claim: better AI, better voices or better data. You can't prove them and neither can anyone else.
 

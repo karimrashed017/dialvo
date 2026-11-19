@@ -30,7 +30,7 @@ export const EXPANSION_PLAYS = {
       },
       {
         title: "Start the conversation",
-        body: "Customers who opted in get a call from the voice agent, which says it's an AI assistant. Others get an email or message from their account owner.",
+        body: "Customers who opted in get a call from the voice agent. Others get an email or message from their account owner.",
       },
       {
         title: "Qualify the interest",
@@ -52,7 +52,7 @@ export const EXPANSION_PLAYS = {
       messages: [
         {
           agent: true,
-          text: "Hi Marcus, I'm the AI assistant at Northwind, and this call is recorded. Your team has used every seat on the plan since the Leith site opened. Do you have two minutes?",
+          text: "Hi Marcus, it's Northwind, and this call is recorded. Your team has used every seat on the plan since the Leith site opened. Do you have two minutes?",
         },
         { text: "Sure. We've been sharing logins, to be honest." },
         {

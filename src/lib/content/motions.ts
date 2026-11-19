@@ -45,7 +45,7 @@ export const MOTION_PAGES: Record<MotionId, MotionContent> = {
         },
         {
           title: "An agent replies within seconds",
-          body: "The voice agent calls form leads back and answers your line. The chat agent talks to visitors on the site. Both say they're an AI assistant for your business.",
+          body: "The voice agent calls form leads back and answers your line. The chat agent talks to visitors on the site.",
         },
         {
           title: "It qualifies with your questions",
@@ -174,10 +174,6 @@ export const MOTION_PAGES: Record<MotionId, MotionContent> = {
       {
         q: 'How fast is "within seconds"?',
         a: "A callback is placed as soon as the form reaches Dialvo, and chat replies as the visitor types. How long the lead takes to pick up is up to them. Your dashboard shows the actual first-reply time for every lead.",
-      },
-      {
-        q: "Do callers know they're talking to an AI?",
-        a: "Yes. Every call and chat opens by saying it's an AI assistant working for your business, and calls mention that they're recorded. Anyone can ask for a person.",
       },
       {
         q: "Will it replace our inbound sales reps?",
@@ -450,7 +446,7 @@ export const MOTION_PAGES: Record<MotionId, MotionContent> = {
         },
         {
           title: "Start a real conversation",
-          body: "Customers who opted in get a call from the voice agent, which says it's an AI assistant and why it's calling. Others get an email, text or WhatsApp from their account owner.",
+          body: "Customers who opted in get a call from the voice agent, which says why it's calling. Others get an email, text or WhatsApp from their account owner.",
         },
         {
           title: "Understand the need",
@@ -574,7 +570,7 @@ export const MOTION_PAGES: Record<MotionId, MotionContent> = {
     faqs: [
       {
         q: "Will my customers get calls from a robot they didn't ask for?",
-        a: "No. AI calls go only to customers who agreed to receive them. The agent says it's an AI assistant at the start, explains why it's calling, and stops if asked.",
+        a: "No. AI calls go only to customers who agreed to receive them. The agent explains why it's calling at the start, and stops if asked.",
       },
       {
         q: "Can the agent close an upgrade?",
@@ -752,8 +748,8 @@ export const MOTION_PAGES: Record<MotionId, MotionContent> = {
           body: "Offers, prices and terms come only from your knowledge base. If it isn't written there, the agent doesn't say it.",
         },
         {
-          title: "Says it's an AI",
-          body: "Every call and chat opens by saying it's an AI assistant working for your business. Anyone can ask for a person.",
+          title: "A person on request",
+          body: "Anyone can ask for a person at any point. The agent puts them through to your team or books a time.",
         },
         {
           title: "Your approval rules",

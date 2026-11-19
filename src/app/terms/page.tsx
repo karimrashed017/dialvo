@@ -43,10 +43,10 @@ export default function Terms() {
         <li>not to use Dialvo to mislead, harass or spam anyone.</li>
       </ul>
       <p>
-        Dialvo says it&apos;s an AI, tells people when a call is recorded,
-        checks Do Not Call lists, adds an unsubscribe link to every email and
-        honours opt-outs, but these defaults help you follow the rules; they
-        don&apos;t replace your own responsibility.
+        Dialvo tells people when a call is recorded, checks Do Not Call lists,
+        adds an unsubscribe link to every email and honours opt-outs, but these
+        defaults help you follow the rules; they don&apos;t replace your own
+        responsibility.
       </p>
       <h2>Contact</h2>
       <p>

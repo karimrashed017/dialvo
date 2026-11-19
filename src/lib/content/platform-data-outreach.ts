@@ -694,15 +694,15 @@ export const DATA_OUTREACH_FEATURES = {
     intro:
       "A phone call is the fastest way to find out what a customer needs. Dialvo's voice agents place outbound calls to customers and leads who agreed to be called, with a real reason for each call, and leave everyone else alone.",
     description:
-      "Dialvo's voice agents place outbound calls only to customers and leads who opted in: upsell, renewal, onboarding and follow-up calls that open by saying they're an AI.",
+      "Dialvo's voice agents place outbound calls only to customers and leads who opted in: upsell, renewal, onboarding and follow-up calls.",
     capabilities: [
       {
         title: "Calls with a reason",
         body: "Every call starts from something specific: a seat limit reached, a renewal coming up, a setup step not finished, a form they filled in.",
       },
       {
-        title: "Says who it is",
-        body: "The agent opens by saying it's an AI assistant calling for your business, and that the call is recorded.",
+        title: "Says who's calling",
+        body: "The agent opens with your business's name and why it's calling, and says that the call is recorded.",
       },
       {
         title: "Knows the account",

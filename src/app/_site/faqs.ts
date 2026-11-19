@@ -41,10 +41,6 @@ export const FAQS: Record<string, Faq[]> = {
       a: "People who asked to hear from you or opted in: someone who filled in your form, rang your number, or an existing customer who agreed to calls. Dialvo's AI doesn't cold call strangers. Outbound to new accounts runs on email and social, and when a call is the right next step, your rep makes it with the dialer.",
     },
     {
-      q: "Does it say it's an AI?",
-      a: "Always. Calls and chats open by saying it's an AI assistant working for you, and that the call is recorded. If someone would rather speak to a person, it puts them through or books a time.",
-    },
-    {
       q: "Can I see what it says?",
       a: "All of it. Every call is recorded and transcribed with a short summary, and every email, chat, text and direct message is in one inbox. You can also require your approval before anything is sent.",
     },
@@ -54,7 +50,7 @@ export const FAQS: Record<string, Faq[]> = {
     },
     {
       q: "Is it legal where I sell?",
-      a: "The rules for calls, texts and email differ by country and state, and you're responsible for who you ask Dialvo to contact. Dialvo's defaults are built around consent, disclosure and opt-outs, but it holds no certifications and isn't legal advice. If you're unsure, check with a lawyer where you sell.",
+      a: "The rules for calls, texts and email differ by country and state, and you're responsible for who you ask Dialvo to contact. Dialvo's defaults are built around consent, recording notice and opt-outs, but it holds no certifications and isn't legal advice. If you're unsure, check with a lawyer where you sell.",
     },
   ],
   "Plans and trial": [

@@ -292,7 +292,7 @@ function Bubbles({
 const CALL: Msg[] = [
   {
     me: true,
-    text: "Hi Lena, I'm Northwind Agency's AI assistant, and this call is recorded. Got a minute?",
+    text: "Hi Lena, it's Northwind Agency, and this call is recorded. Got a minute?",
   },
   { text: "That was quick. Yes, go ahead." },
   { me: true, text: "What should the new site do first?" },
@@ -409,7 +409,7 @@ const CHAT: Msg[] = [
   { text: "Hi, do you build websites for gyms?" },
   {
     me: true,
-    text: "We do. I'm Northwind's AI assistant. How many locations do you have, and what's the site built on today?",
+    text: "We do. How many locations do you have, and what's the site built on today?",
   },
   { text: "Two locations, on an old template. Bookings are a mess." },
   {
@@ -434,7 +434,7 @@ function ChatPanel() {
             Northwind Agency
           </span>
           <span className="block text-[11.5px] text-[#0B0B0C]/50">
-            AI assistant · replies in seconds
+            Replies in seconds
           </span>
         </span>
       </div>
@@ -523,7 +523,7 @@ function SocialPanel() {
 const TEXTS: Msg[] = [
   {
     me: true,
-    text: "Hi Lena, it's the AI assistant at Northwind Agency. Sorry we missed you just now. Would a quick call tomorrow suit?",
+    text: "Hi Lena, it's Northwind Agency. Sorry we missed you just now. Would a quick call tomorrow suit?",
   },
   { text: "Tomorrow after 2 works." },
   {

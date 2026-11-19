@@ -65,14 +65,18 @@ npm test        # the tests alone (vitest)
 - No customers, logos, quotes, ratings or result numbers until there are real ones.
 - Product visuals use made-up businesses and are marked "Example". The live
   voice demo is the exception: it's a real AI agent, marked "Live demo", and it
-  says it's an AI in its first sentence and that nothing in the demo is booked.
+  says that nothing in the demo is booked.
 - The closer is for simple sales with a clear price. Never say it handles
   complex, negotiated or high-value deals: those go to the customer's team.
   Payments go through a secure link; the agent never takes card details.
 - No certifications are claimed.
 - The whole product is in early access; individual features aren't tagged.
-- AI voice calls go only to people who asked or opted in, and say they're an
-  AI. Cold calls are made by reps with the dialer.
+- AI voice calls go only to people who asked or opted in. Cold calls are made
+  by reps with the dialer.
+- The site makes no claim about how the agent introduces itself (founder,
+  19 Nov 2026). It must also never say or imply that the agent is a person, or
+  that people can't tell. The live agent's own rules and opening lines are in
+  `src/lib/voice/prompt.ts` and are a separate decision.
 - Cold email goes from the customer's own inboxes with an unsubscribe link;
   LinkedIn messages go from the rep's own profile after they approve them.
 - The site never names the benchmark, and no review site is named as an

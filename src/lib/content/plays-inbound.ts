@@ -25,7 +25,7 @@ export const INBOUND_PLAYS = {
       },
       {
         title: "An agent replies within seconds",
-        body: "The voice agent rings the number they gave, says it's an AI assistant calling from your business about their request, and mentions that the call is recorded. If they're still on the site, the chat agent can open the conversation instead.",
+        body: "The voice agent rings the number they gave about their request, and mentions that the call is recorded. If they're still on the site, the chat agent can open the conversation instead.",
       },
       {
         title: "It qualifies in the same conversation",
@@ -58,7 +58,7 @@ export const INBOUND_PLAYS = {
         {
           when: "21:14:31",
           channel: "Voice",
-          text: "Agent called back, said it's an AI, call answered",
+          text: "Agent called back, call answered",
           done: true,
         },
         {
@@ -98,7 +98,7 @@ export const INBOUND_PLAYS = {
     faqs: [
       {
         q: "Is this an AI cold call?",
-        a: "No. The agent only calls people who gave you their number and asked to be contacted. It opens by saying it's an AI assistant calling on your behalf and that the call is recorded.",
+        a: "No. The agent only calls people who gave you their number and asked to be contacted. It opens by saying it's calling on your behalf and that the call is recorded.",
       },
       {
         q: "What if the lead would rather talk to a person?",
@@ -237,7 +237,7 @@ export const INBOUND_PLAYS = {
     steps: [
       {
         title: "New customers get a number to call",
-        body: "The welcome email gives a direct onboarding line. The AI phone agent answers at any hour, says it's an AI assistant, and picks up from the plan and setup stage on the customer's record.",
+        body: "The welcome email gives a direct onboarding line. The AI phone agent answers at any hour and picks up from the plan and setup stage on the customer's record.",
       },
       {
         title: "It walks them through setup",

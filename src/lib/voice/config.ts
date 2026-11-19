@@ -8,19 +8,19 @@ export const SCENARIOS = [
     id: "receptionist",
     name: "Receptionist",
     does: "Answers your main line day and night, and routes each caller.",
-    says: "Thanks for calling Northwind Agency. I'm the AI assistant here. How can I help?",
+    says: "Thanks for calling Northwind Agency. How can I help?",
   },
   {
     id: "speed-to-lead",
     name: "Speed to lead",
     does: "Calls a new form lead back while they're still on your site.",
-    says: "Hi, I'm the AI assistant at Northwind Agency. You just asked about a new website. Is now a good time?",
+    says: "Hi, it's Northwind Agency. You just asked about a new website. Is now a good time?",
   },
   {
     id: "upsell",
     name: "Upsell",
     does: "Calls customers who opted in, when there's a reason to grow.",
-    says: "Hi, I'm the AI assistant at Northwind Agency. Your care plan renews next month, and I had one idea to share.",
+    says: "Hi, it's Northwind Agency. Your care plan renews next month, and I had one idea to share.",
   },
 ] as const;
 

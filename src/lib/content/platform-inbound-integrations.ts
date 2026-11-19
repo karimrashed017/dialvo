@@ -10,7 +10,7 @@ export const INBOUND_INTEGRATION_FEATURES = {
     intro:
       "Dialvo's phone agent picks up your line on the first ring, at any hour, and rings new form leads back within seconds. It holds a real conversation: it qualifies, answers questions, books the meeting or puts the caller through to a person.",
     description:
-      "Dialvo's AI phone agent answers inbound calls and calls form leads back within seconds, qualifies them, books meetings and transfers to your team, saying it's an AI.",
+      "Dialvo's AI phone agent answers inbound calls and calls form leads back within seconds, qualifies them, books meetings and transfers to your team.",
     capabilities: [
       {
         title: "Answers at once, day and night",
@@ -21,8 +21,8 @@ export const INBOUND_INTEGRATION_FEATURES = {
         body: "A new enquiry gets a call within seconds, opening with what the person asked about on the form.",
       },
       {
-        title: "Says it's an AI",
-        body: "Every call opens by saying it's an AI assistant for your business and that the call is recorded.",
+        title: "Recorded, with notice",
+        body: "Every call opens with your business's name and tells the caller that the call is recorded.",
       },
       {
         title: "Talks like a person, from your facts",
@@ -56,7 +56,7 @@ export const INBOUND_INTEGRATION_FEATURES = {
       messages: [
         {
           agent: true,
-          text: "Thanks for calling Northwind Agency. I'm the AI assistant here, and this call is recorded. How can I help?",
+          text: "Thanks for calling Northwind Agency. This call is recorded. How can I help?",
         },
         {
           text: "I need a new website for my dental practice. Do you do that?",
@@ -562,7 +562,7 @@ export const INBOUND_INTEGRATION_FEATURES = {
     ],
     fit: [
       "The API is the door for anything the built-in integrations don't cover. Most teams use it for two things: getting leads and product events in, and getting outcomes out to a data warehouse or an internal tool.",
-      "It exposes the same agents and rules as the app. A call triggered through the API still checks consent, follows your send windows and says it's an AI.",
+      "It exposes the same agents and rules as the app. A call triggered through the API still checks consent and follows your send windows.",
     ],
     visual: {
       kind: "code",

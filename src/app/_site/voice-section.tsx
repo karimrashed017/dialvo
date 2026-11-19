@@ -68,8 +68,7 @@ export function VoiceSection() {
               className={`mt-5 max-w-[500px] text-[17px] leading-[1.55] ${muted}`}
             >
               This is a live Dialvo voice agent. Pick a scenario, press talk,
-              and see how it handles you. It says it&apos;s an AI, because yours
-              always will.
+              and see how it handles you.
             </p>
           </Rise>
           <Rise delay={0.25} className="mt-8 space-y-5">
