@@ -5,48 +5,66 @@ import type { Faq } from "./faq";
 // certifications, and the rules differ by country and state.
 
 export const FAQS: Record<string, Faq[]> = {
-  Calling: [
+  Product: [
     {
-      q: "Is it legal?",
-      a: "Calling businesses to offer them something is allowed in most places, with rules. Dialvo follows the main ones on every call: it calls business lines, and people who asked to hear from you; it calls mobile numbers only when the person agreed; it says it's an AI and that the call is recorded; it checks Do Not Call lists before dialling; it calls only in business hours; and it stops calling anyone who says no. The rules differ by country and state, and you're responsible for who you ask it to call, so if you're unsure, check with a lawyer where you sell.",
+      q: "What is Dialvo?",
+      a: "An AI sales team. Its agents work voice, email, chat, social, SMS and WhatsApp to find, engage, qualify and book, for three jobs: answering inbound leads, starting outbound conversations and growing existing customers. Your reps get a dialer with the research on screen for the calls they make themselves.",
     },
     {
-      q: "Does it sound human?",
-      a: "It sounds natural: a clear, warm voice that listens, answers questions and handles objections. Pro has a premium, ultra-realistic voice. But it never pretends to be a person: every call starts by saying it's an AI assistant calling for you.",
+      q: "Is everything available today?",
+      a: "Dialvo is in early access. We're bringing teams on in small groups, starting with the channels each one needs first, and switching on the rest as we go. When you write to us we'll tell you plainly what's ready for your use case and what isn't yet.",
     },
     {
-      q: "What if someone asks if it's a robot?",
-      a: "It says yes, it's an AI assistant calling on your behalf, and carries on if they're happy to. If they'd rather speak to a person, it can put the call through to you or book a time for you to call them.",
+      q: "Does it replace my sales reps?",
+      a: "No. Agents do the first contact, the research, the qualifying, the follow-up and the booking. People do the meetings and close the deals, and can take over any conversation at any point.",
     },
     {
-      q: "Which countries can it call?",
-      a: "The US first. The UK too, for people who opted in to hear from you. More countries later.",
+      q: "What does it need from me to start?",
+      a: `A few sentences about what you sell and who to, your qualifying questions, your calendar, and your best answers to what buyers usually ask. Connect your inbox and CRM if you use them, and point your website form at Dialvo so new leads get an instant reply. Questions? Email ${CONTACT_EMAIL}.`,
     },
     {
-      q: "Do I need my own phone number?",
-      a: "No. Dialvo provides the numbers it calls and texts from, so there's nothing to set up with your phone company.",
+      q: "Which tools does it work with?",
+      a: "Salesforce, HubSpot, Pipedrive and Zoho for the CRM; Gmail and Outlook for email; Google Calendar for bookings; Slack for alerts; and an API for everything else.",
+    },
+  ],
+  "Calls and messages": [
+    {
+      q: "Who do the voice agents call?",
+      a: "People who asked to hear from you or opted in: someone who filled in your form, rang your number, or an existing customer who agreed to calls. Dialvo's AI doesn't cold call strangers. Outbound to new accounts runs on email and social, and when a call is the right next step, your rep makes it with the dialer.",
     },
     {
-      q: "Can I listen to the calls?",
-      a: "Yes, every one. Each call is recorded and transcribed, with a short summary, and you can read every text and message it sends. You can also step into a live call when a prospect wants a person.",
+      q: "Does it say it's an AI?",
+      a: "Always. Calls and chats open by saying it's an AI assistant working for you, and that the call is recorded. If someone would rather speak to a person, it puts them through or books a time.",
+    },
+    {
+      q: "Can I see what it says?",
+      a: "All of it. Every call is recorded and transcribed with a short summary, and every email, chat, text and direct message is in one inbox. You can also require your approval before anything is sent.",
+    },
+    {
+      q: "How are opt-outs handled?",
+      a: "Automatically. Every email has an unsubscribe link, every text thread can be stopped with a reply, and anyone who asks not to be contacted is removed straight away, on every channel. Do Not Call lists are checked before a number is dialled.",
+    },
+    {
+      q: "Is it legal where I sell?",
+      a: "The rules for calls, texts and email differ by country and state, and you're responsible for who you ask Dialvo to contact. Dialvo's defaults are built around consent, disclosure and opt-outs, but it holds no certifications and isn't legal advice. If you're unsure, check with a lawyer where you sell.",
     },
   ],
   "Plans and trial": [
     {
       q: "How does the free trial work?",
-      a: `It's free until your first interested prospect: someone who books a meeting or asks you to get in touch. The trial covers up to ${TRIAL.dials} dials and needs a card to start, which isn't charged during the trial.`,
+      a: `It's free until an agent books your first meeting. The trial covers up to ${TRIAL.calls} AI calls and needs a card to start, which isn't charged during the trial.`,
     },
     {
-      q: "What happens after the free trial?",
-      a: `Once someone's interested, you pick a plan: Starter at $${PLANS.starter.price} a month (${fmt(PLANS.starter.dials)} dials) or Pro at $${PLANS.pro.price} a month (${fmt(PLANS.pro.dials)} dials, the premium voice, WhatsApp follow-up and team seats). If you'd rather not, you can stop there and pay nothing.`,
+      q: "What happens after the first booked meeting?",
+      a: `You pick a plan: Starter at $${PLANS.starter.price} a month (the voice agent for inbound leads, the email agent and SMS follow-up, with ${fmt(PLANS.starter.calls)} AI calls) or Pro at $${PLANS.pro.price} a month (every channel, human dialer seats, CRM sync and premium voices, with ${fmt(PLANS.pro.calls)} AI calls). If you'd rather not, you can stop there and pay nothing.`,
     },
     {
       q: "Can I cancel?",
       a: "Yes, anytime. Plans are monthly, with no contract and no prepaid credits.",
     },
     {
-      q: "What do I need to set it up?",
-      a: `A few sentences about what you sell and who to, your calendar, and your best answers to the questions prospects ask. Point your website form at Dialvo if you want new leads called within a minute. Questions? Email ${CONTACT_EMAIL}.`,
+      q: "What if I need more than a plan includes?",
+      a: "Add extra AI calls, lead credits, sending inboxes or dialer seats to either plan. For larger teams, email us and we'll work it out together.",
     },
   ],
 };

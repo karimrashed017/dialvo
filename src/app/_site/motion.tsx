@@ -39,6 +39,37 @@ function useInView<T extends Element>(margin = "0px 0px -12% 0px") {
   return [ref, seen] as const;
 }
 
+/** Counts 0..frames-1 every `ms` while the element is on screen. */
+export function useTicker<T extends Element>(
+  frames: number,
+  ms: number,
+  still = 0,
+) {
+  const ref = useRef<T>(null);
+  const [t, setT] = useState(0);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      const id = requestAnimationFrame(() => setT(still));
+      return () => cancelAnimationFrame(id);
+    }
+    let timer: ReturnType<typeof setInterval> | undefined;
+    const io = new IntersectionObserver(([e]) => {
+      clearInterval(timer);
+      timer = undefined;
+      if (e.isIntersecting)
+        timer = setInterval(() => setT((n) => (n + 1) % frames), ms);
+    });
+    io.observe(el);
+    return () => {
+      io.disconnect();
+      clearInterval(timer);
+    };
+  }, [frames, ms, still]);
+  return [ref, t] as const;
+}
+
 /** A headline whose words arrive one after another out of a blur. */
 export function Words({
   text,
@@ -159,43 +190,5 @@ export function HeroLift({ children }: { children: ReactNode }) {
     >
       {children}
     </div>
-  );
-}
-
-/** Counts up to a number once it's in view. */
-export function CountUp({
-  to,
-  suffix = "",
-  prefix = "",
-  decimals = 0,
-}: {
-  to: number;
-  suffix?: string;
-  prefix?: string;
-  decimals?: number;
-}) {
-  const [ref, seen] = useInView<HTMLSpanElement>();
-  const [n, setN] = useState(0);
-  useEffect(() => {
-    if (!seen) return;
-    let raf = 0;
-    const start = performance.now();
-    const tick = (t: number) => {
-      const p = Math.min((t - start) / 1400, 1);
-      setN(to * (1 - Math.pow(1 - p, 3)));
-      if (p < 1) raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [seen, to]);
-  return (
-    <span ref={ref}>
-      {prefix}
-      {n.toLocaleString("en-US", {
-        minimumFractionDigits: decimals,
-        maximumFractionDigits: decimals,
-      })}
-      {suffix}
-    </span>
   );
 }

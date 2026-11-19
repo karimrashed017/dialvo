@@ -9,10 +9,10 @@ import { startHref } from "./links";
 import { useScrolled } from "./motion";
 
 const LINKS = [
-  { href: "/#product", label: "Product" },
-  { href: "/#how", label: "How it works" },
-  { href: "/#listen", label: "Listen" },
-  { href: "/#compliance", label: "Compliance" },
+  { href: "/#channels", label: "Channels" },
+  { href: "/#motions", label: "How it works" },
+  { href: "/#plays", label: "Plays" },
+  { href: "/#platform", label: "Platform" },
   { href: "/pricing", label: "Pricing" },
   { href: "/#faq", label: "FAQ" },
 ];
@@ -37,9 +37,9 @@ export function SiteNav() {
           aria-label="Dialvo home"
           className="flex h-9 items-center px-1 text-[#0B0B0C]"
         >
-          <Logo className="h-[25px]" />
+          <Logo className="h-[22px]" />
         </Link>
-        <ul className="hidden items-center gap-1 md:flex">
+        <ul className="hidden items-center gap-0.5 lg:flex">
           {LINKS.map((l) => (
             <li key={l.href}>
               <Link
@@ -53,10 +53,10 @@ export function SiteNav() {
         </ul>
         <div className="flex items-center gap-2">
           <Link
-            href="/#listen"
-            className="hidden h-9 items-center rounded-full border border-black/20 px-4 text-[14px] font-medium text-[#0B0B0C] transition-colors hover:bg-black/[0.08] lg:inline-flex"
+            href="/#channels"
+            className="hidden h-9 items-center rounded-full border border-black/20 px-4 text-[14px] font-medium text-[#0B0B0C] transition-colors hover:bg-black/[0.08] xl:inline-flex"
           >
-            Hear a call
+            See the product
           </Link>
           <a
             href={startHref()}
@@ -69,14 +69,14 @@ export function SiteNav() {
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
             onClick={() => setOpen((o) => !o)}
-            className="grid size-9 place-items-center rounded-full text-[#0B0B0C] md:hidden"
+            className="grid size-9 place-items-center rounded-full text-[#0B0B0C] lg:hidden"
           >
             {open ? <X className="size-5" /> : <Menu className="size-5" />}
           </button>
         </div>
       </nav>
       {open && (
-        <div className="mx-auto mt-2 max-w-[1180px] rounded-2xl border border-black/[0.08] bg-white/95 p-2 backdrop-blur-xl md:hidden">
+        <div className="mx-auto mt-2 max-w-[1180px] rounded-2xl border border-black/[0.08] bg-white/95 p-2 backdrop-blur-xl lg:hidden">
           {LINKS.map((l) => (
             <Link
               key={l.href}
@@ -94,11 +94,11 @@ export function SiteNav() {
             Get early access
           </a>
           <Link
-            href="/#listen"
+            href="/#channels"
             onClick={() => setOpen(false)}
             className="mt-2 flex h-11 items-center justify-center rounded-xl border border-black/15 text-[15px] font-medium text-[#0B0B0C]"
           >
-            Hear a call
+            See the product
           </Link>
         </div>
       )}

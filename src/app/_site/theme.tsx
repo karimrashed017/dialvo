@@ -4,7 +4,8 @@ import { SmoothAnchors } from "./smooth-scroll";
 
 // Dialvo's site: warm paper with a fine grain, thin Newsreader serif
 // headlines, Geist for everything else, and public-domain paintings behind
-// the big sections. Black and white everywhere else.
+// the big sections. Black and white everywhere else, with the logo's blue
+// (#1F3BFF) as a sparing accent.
 
 const newsreader = Newsreader({
   subsets: ["latin"],
@@ -17,6 +18,9 @@ const newsreader = Newsreader({
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const INK = "#0B0B0C";
+
+/** The logo's blue. An accent only: the active tab, live dots, small marks. */
+export const BLUE = "#1F3BFF";
 
 /** The page: a warm off-white with a fine grain, like paper. */
 export const PAPER = "#F7F5F1";

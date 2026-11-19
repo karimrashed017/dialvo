@@ -1,33 +1,43 @@
-// Dialvo's facts in one place, so every page says the same thing. Prices and
-// allowances here are the ones the founder set (19 Nov 2026); change them here
-// and the whole site follows.
+// Dialvo's facts in one place, so every page says the same thing. Prices are
+// the ones the founder set (19 Nov 2026); change them here and the whole site
+// follows.
 
 export const SITE_NAME = "Dialvo";
 export const SITE_URL = "https://trydialvo.com";
 export const CONTACT_EMAIL = "contact@trydialvo.com";
 
+/** The one-liner, used in the footer and the share image. */
+export const TAGLINE =
+  "AI sales agents for every channel, across inbound, outbound and expansion.";
+
+export const DESCRIPTION =
+  "Dialvo is your AI sales team: agents that work voice, email, chat, social, SMS and WhatsApp to find, engage, qualify and book, across inbound, outbound and expansion, with a human dialer for your reps.";
+
 /**
- * Where every "Get early access" and "Start free" button leads: an email to
- * us, until signups open.
+ * Where every "Get early access" button leads: an email to us, until signups
+ * open.
  */
 export const START_HREF =
   "mailto:contact@trydialvo.com?subject=Dialvo%20early%20access";
 
-/** The free trial: it ends at the first interested prospect. */
-export const TRIAL = { dials: 300 } as const;
+/** The free trial: it ends at the first booked meeting. */
+export const TRIAL = { calls: 300 } as const;
 
 export const PLANS = {
   starter: {
     name: "Starter",
     price: 99,
-    dials: 1000,
+    calls: 1000,
     leadCredits: 500,
+    inboxes: 1,
   },
   pro: {
     name: "Pro",
     price: 299,
-    dials: 3000,
+    calls: 3000,
     leadCredits: 1500,
+    inboxes: 3,
+    dialerSeats: 3,
   },
 } as const;
 

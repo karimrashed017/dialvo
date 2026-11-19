@@ -1,12 +1,16 @@
-import { cn } from "@/lib/utils";
-import { ArrowDown, ArrowRight, Play } from "lucide-react";
+import Image from "next/image";
+import { ArrowDown, ArrowRight, LayoutDashboard } from "lucide-react";
 import { CloudShader } from "@/components/ui/cloud-shader";
 import { Mark } from "@/components/brand/logo";
 import { PLANS } from "@/lib/site";
-import { HeroPhones } from "./hero-phones";
-import { HeroLift, Rise, Words } from "./motion";
+import { cn } from "@/lib/utils";
+import painting from "../../../public/images/art/kensett-rocky-coast.jpg";
+import { Dashboard } from "./dashboard";
 import { startHref } from "./links";
+import { HeroLift, Rise, Words } from "./motion";
 import { GRAIN, serif } from "./theme";
+
+const CHANNELS = ["Voice", "Email", "Chat", "Social", "SMS", "WhatsApp"];
 
 export function Hero() {
   return (
@@ -30,36 +34,48 @@ export function Hero() {
         }}
       />
 
-      <div className="mx-auto max-w-[920px] px-5 text-center">
+      <div className="mx-auto max-w-[980px] px-5 text-center">
         <Rise>
           <a
-            href="#listen"
+            href="#channels"
             className="inline-flex items-center gap-2 rounded-full border border-black/[0.08] bg-white/60 py-1 pr-3 pl-1 text-[13px] text-[#0B0B0C]/85 backdrop-blur-md transition-colors hover:bg-white/80"
           >
-            <span className="rounded-full bg-[#0B0B0C] px-2 py-0.5 text-[11.5px] font-medium text-white">
+            <span className="rounded-full bg-[#1F3BFF] px-2 py-0.5 text-[11.5px] font-medium text-white">
               Early access
             </span>
-            Hear a sample call, start to finish
+            Inbound, outbound and expansion
             <ArrowRight aria-hidden className="size-3.5" />
           </a>
         </Rise>
         <Words
           as="h1"
-          text="Your AI sales team."
+          text="AI sales agents that turn every conversation into pipeline."
           delay={0.1}
-          className={`${serif} mt-7 text-[50px] leading-[0.98] sm:text-[84px]`}
+          className={`${serif} mt-7 text-[44px] leading-[1] sm:text-[76px]`}
         />
-        <Rise delay={0.55}>
-          <p
-            className={`mx-auto mt-6 max-w-[580px] text-[17px] leading-[1.55] text-[#0B0B0C]/70 sm:text-[18px]`}
-          >
-            It calls, follows up and books meetings, so you can close. Cold
-            email is getting ignored; real conversations get answers. Dialvo
-            finds the right businesses, calls them and keeps following up until
-            they say yes or no.
+        <Rise delay={0.6}>
+          <p className="mx-auto mt-6 max-w-[640px] text-[17px] leading-[1.55] text-[#0B0B0C]/70 sm:text-[18px]">
+            Dialvo is your AI sales team. Its agents work every channel to find,
+            engage, qualify and book, for new leads, new accounts and the
+            customers you already have. Your reps step in for the deals.
           </p>
         </Rise>
-        <Rise delay={0.7} className="mt-10">
+        <Rise delay={0.7}>
+          <ul
+            aria-label="Channels"
+            className="mx-auto mt-6 flex max-w-[560px] flex-wrap justify-center gap-1.5"
+          >
+            {[...CHANNELS, "Human dialer"].map((c) => (
+              <li
+                key={c}
+                className="rounded-full border border-black/[0.08] bg-white/55 px-3 py-1 text-[13px] text-[#0B0B0C]/75 backdrop-blur-md"
+              >
+                {c}
+              </li>
+            ))}
+          </ul>
+        </Rise>
+        <Rise delay={0.8} className="mt-9">
           <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
             <CtaButton
               href={startHref()}
@@ -68,40 +84,55 @@ export function Hero() {
               primary
             />
             <CtaButton
-              href="#listen"
-              label="Listen to a sample call"
-              icon={<Play aria-hidden className="size-[15px] fill-current" />}
+              href="#channels"
+              label="See the product"
+              icon={<LayoutDashboard aria-hidden className="size-[17px]" />}
             />
           </div>
           <a
             href="/pricing"
             className="mt-5 inline-flex items-center gap-1.5 text-[14px] text-[#0B0B0C]/75 underline decoration-black/25 underline-offset-4 transition-colors hover:text-[#0B0B0C] hover:decoration-black"
           >
-            Plans from ${PLANS.starter.price} a month, free until it works
-            <ArrowRight aria-hidden className="size-3.5" />
+            Plans from ${PLANS.starter.price} a month, free until your first
+            booked meeting
+            <ArrowRight aria-hidden className="size-3.5 shrink-0" />
           </a>
           <p className="mt-4 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-[13.5px] text-[#0B0B0C]/55">
             Cancel anytime
             <span aria-hidden>·</span>
-            Says it&apos;s an AI on every call
+            You see every call and message
             <span aria-hidden>·</span>
             <a
-              href="#how"
+              href="#motions"
               className="inline-flex items-center gap-1 text-[#0B0B0C]/70 transition-colors hover:text-[#0B0B0C]"
             >
-              See how it works
+              How it works
               <ArrowDown aria-hidden className="size-3.5" />
             </a>
           </p>
         </Rise>
       </div>
 
-      <Rise
-        delay={0.85}
-        className="relative mx-auto mt-16 max-w-[1180px] [mask-image:linear-gradient(to_bottom,#000_72%,transparent)] px-5"
-      >
+      {/* The workspace, on a painting. */}
+      <Rise delay={0.9} className="mx-auto mt-16 max-w-[1220px] px-3 sm:px-5">
         <HeroLift>
-          <HeroPhones />
+          <div className="relative isolate overflow-hidden rounded-[28px] border border-black/[0.08] p-2.5 sm:rounded-[36px] sm:p-8 lg:p-10">
+            <Image
+              src={painting}
+              alt=""
+              priority
+              sizes="(min-width: 1220px) 1220px, 100vw"
+              className="absolute inset-0 -z-20 h-full w-full object-cover"
+            />
+            <div
+              aria-hidden
+              className="absolute inset-0 -z-10"
+              style={{
+                background: `${GRAIN}, linear-gradient(180deg, rgba(247,245,241,0.18), rgba(247,245,241,0.05))`,
+              }}
+            />
+            <Dashboard />
+          </div>
         </HeroLift>
       </Rise>
     </section>
@@ -128,7 +159,7 @@ function CtaButton({
     <a
       href={href}
       className={cn(
-        "group relative inline-flex h-14 w-full max-w-[300px] items-center gap-3 rounded-full py-2 pr-6 pl-2 text-[15.5px] font-medium tracking-[-0.01em] transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-black/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none sm:w-[288px]",
+        "group relative inline-flex h-14 w-full max-w-[300px] items-center gap-3 rounded-full py-2 pr-6 pl-2 text-[15.5px] font-medium tracking-[-0.01em] transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-black/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none sm:w-[264px]",
         primary
           ? "bg-[#0B0B0C] text-white shadow-[0_1px_0_rgba(255,255,255,0.15)_inset,0_12px_30px_-12px_rgba(0,0,0,0.45)] hover:shadow-[0_1px_0_rgba(255,255,255,0.15)_inset,0_18px_40px_-12px_rgba(0,0,0,0.5)]"
           : "border border-black/[0.08] bg-white/70 text-[#0B0B0C] shadow-[0_1px_0_rgba(255,255,255,0.8)_inset,0_10px_30px_-14px_rgba(0,0,0,0.25)] backdrop-blur-md hover:bg-white/90",

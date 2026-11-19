@@ -7,16 +7,20 @@ const COLUMNS: { title: string; links: { href: string; label: string }[] }[] = [
   {
     title: "Product",
     links: [
-      { href: "/#product", label: "What Dialvo does" },
-      { href: "/#how", label: "How it works" },
-      { href: "/#listen", label: "Listen to a call" },
-      { href: "/#speed", label: "Speed to lead" },
+      { href: "/#channels", label: "Channels" },
+      { href: "/#inbound", label: "Inbound" },
+      { href: "/#outbound", label: "Outbound" },
+      { href: "/#expansion", label: "Expansion" },
+      { href: "/#plays", label: "Plays" },
+      { href: "/#platform", label: "Platform" },
       { href: "/pricing", label: "Pricing" },
     ],
   },
   {
     title: "Trust",
     links: [
+      { href: "/#control", label: "You stay in control" },
+      { href: "/#listen", label: "Sample call" },
       { href: "/#compliance", label: "Compliance" },
       { href: "/privacy", label: "Privacy" },
       { href: "/terms", label: "Terms" },
@@ -37,11 +41,11 @@ export function SiteFooter() {
     <footer className="border-t border-black/[0.06] px-5 pt-16 pb-10">
       <div className="mx-auto grid max-w-[1180px] gap-12 md:grid-cols-[1.4fr_repeat(3,1fr)]">
         <div>
-          <Logo className="-ml-[3px] h-[29px]" />
+          <Logo className="h-[26px]" />
           <p
             className={`${serif} mt-5 max-w-[300px] text-[22px] leading-[1.2]`}
           >
-            Your AI sales team. It calls, follows up and books meetings.
+            Your AI sales team, on every channel your buyers use.
           </p>
         </div>
         {COLUMNS.map((c) => (
@@ -64,7 +68,7 @@ export function SiteFooter() {
       </div>
       <div className="mx-auto mt-16 flex max-w-[1180px] flex-col gap-2 text-[12.5px] text-[#0B0B0C]/40 sm:flex-row sm:justify-between">
         <p>
-          © 2026 Dialvo ·{" "}
+          © 2026 Dialvo · Early access ·{" "}
           <a href={`mailto:${CONTACT_EMAIL}`} className="hover:text-[#0B0B0C]">
             {CONTACT_EMAIL}
           </a>
@@ -72,7 +76,8 @@ export function SiteFooter() {
         <p>
           Paintings, all public domain: William Bradford, Coast of Labrador;
           Martin Johnson Heade, York Harbor, Coast of Maine (1877); John
-          Frederick Kensett, Rocky Coast.
+          Frederick Kensett, Rocky Coast. The meadow photograph was made for
+          Dialvo.
         </p>
       </div>
     </footer>

@@ -407,3 +407,26 @@
     animation: none;
   }
 }
+
+/* The voice orb's rings: each one swells out from the orb and fades. */
+@keyframes dv-ring {
+  from {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  to {
+    transform: scale(1.55);
+    opacity: 0;
+  }
+}
+.dv-ring {
+  opacity: 0;
+  animation: dv-ring 3.3s ease-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .dv-ring {
+    animation: none;
+    opacity: 0.25;
+    transform: scale(1.22);
+  }
+}

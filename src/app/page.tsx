@@ -1,36 +1,35 @@
 import type { Metadata } from "next";
 import { jsonLd, pageMetadata } from "@/lib/seo";
-import { CONTACT_EMAIL, PLANS, SITE_NAME, SITE_URL } from "@/lib/site";
+import {
+  CONTACT_EMAIL,
+  DESCRIPTION,
+  PLANS,
+  SITE_NAME,
+  SITE_URL,
+} from "@/lib/site";
 import { BuyStrip, StickyBuy } from "./_site/buy";
+import { Channels } from "./_site/channels";
 import { FaqSection } from "./_site/faq";
 import { FAQS } from "./_site/faqs";
 import { SiteFooter } from "./_site/footer";
-import { FreeTrialSection } from "./_site/free-trial";
 import { Hero } from "./_site/hero";
-import { ListenSection } from "./_site/listen";
+import { ControlSection } from "./_site/listen";
 import { SiteNav } from "./_site/nav";
 import { PricingSection } from "./_site/pricing";
 import {
-  Asks,
   Compliance,
-  Everything,
   FinalCall,
-  HowItWorks,
-  Logos,
-  Numbers,
-  Product,
+  Motions,
+  Platform,
+  Plays,
+  Tools,
 } from "./_site/sections";
-import { SpeedToLeadSection } from "./_site/speed-to-lead";
 import { SiteFrame, siteViewport } from "./_site/theme";
 
 export const viewport = siteViewport;
 
-const DESCRIPTION =
-  "Dialvo is an AI sales team for agencies, founders and small businesses. It calls prospects and warm leads, follows up by text, WhatsApp and email, and books meetings.";
-
 export const metadata: Metadata = pageMetadata({
-  title:
-    "Dialvo · Your AI sales team that calls, follows up and books meetings",
+  title: "Dialvo · AI sales agents for every channel",
   description: DESCRIPTION,
   path: "/",
 });
@@ -53,6 +52,16 @@ const STRUCTURED = [
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
     description: DESCRIPTION,
+    featureList: [
+      "AI voice agents for inbound leads and existing customers",
+      "AI email agents",
+      "Website chat agents",
+      "Social agents",
+      "SMS and WhatsApp follow-up",
+      "Human dialer for sales reps",
+      "Lead qualification, routing and meeting scheduling",
+      "CRM sync",
+    ],
     offers: [PLANS.starter, PLANS.pro].map((p) => ({
       "@type": "Offer",
       name: p.name,
@@ -78,17 +87,14 @@ export default function Home() {
       <SiteNav />
       <main className="flex-1">
         <Hero />
-        <Logos />
-        <Product />
-        <ListenSection />
-        <BuyStrip line="Every call is recorded and transcribed, on every plan." />
-        <FreeTrialSection />
-        <HowItWorks />
-        <SpeedToLeadSection />
-        <Everything />
-        <Numbers />
+        <Tools />
+        <Channels />
+        <Motions />
+        <Plays />
+        <Platform />
+        <ControlSection />
+        <BuyStrip line="Every call recorded, every message visible, on every plan." />
         <Compliance />
-        <Asks />
         <PricingSection />
         <FaqSection groups={FAQS} />
         <FinalCall />

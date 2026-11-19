@@ -12,7 +12,7 @@ const POINTS = [
   {
     icon: PartyPopper,
     title: "No result, no bill",
-    body: `The trial runs until a prospect says they're interested, for up to ${TRIAL.dials} dials. If nobody does, you don't pay.`,
+    body: `The trial runs until a prospect says they're interested, for up to ${TRIAL.calls} dials. If nobody does, you don't pay.`,
   },
   {
     icon: CreditCard,
@@ -72,7 +72,7 @@ export function FreeTrialSection() {
           who="Your trial"
           line="Starts with Dialvo's first call for you"
           rows={[
-            ["Dials", `Up to ${TRIAL.dials}`],
+            ["Dials", `Up to ${TRIAL.calls}`],
             ["You pay", "$0"],
           ]}
           foot="Card needed, not charged"
@@ -119,7 +119,7 @@ export function FreeTrialSection() {
             [PLANS.starter.name, `$${PLANS.starter.price}/mo`],
             [PLANS.pro.name, `$${PLANS.pro.price}/mo`],
           ]}
-          foot={`${fmt(PLANS.starter.dials)} or ${fmt(PLANS.pro.dials)} dials a month`}
+          foot={`${fmt(PLANS.starter.calls)} or ${fmt(PLANS.pro.calls)} dials a month`}
         />
       </Rise>
 

@@ -41,3 +41,19 @@ export function Mark({
     />
   );
 }
+
+/** The mark in a blue circle: the agent's picture in product visuals. */
+export function MarkAvatar({ className }: { className?: string }) {
+  return (
+    <span
+      aria-hidden
+      className={cn(
+        "grid shrink-0 place-items-center rounded-full bg-[#1F3BFF]",
+        className,
+      )}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element -- a local SVG, swapped with the logo files */}
+      <img src="/brand/mark-white.svg" alt="" className="h-[58%] w-[58%]" />
+    </span>
+  );
+}

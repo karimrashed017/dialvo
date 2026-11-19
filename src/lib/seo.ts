@@ -10,7 +10,7 @@ export const SHARE_IMAGE = {
   url: "/og.png",
   width: 1200,
   height: 630,
-  alt: "Dialvo: Your AI sales team. It calls, follows up and books meetings.",
+  alt: "Dialvo: AI sales agents for every channel, across inbound, outbound and expansion.",
 };
 
 /** Title, description, canonical URL and share text for one public page. */

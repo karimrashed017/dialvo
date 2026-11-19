@@ -2,17 +2,18 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, Pause, Play } from "lucide-react";
+import { MarkAvatar } from "@/components/brand/logo";
 import { cn } from "@/lib/utils";
 import script from "../../../public/audio/demo-call.json";
-import { MarkAvatar } from "./phone";
 
-// "Listen to every call": a sample call with its transcript, highlighted
-// line by line as it plays. It plays /audio/demo-call.mp3 when that file
+// "Listen to every call": a sample inbound call with its transcript,
+// highlighted line by line as it plays. A lead filled in a form on a made-up
+// agency's site, and the agent calls back within a minute. It plays /audio/demo-call.mp3 when that file
 // exists; until then it runs through the transcript on a timer, so the demo
 // works either way. The script is in public/audio/demo-call.json
 // ([{ t: seconds, speaker, text }]); record the mp3 to the same timings.
 
-type Line = { t: number; speaker: "Dialvo" | "Prospect"; text: string };
+type Line = { t: number; speaker: "Dialvo" | "Lead"; text: string };
 const LINES = script as Line[];
 const SRC = "/audio/demo-call.mp3";
 /** Without audio: the last line's start, plus time to say it. */
@@ -21,10 +22,11 @@ const TIMER_LENGTH = LINES[LINES.length - 1].t + 3.5;
 // What the call gets done, and when, so the checklist fills in as it plays.
 const MOMENTS = [
   { at: 0, label: "Says it's an AI" },
-  { at: 6, label: "Says it's recorded" },
-  { at: 29.5, label: "Handles the objection" },
-  { at: 59.5, label: "Books Thu 2pm" },
-  { at: 71, label: "Texts the link" },
+  { at: 4, label: "Says it's recorded" },
+  { at: 13.5, label: "Qualifies the lead" },
+  { at: 39.5, label: "Doesn't guess a price" },
+  { at: 54.5, label: "Books Thu 2pm" },
+  { at: 66.5, label: "Texts the confirmation" },
 ];
 
 // A fixed waveform, rounded so the server and the browser draw the same.
@@ -146,14 +148,14 @@ export function CallPlayer() {
           <MarkAvatar className="size-10" />
           <span className="min-w-0">
             <span className="block truncate text-[14.5px] font-medium">
-              Brightline Studio → Harbor &amp; Pine
+              Northwind Agency → Bright Smile Dental
             </span>
             <span className="block text-[12.5px] text-[#0B0B0C]/50">
-              Sample call script · Demo
+              Inbound speed to lead · form filled 1 min ago
             </span>
           </span>
           <span className="ml-auto shrink-0 rounded-full border border-black/15 px-2.5 py-0.5 text-[11.5px] font-medium tracking-wide text-[#0B0B0C]/60 uppercase">
-            Demo
+            Example
           </span>
         </div>
 
@@ -239,7 +241,7 @@ export function CallPlayer() {
 
         <p className="mt-auto pt-6 text-[12.5px] leading-[1.5] text-[#0B0B0C]/50">
           {hasAudio
-            ? "A sample script, voiced for this demo."
+            ? "A sample script, voiced for this example."
             : "Audio for this sample is on its way: for now the transcript plays on its own."}
         </p>
       </div>
@@ -279,7 +281,7 @@ export function CallPlayer() {
                         : "text-[#0B0B0C]/50",
                     )}
                   >
-                    {l.speaker === "Dialvo" ? "Dialvo (AI)" : "Prospect"}
+                    {l.speaker === "Dialvo" ? "Dialvo (AI)" : "Lead"}
                   </span>
                   <span className="text-[#0B0B0C]/35 tabular-nums">
                     {clock(l.t)}

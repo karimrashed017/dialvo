@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SHARE_IMAGE } from "@/lib/seo";
-import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 // Geist for everything but headlines; the site frame (_site/theme.tsx) adds
@@ -17,10 +17,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const TITLE =
-  "Dialvo · Your AI sales team that calls, follows up and books meetings";
-const DESCRIPTION =
-  "Dialvo is an AI sales team for agencies, founders and small businesses. It finds the right businesses, calls them with a natural AI voice, follows up by text and email, and books meetings on your calendar.";
+const TITLE = "Dialvo · AI sales agents for every channel";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

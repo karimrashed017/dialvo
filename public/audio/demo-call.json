@@ -2,61 +2,61 @@
   {
     "t": 0,
     "speaker": "Dialvo",
-    "text": "Hi, is this Marcus? This is Sam. I'm an AI assistant calling on behalf of Brightline Studio, a web design agency. Just so you know, this call is recorded. Have you got a minute?"
+    "text": "Hi, is this Lena? I'm the AI assistant at Northwind Agency, and this call is recorded. You asked about a new website on our site a minute ago. Is now a good time?"
   },
   {
     "t": 10,
-    "speaker": "Prospect",
-    "text": "An AI? Huh. Okay, sure, a minute."
+    "speaker": "Lead",
+    "text": "Wow, that was quick. Sure, go ahead."
   },
   {
-    "t": 13,
+    "t": 13.5,
     "speaker": "Dialvo",
-    "text": "Thanks, I'll be quick. I saw Harbor & Pine Marketing added two new case studies last month, but the site is slow to load on phones. Brightline rebuilds agency sites so they load fast and turn visitors into enquiries."
+    "text": "Thanks. So I can point you to the right person: is this for one clinic, or more than one?"
   },
   {
-    "t": 25.5,
-    "speaker": "Prospect",
-    "text": "I appreciate it, but we already have someone who does our website."
+    "t": 20,
+    "speaker": "Lead",
+    "text": "Two. We opened a second one in September, and bookings are all by phone."
   },
   {
-    "t": 29.5,
+    "t": 26,
     "speaker": "Dialvo",
-    "text": "That makes sense, a lot of agencies do. Brightline often works alongside an existing developer. Would a free fifteen-minute review with Jordan, Brightline's founder, be useful, even just as a second opinion?"
+    "text": "Got it: two clinics, and booking by phone only. Are you hoping to have online booking live by a certain date?"
   },
   {
-    "t": 42,
-    "speaker": "Prospect",
-    "text": "Hm. A second opinion I could do. What does that involve?"
+    "t": 34,
+    "speaker": "Lead",
+    "text": "Before January, ideally. How much does something like this cost?"
   },
   {
-    "t": 46,
+    "t": 39.5,
     "speaker": "Dialvo",
-    "text": "Jordan shares their screen, goes through your homepage on a phone and gives you three fixes, whoever makes them. Does Thursday at 2pm or Friday at 11am work better?"
+    "text": "It depends on your booking system, so I'd rather not guess. Priya leads our dental projects and can give you a proper figure in twenty minutes. Does Thursday at 2pm or Friday at 11am suit?"
   },
   {
-    "t": 57,
-    "speaker": "Prospect",
-    "text": "Thursday at 2 is fine."
+    "t": 52,
+    "speaker": "Lead",
+    "text": "Thursday at 2 works."
   },
   {
-    "t": 59.5,
+    "t": 54.5,
     "speaker": "Dialvo",
-    "text": "Great, Thursday at 2pm with Jordan. I'll text you a link to confirm, and the calendar invite will come from Brightline. Is this the best number for that text?"
+    "text": "Thursday at 2pm with Priya, booked. I'll text you a confirmation, and the invite will come from Northwind. Is this the best number for the text?"
   },
   {
-    "t": 68.5,
-    "speaker": "Prospect",
-    "text": "Yep, this number's fine."
+    "t": 64,
+    "speaker": "Lead",
+    "text": "Yes, this one's fine."
   },
   {
-    "t": 71,
+    "t": 66.5,
     "speaker": "Dialvo",
-    "text": "Perfect, the text with the booking link is on its way now. Thanks, Marcus. Have a good afternoon."
+    "text": "It's on its way. Thanks, Lena. Priya will speak to you on Thursday."
   },
   {
-    "t": 77.5,
-    "speaker": "Prospect",
-    "text": "You too. Bye."
+    "t": 73,
+    "speaker": "Lead",
+    "text": "Thanks. Bye."
   }
 ]

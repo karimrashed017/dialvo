@@ -1,64 +1,90 @@
 import Image from "next/image";
-import { FileText, Info, Mic, PhoneForwarded } from "lucide-react";
+import {
+  CircleCheck,
+  Headphones,
+  Info,
+  MessagesSquare,
+  PhoneForwarded,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import painting from "../../../public/images/art/heade-york-harbor.jpg";
 import { CallPlayer } from "./call-player";
 import { Rise, Words } from "./motion";
 import { card, GRAIN, muted, serif } from "./theme";
 
-// "Listen to every call": the biggest section, because being able to hear
-// exactly what the AI said is what makes people trust it. The call is a
-// sample script (public/audio/demo-call.json), labelled as a demo, never a
-// real customer's call.
+// "You stay in control": nothing an agent does is out of sight. The player
+// under the four cards is a sample script (public/audio/demo-call.json) of an
+// inbound speed-to-lead call, labelled as an example, never a real
+// customer's call.
 
-const STEPS = [
+const CONTROLS = [
   {
-    icon: Mic,
-    title: "Every call recorded",
-    body: "Each call is recorded, and the person on the other end is told so at the start.",
+    icon: Headphones,
+    title: "Listen to every call",
+    body: "Each call is recorded and transcribed, with a short summary of what was asked, answered and agreed.",
   },
   {
-    icon: FileText,
-    title: "Read every word",
-    body: "Transcripts and a short summary of every call and message, so you know what was said and agreed.",
+    icon: MessagesSquare,
+    title: "Read every message",
+    body: "Every email, chat, text and direct message sits in one inbox, next to the research it was written from.",
+  },
+  {
+    icon: CircleCheck,
+    title: "Approve before send",
+    body: "Keep agents on approval for as long as you like: for everything, for first messages, or above a threshold you set.",
   },
   {
     icon: PhoneForwarded,
-    title: "Jump in live",
-    body: "When a prospect wants a person, Dialvo puts the call through to you, mid-conversation.",
+    title: "Human handoff",
+    body: "When a buyer wants a person, the call is put through or the thread is passed to a rep, with a summary.",
   },
 ];
 
-export function ListenSection() {
+export function ControlSection() {
   return (
-    <section id="listen" className="scroll-mt-20 px-5 pt-32 pb-24 sm:pt-40">
-      <div className="mx-auto max-w-[1180px] text-center">
-        <Rise>
-          <p className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/70 px-3 py-1 text-[13px] text-[#0B0B0C]/75">
-            <span className="size-1.5 rounded-full bg-[#0B0B0C]" />
-            Demo · sample call script
-          </p>
-        </Rise>
+    <section id="control" className="scroll-mt-20 px-5 py-28 sm:py-36">
+      <div className="mx-auto max-w-[1180px]">
         <Words
-          text="Listen to every call."
-          className={`${serif} mx-auto mt-6 max-w-[900px] text-[52px] leading-[0.98] sm:text-[88px]`}
+          text="You stay in control"
+          className={`${serif} max-w-[800px] text-[42px] leading-[1.02] sm:text-[60px]`}
         />
-        <Rise delay={0.3}>
+        <Rise delay={0.2}>
           <p
-            className={`mx-auto mt-6 max-w-[600px] text-[18px] leading-[1.55] ${muted}`}
+            className={`mt-5 max-w-[560px] text-[17px] leading-[1.55] ${muted}`}
           >
-            Nothing happens out of sight. Hear exactly what Dialvo said, how it
-            handled the hard part and what was agreed. Press play on a sample
-            call: an AI calling an agency owner for a web design studio.
+            Agents work on their own, but never out of sight. You can hear what
+            was said, read what was sent, decide what needs your yes, and step
+            in whenever you want.
           </p>
         </Rise>
       </div>
 
-      {/* The player and its transcript, on a pale painting. */}
+      <div className="mx-auto mt-14 grid max-w-[1180px] gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {CONTROLS.map((s, i) => (
+          <Rise
+            key={s.title}
+            delay={i * 0.07}
+            className={cn(card, "flex flex-col p-6")}
+          >
+            <span className="grid size-11 place-items-center rounded-2xl bg-[#0B0B0C] text-white">
+              <s.icon aria-hidden className="size-5" />
+            </span>
+            <h3 className={`${serif} mt-7 text-[26px] leading-[1.08]`}>
+              {s.title}
+            </h3>
+            <p className={`mt-3 text-[14.5px] leading-[1.6] ${muted}`}>
+              {s.body}
+            </p>
+          </Rise>
+        ))}
+      </div>
+
+      {/* The sample call and its transcript, on a pale painting. */}
       <Rise
         delay={0.1}
-        className="relative isolate mx-auto mt-16 max-w-[1180px] overflow-hidden rounded-[32px] border border-black/[0.07]"
+        className="relative isolate mx-auto mt-3 max-w-[1180px] scroll-mt-24 overflow-hidden rounded-[32px] border border-black/[0.07]"
       >
+        <div id="listen" className="absolute -top-24" />
         <Image
           src={painting}
           alt=""
@@ -72,40 +98,28 @@ export function ListenSection() {
             background: `${GRAIN}, linear-gradient(180deg, rgba(247,245,241,0.55), rgba(247,245,241,0.2) 45%, rgba(247,245,241,0.45))`,
           }}
         />
-        <div className="p-5 sm:p-10 lg:p-14">
+        <div className="p-4 sm:p-10 lg:p-12">
+          <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/75 px-3 py-1 text-[12.5px] text-[#0B0B0C]/75 backdrop-blur-md">
+                <span className="size-1.5 rounded-full bg-[#1F3BFF]" />
+                Example · sample call script
+              </p>
+              <h3
+                className={`${serif} mt-4 max-w-[560px] text-[30px] leading-[1.06] sm:text-[38px]`}
+              >
+                A form lead, called back within a minute
+              </h3>
+            </div>
+          </div>
           <CallPlayer />
         </div>
       </Rise>
 
-      <div className="mx-auto mt-3 grid max-w-[1180px] gap-3 md:grid-cols-3">
-        {STEPS.map((s, i) => (
-          <Rise
-            key={s.title}
-            delay={i * 0.08}
-            className={cn(card, "flex flex-col p-7")}
-          >
-            <div className="flex items-center justify-between">
-              <span className="grid size-11 place-items-center rounded-2xl bg-[#0B0B0C] text-white">
-                <s.icon aria-hidden className="size-5" />
-              </span>
-              <span className="text-[13px] text-[#0B0B0C]/40 tabular-nums">
-                0{i + 1}
-              </span>
-            </div>
-            <h3 className={`${serif} mt-8 text-[28px] leading-[1.08]`}>
-              {s.title}
-            </h3>
-            <p className={`mt-3 text-[15px] leading-[1.6] ${muted}`}>
-              {s.body}
-            </p>
-          </Rise>
-        ))}
-      </div>
-
       <Rise className="mx-auto mt-6 flex max-w-[1180px] items-start justify-center gap-2.5 px-2 text-center">
         <Info aria-hidden className="mt-0.5 size-4 shrink-0" />
         <p className={`text-[14.5px] leading-[1.55] ${muted}`}>
-          <span className="text-[#0B0B0C]">This is a demo.</span> A sample
+          <span className="text-[#0B0B0C]">This is an example.</span> A sample
           script written for this page, not a recording of a real customer call.
           The people and businesses in it are made up.
         </p>

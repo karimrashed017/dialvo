@@ -8,7 +8,7 @@ export { viewport } from "../_legal/legal-page";
 export const metadata: Metadata = pageMetadata({
   title: "Privacy · Dialvo",
   description:
-    "How Dialvo, the AI sales team, handles the information you give us and the calls and messages it makes for you. A draft while Dialvo is in early access.",
+    "How Dialvo, the AI sales team, handles the information you give us and the calls and messages its agents handle for you. A draft while Dialvo is in early access.",
   path: "/privacy",
 });
 

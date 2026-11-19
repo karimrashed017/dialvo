@@ -8,8 +8,8 @@ import { startHref } from "./links";
 import { muted } from "./theme";
 
 // Signup buttons around the site, so anyone can start from wherever they
-// are on the page. Dialvo is pre-launch: they all lead to the early access
-// form.
+// are on the page. Dialvo is in early access: they all open the early access
+// email.
 
 /** Under a feature section: what the plans include there, and a way in. */
 export function BuyStrip({ line }: { line: string }) {
@@ -21,7 +21,7 @@ export function BuyStrip({ line }: { line: string }) {
           href={startHref()}
           className="inline-flex h-10 items-center rounded-full bg-[#0B0B0C] px-5 text-[14.5px] font-medium text-white transition-colors hover:bg-black/85"
         >
-          Start free
+          Get early access
         </a>
         <a
           href="/pricing"
@@ -36,7 +36,7 @@ export function BuyStrip({ line }: { line: string }) {
 }
 
 /**
- * On phones, a "Start free" bar along the bottom once the hero is behind
+ * On phones, an early access bar along the bottom once the hero is behind
  * them. It steps aside while the plan cards are on screen, since those have
  * their own buttons.
  */
@@ -74,17 +74,19 @@ export function StickyBuy() {
     >
       <div className="flex items-center justify-between gap-3 rounded-2xl border border-black/[0.1] bg-white/90 py-2 pr-2 pl-4 shadow-[0_20px_40px_-20px_rgba(0,0,0,0.18)] backdrop-blur-xl">
         <div className="min-w-0">
-          <p className="text-[14px] font-medium">Dialvo {PLANS.starter.name}</p>
+          <p className="text-[14px] font-medium">
+            Dialvo · from ${PLANS.starter.price} a month
+          </p>
           <p className="truncate text-[12.5px] text-[#0B0B0C]/55">
-            Free until your first interested prospect
+            Free until your first booked meeting
           </p>
         </div>
         <a
           href={startHref()}
           tabIndex={show ? 0 : -1}
-          className="inline-flex h-10 shrink-0 items-center rounded-full bg-[#0B0B0C] px-5 text-[14.5px] font-medium text-white"
+          className="inline-flex h-10 shrink-0 items-center rounded-full bg-[#0B0B0C] px-4 text-[14px] font-medium text-white"
         >
-          Start free
+          Early access
         </a>
       </div>
     </div>
