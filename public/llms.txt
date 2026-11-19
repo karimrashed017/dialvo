@@ -1,0 +1,37 @@
+# Dialvo
+
+> Dialvo is an AI sales team for agencies, founders and small businesses. It calls prospects and warm leads with a natural AI voice, follows up by text, WhatsApp and email, and books meetings on your calendar, so you can close.
+
+Dialvo is in early access (pre-launch). Website: https://trydialvo.com. Contact: contact@trydialvo.com.
+
+## What it does
+
+- AI voice calls: a natural voice that always says it is an AI and that the call is recorded. Calls are recorded and transcribed, and can be transferred live to you.
+- Speed to lead: calls new website form leads within 60 seconds, 24 hours a day.
+- Follow-up by text (SMS) and WhatsApp to people who opted in, until they say yes or no. Email from your own inbox is coming soon.
+- Books meetings on Google Calendar.
+- You can listen to every call and read every message, and change the agent's voice and personality.
+- Coming soon: prospect finder ("describe your ideal customer") with research on every lead, AI email outreach and campaigns from your own Gmail or Outlook, a knowledge base of your docs and pitch, CRM sync with HubSpot and Pipedrive, a website chat agent, and one dashboard of calls, conversations and meetings booked.
+
+## Compliance
+
+Every call says it is an AI and that it is recorded. Dialvo calls business lines and people who asked to hear from you; mobile numbers only with consent. Do Not Call lists are checked automatically, calls go out only in business hours, opt-outs are honoured immediately and every call is logged. Dialvo does not claim any certifications.
+
+## Pricing
+
+- Free trial: free until your first interested prospect, up to 300 dials, card required.
+- Starter: $99 a month. AI caller, 1,000 dials a month, standard voice, SMS follow-up; AI email from your own inbox and 500 lead credits coming soon.
+- Pro: $299 a month. 3,000 dials a month, premium ultra-realistic voice, WhatsApp and SMS follow-up, team seats; email campaigns, website chat agent, CRM sync and 1,500 lead credits coming soon.
+- Add-ons: extra dials, lead credits and inboxes. Cancel anytime, no contract.
+
+## Markets
+
+US first; UK for people who opted in.
+
+## Key pages
+
+- [Home](https://trydialvo.com/): what Dialvo does, a sample call with transcript, compliance, FAQ
+- [Pricing](https://trydialvo.com/pricing): plans and a full comparison
+- Get early access: email contact@trydialvo.com
+- [Privacy](https://trydialvo.com/privacy) (draft)
+- [Terms](https://trydialvo.com/terms) (draft)
