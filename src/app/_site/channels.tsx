@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
   CalendarCheck,
@@ -9,6 +9,7 @@ import {
   Mail,
   MessageCircle,
   MessageSquareText,
+  Mic,
   Phone,
   PhoneCall,
   Share2,
@@ -18,20 +19,19 @@ import {
 } from "lucide-react";
 import { MarkAvatar } from "@/components/brand/logo";
 import { cn } from "@/lib/utils";
-import { DEFAULT_SCENARIO, SCENARIOS, VOICES } from "@/lib/voice/config";
 import painting from "../../../public/images/art/meadow.jpg";
 import { startHref } from "./links";
 import { Rise, Words } from "./motion";
 import { GRAIN, muted, serif } from "./theme";
-import { VoiceDemo } from "./voice-demo";
 import { PanelBar } from "./voice-parts";
 
 // The channels section: six tabs, one per channel, each with a line about
 // what the agent does there and a product panel beside it. The tabs move on
 // by themselves, slowly, and stop while someone is reading or clicking.
 // Every person and business in the panels is made up, and each panel is
-// marked "Example", except Voice: that one is a real conversation with an
-// AI agent (voice-demo.tsx), marked "Live demo".
+// marked "Example". The Voice tab is a sample transcript too: the one live
+// demo on the page sits in the section above (voice-section.tsx), and the
+// Voice panel links up to it.
 
 type TabId = "voice" | "email" | "chat" | "social" | "messages" | "dialer";
 
@@ -81,43 +81,7 @@ export function Channels() {
   const [active, setActive] = useState<TabId>("voice");
   const [hover, setHover] = useState(false);
   const [inView, setInView] = useState(false);
-  const [scenario, setScenario] = useState(
-    SCENARIOS.findIndex((s) => s.id === DEFAULT_SCENARIO),
-  );
-  const [voice, setVoice] = useState(0);
-  // A call is being set up or is running: nothing may move or change.
-  const [onCall, setOnCall] = useState(false);
-  // Someone came for the voice demo: the tabs stop moving on by themselves.
-  const [pinned, setPinned] = useState(false);
   const box = useRef<HTMLDivElement>(null);
-  const onBusyChange = useCallback((busy: boolean) => {
-    setOnCall(busy);
-    if (busy) setPinned(true);
-  }, []);
-
-  // "Talk to the agent" links (the hero's button, or a #voice-demo address)
-  // open the Voice tab and keep it there. The scrolling itself is the
-  // link's own.
-  useEffect(() => {
-    const show = () => {
-      setActive("voice");
-      setPinned(true);
-    };
-    const onClick = (e: MouseEvent) => {
-      const link = (e.target as Element | null)?.closest?.("a[href]");
-      if (link?.getAttribute("href")?.endsWith("#voice-demo")) show();
-    };
-    const onHash = () => {
-      if (window.location.hash === "#voice-demo") show();
-    };
-    onHash();
-    document.addEventListener("click", onClick, true);
-    window.addEventListener("hashchange", onHash);
-    return () => {
-      document.removeEventListener("click", onClick, true);
-      window.removeEventListener("hashchange", onHash);
-    };
-  }, []);
 
   // Only count down while the section is on screen.
   useEffect(() => {
@@ -133,10 +97,13 @@ export function Channels() {
   const index = TABS.findIndex((t) => t.id === active);
   const tab = TABS[index];
   const next = () => setActive(TABS[(index + 1) % TABS.length].id);
-  const running = inView && !hover && !onCall && !pinned;
+  const running = inView && !hover;
 
   return (
-    <section id="channels" className="scroll-mt-20 px-5 py-28 sm:py-36">
+    <section
+      id="channels"
+      className="scroll-mt-20 px-5 pt-12 pb-16 sm:pt-16 sm:pb-20"
+    >
       <div
         ref={box}
         onMouseEnter={() => setHover(true)}
@@ -147,9 +114,18 @@ export function Channels() {
       >
         <div className="flex min-w-0 flex-col">
           <Words
-            text="One team of agents, on every channel your buyers use"
+            text="One conversation, wherever they answer."
             className={`${serif} text-[40px] leading-[1.02] sm:text-[56px]`}
           />
+          <Rise delay={0.1}>
+            <p
+              className={`mt-5 max-w-[500px] text-[17px] leading-[1.55] ${muted}`}
+            >
+              Voice, email, chat, social, SMS and WhatsApp, run by agents that
+              know what was already said. Nobody gets the same message twice,
+              and nobody gets forgotten.
+            </p>
+          </Rise>
           <Rise delay={0.15} className="mt-8">
             <div
               role="tablist"
@@ -198,30 +174,11 @@ export function Channels() {
           <Rise delay={0.25}>
             <p
               key={tab.id}
-              className={`mt-7 max-w-[500px] animate-in text-[18px] leading-[1.5] duration-500 fade-in sm:min-h-[81px] ${muted}`}
+              className="mt-6 max-w-[500px] animate-in border-l-2 border-[#1F3BFF] pl-4 text-[16px] leading-[1.5] text-[#0B0B0C]/80 duration-500 fade-in sm:min-h-[72px]"
             >
               {tab.line}
             </p>
           </Rise>
-
-          {active === "voice" && (
-            <div className="mt-6 animate-in space-y-5 duration-500 fade-in">
-              <Chips
-                label="Scenario"
-                items={SCENARIOS.map((s) => s.name)}
-                value={scenario}
-                onPick={setScenario}
-                disabled={onCall}
-              />
-              <Chips
-                label="Voice"
-                items={VOICES.map((v) => v.name)}
-                value={voice}
-                onPick={setVoice}
-                disabled={onCall}
-              />
-            </div>
-          )}
 
           <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-3 pt-10">
             <a
@@ -239,10 +196,7 @@ export function Channels() {
 
         {/* The channel's panel, on the meadow. */}
         <Rise delay={0.1} className="min-w-0">
-          <div
-            id="voice-demo"
-            className="relative isolate overflow-hidden rounded-[28px] border border-black/[0.08] p-3 sm:p-7"
-          >
+          <div className="relative isolate overflow-hidden rounded-[28px] border border-black/[0.08] p-3 sm:p-7">
             <Image
               src={painting}
               alt=""
@@ -263,13 +217,7 @@ export function Channels() {
               key={tab.id}
               className="flex h-[500px] animate-in flex-col overflow-hidden rounded-[20px] border border-black/[0.07] bg-white/[0.94] shadow-[0_30px_70px_-30px_rgba(40,30,20,0.5)] backdrop-blur-xl duration-500 fade-in slide-in-from-bottom-2 sm:h-[520px]"
             >
-              {active === "voice" && (
-                <VoiceDemo
-                  scenario={SCENARIOS[scenario]}
-                  voice={VOICES[voice]}
-                  onBusyChange={onBusyChange}
-                />
-              )}
+              {active === "voice" && <VoicePanel />}
               {active === "email" && <EmailPanel />}
               {active === "chat" && <ChatPanel />}
               {active === "social" && <SocialPanel />}
@@ -280,55 +228,6 @@ export function Channels() {
         </Rise>
       </div>
     </section>
-  );
-}
-
-function Chips({
-  label,
-  items,
-  value,
-  onPick,
-  disabled,
-}: {
-  label: string;
-  items: readonly string[];
-  value: number;
-  onPick: (i: number) => void;
-  /** During a call, the choice is fixed. */
-  disabled?: boolean;
-}) {
-  return (
-    <div role="group" aria-label={label}>
-      <p className="text-[11.5px] tracking-wide text-[#0B0B0C]/45 uppercase">
-        {label}
-      </p>
-      <div className="mt-2 flex flex-wrap gap-1.5">
-        {items.map((name, i) => (
-          <button
-            key={name}
-            type="button"
-            aria-pressed={i === value}
-            disabled={disabled}
-            onClick={() => onPick(i)}
-            className={cn(
-              "inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-[13px] transition-colors focus-visible:ring-2 focus-visible:ring-black/40 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
-              i === value
-                ? "bg-[#0B0B0C] text-white"
-                : "bg-black/[0.055] text-[#0B0B0C]/70 hover:bg-black/[0.09]",
-            )}
-          >
-            <span
-              aria-hidden
-              className={cn(
-                "size-1.5 rounded-full",
-                i === value ? "bg-white" : "bg-[#0B0B0C]/30",
-              )}
-            />
-            {name}
-          </button>
-        ))}
-      </div>
-    </div>
   );
 }
 
@@ -385,6 +284,54 @@ function Bubbles({
         </li>
       ))}
     </ol>
+  );
+}
+
+// --- Voice ---------------------------------------------------------------------
+
+const CALL: Msg[] = [
+  {
+    me: true,
+    text: "Hi Lena, I'm Northwind Agency's AI assistant, and this call is recorded. Got a minute?",
+  },
+  { text: "That was quick. Yes, go ahead." },
+  { me: true, text: "What should the new site do first?" },
+  { text: "Take bookings for both clinics." },
+  {
+    me: true,
+    text: "Priya has Tuesday at 10:30 or Thursday at 2. Which suits you?",
+  },
+];
+
+/** A sample call as a transcript. The live agent is one section up. */
+function VoicePanel() {
+  const shown = useReveal(CALL.length, 1500);
+  return (
+    <>
+      <PanelBar icon={Phone} title="Voice agent" note="Speed to lead" />
+      <div className="shrink-0 border-b border-black/[0.06] px-4 py-3">
+        <span className="block text-[14px] font-medium">Lena Ortiz</span>
+        <span className="block truncate text-[12px] text-[#0B0B0C]/50">
+          Bright Smile Dental · filled in the contact form at 21:14
+        </span>
+      </div>
+      <Bubbles
+        messages={CALL}
+        shown={shown}
+        meLabel="AI assistant"
+        themLabel="Lena"
+      />
+      <p className="flex shrink-0 flex-wrap items-center justify-between gap-x-3 gap-y-1 border-t border-black/[0.07] px-4 py-3 text-[12px] leading-[1.4] text-[#0B0B0C]/50">
+        A sample transcript.
+        <a
+          href="#voice-demo"
+          className="inline-flex items-center gap-1.5 font-medium text-[#1F3BFF] hover:underline"
+        >
+          <Mic aria-hidden className="size-3.5" />
+          Talk to the live agent
+        </a>
+      </p>
+    </>
   );
 }
 

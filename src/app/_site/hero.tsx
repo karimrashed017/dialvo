@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { ArrowDown, ArrowRight, Mic } from "lucide-react";
+import { ArrowRight, Mic } from "lucide-react";
 import { CloudShader } from "@/components/ui/cloud-shader";
 import { Mark } from "@/components/brand/logo";
 import { PLANS } from "@/lib/site";
@@ -9,8 +9,6 @@ import { Dashboard } from "./dashboard";
 import { startHref } from "./links";
 import { HeroLift, Rise, Words } from "./motion";
 import { GRAIN, serif } from "./theme";
-
-const CHANNELS = ["Voice", "Email", "Chat", "Social", "SMS", "WhatsApp"];
 
 export function Hero() {
   return (
@@ -37,43 +35,29 @@ export function Hero() {
       <div className="mx-auto max-w-[980px] px-5 text-center">
         <Rise>
           <a
-            href="#channels"
+            href="#what"
             className="inline-flex items-center gap-2 rounded-full border border-black/[0.08] bg-white/60 py-1 pr-3 pl-1 text-[13px] text-[#0B0B0C]/85 backdrop-blur-md transition-colors hover:bg-white/80"
           >
             <span className="rounded-full bg-[#1F3BFF] px-2 py-0.5 text-[11.5px] font-medium text-white">
               Early access
             </span>
-            Inbound, outbound and expansion
+            Inbound, outbound and closing
             <ArrowRight aria-hidden className="size-3.5" />
           </a>
         </Rise>
         <Words
           as="h1"
-          text="AI sales agents that turn every conversation into pipeline."
+          text="Inbound and outbound sales, run by AI agents."
           delay={0.1}
           className={`${serif} mt-7 text-[44px] leading-[1] sm:text-[76px]`}
         />
         <Rise delay={0.6}>
-          <p className="mx-auto mt-6 max-w-[640px] text-[17px] leading-[1.55] text-[#0B0B0C]/70 sm:text-[18px]">
-            Dialvo is your AI sales team. Its agents work every channel to find,
-            engage, qualify and book, for new leads, new accounts and the
-            customers you already have. Your reps step in for the deals.
+          <p className="mx-auto mt-6 max-w-[680px] text-[17px] leading-[1.55] text-[#0B0B0C]/70 sm:text-[18px]">
+            Dialvo answers every lead within a minute and goes out to find new
+            ones. Its agents call, email, message and follow up on every
+            channel, book the meetings, close the simple sales and hand your
+            team the big ones.
           </p>
-        </Rise>
-        <Rise delay={0.7}>
-          <ul
-            aria-label="Channels"
-            className="mx-auto mt-6 flex max-w-[560px] flex-wrap justify-center gap-1.5"
-          >
-            {[...CHANNELS, "Human dialer"].map((c) => (
-              <li
-                key={c}
-                className="rounded-full border border-black/[0.08] bg-white/55 px-3 py-1 text-[13px] text-[#0B0B0C]/75 backdrop-blur-md"
-              >
-                {c}
-              </li>
-            ))}
-          </ul>
         </Rise>
         <Rise delay={0.8} className="mt-9">
           <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
@@ -89,27 +73,16 @@ export function Hero() {
               icon={<Mic aria-hidden className="size-[17px]" />}
             />
           </div>
+          <p className="mt-5 text-[14.5px] text-[#0B0B0C]/75">
+            Free until it books your first meeting.
+          </p>
           <a
             href="/pricing"
-            className="mt-5 inline-flex items-center gap-1.5 text-[14px] text-[#0B0B0C]/75 underline decoration-black/25 underline-offset-4 transition-colors hover:text-[#0B0B0C] hover:decoration-black"
+            className="mt-2 inline-flex items-center gap-1.5 text-[13.5px] text-[#0B0B0C]/55 transition-colors hover:text-[#0B0B0C]"
           >
-            Plans from ${PLANS.starter.price} a month, free until your first
-            booked meeting
+            Plans from ${PLANS.starter.price} a month
             <ArrowRight aria-hidden className="size-3.5 shrink-0" />
           </a>
-          <p className="mt-4 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-[13.5px] text-[#0B0B0C]/55">
-            Cancel anytime
-            <span aria-hidden>·</span>
-            You see every call and message
-            <span aria-hidden>·</span>
-            <a
-              href="#motions"
-              className="inline-flex items-center gap-1 text-[#0B0B0C]/70 transition-colors hover:text-[#0B0B0C]"
-            >
-              How it works
-              <ArrowDown aria-hidden className="size-3.5" />
-            </a>
-          </p>
         </Rise>
       </div>
 

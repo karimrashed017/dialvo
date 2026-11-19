@@ -13,14 +13,19 @@ import { serif } from "./theme";
 
 type Column = { title: string; links: { href: string; label: string }[] };
 
-// Every page on the site, grouped: the motions, the plays under each motion,
+// Every page on the site, grouped: the motions (closing among them), the
+// plays under each motion,
 // the six platform groups, then pricing, trust and contact.
 const COLUMNS: Column[] = [
   {
     title: "Use cases",
-    links: MOTIONS.map((m) => ({ href: m.href, label: m.name })),
+    links: [
+      ...MOTIONS.map((m) => ({ href: m.href, label: m.name })),
+      { href: "/plays", label: "All plays" },
+    ],
   },
-  ...MOTIONS.map((m) => ({
+  // Closing has no plays of its own, so no column.
+  ...MOTIONS.filter((m) => playsIn(m.id).length > 0).map((m) => ({
     title: `${m.name} plays`,
     links: playsIn(m.id).map((s) => ({
       href: playHref(s),
@@ -41,8 +46,8 @@ const COLUMNS: Column[] = [
     title: "Product",
     links: [
       { href: "/platform", label: "Platform overview" },
+      { href: "/#voice-demo", label: "Talk to the agent" },
       { href: "/#channels", label: "Channels" },
-      { href: "/#plays", label: "All plays" },
       { href: "/pricing", label: "Pricing" },
       { href: "/#faq", label: "FAQ" },
     ],
@@ -50,7 +55,7 @@ const COLUMNS: Column[] = [
   {
     title: "Trust",
     links: [
-      { href: "/#control", label: "You stay in control" },
+      { href: "/#control", label: "Nothing out of sight" },
       { href: "/#listen", label: "Sample call" },
       { href: "/#compliance", label: "Compliance" },
       { href: "/privacy", label: "Privacy" },
@@ -76,7 +81,7 @@ export function SiteFooter() {
             <p
               className={`${serif} mt-5 max-w-[340px] text-[22px] leading-[1.2]`}
             >
-              Your AI sales team, on every channel your buyers use.
+              Inbound and outbound sales, run by AI agents.
             </p>
           </div>
           <p className="inline-flex items-center gap-2 self-start rounded-full border border-black/10 bg-white/70 px-3 py-1 text-[13px] text-[#0B0B0C]/75 sm:self-auto">

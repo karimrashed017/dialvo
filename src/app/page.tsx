@@ -7,7 +7,7 @@ import {
   SITE_NAME,
   SITE_URL,
 } from "@/lib/site";
-import { BuyStrip, StickyBuy } from "./_site/buy";
+import { StickyBuy } from "./_site/buy";
 import { Channels } from "./_site/channels";
 import { FaqSection } from "./_site/faq";
 import { FAQS } from "./_site/faqs";
@@ -18,18 +18,19 @@ import { SiteNav } from "./_site/nav";
 import { PricingSection } from "./_site/pricing";
 import {
   Compliance,
+  ExistingCustomers,
   FinalCall,
-  Motions,
-  Platform,
-  Plays,
-  Tools,
+  Jobs,
+  Problem,
+  Replaces,
 } from "./_site/sections";
 import { SiteFrame, siteViewport } from "./_site/theme";
+import { VoiceSection } from "./_site/voice-section";
 
 export const viewport = siteViewport;
 
 export const metadata: Metadata = pageMetadata({
-  title: "Dialvo · AI sales agents for every channel",
+  title: "Dialvo · Inbound and outbound sales, run by AI agents",
   description: DESCRIPTION,
   path: "/",
 });
@@ -53,6 +54,9 @@ const STRUCTURED = [
     operatingSystem: "Web",
     description: DESCRIPTION,
     featureList: [
+      "Inbound: every lead answered, qualified and booked within a minute",
+      "Outbound: lead lists, research, cold email and LinkedIn outreach",
+      "AI closer for simple sales: payment links, bookings and agreements",
       "AI voice agents for inbound leads and existing customers",
       "AI email agents",
       "Website chat agents",
@@ -87,13 +91,13 @@ export default function Home() {
       <SiteNav />
       <main className="flex-1">
         <Hero />
-        <Tools />
+        <Problem />
+        <Jobs />
+        <VoiceSection />
         <Channels />
-        <Motions />
-        <Plays />
-        <Platform />
+        <ExistingCustomers />
         <ControlSection />
-        <BuyStrip line="Every call recorded, every message visible, on every plan." />
+        <Replaces />
         <Compliance />
         <PricingSection />
         <FaqSection groups={FAQS} />

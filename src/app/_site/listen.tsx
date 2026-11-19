@@ -12,7 +12,7 @@ import { CallPlayer } from "./call-player";
 import { Rise, Words } from "./motion";
 import { card, GRAIN, muted, serif } from "./theme";
 
-// "You stay in control": nothing an agent does is out of sight. The player
+// "Nothing happens out of sight": the four controls and the sample call. The player
 // under the four cards is a sample script (public/audio/demo-call.json) of an
 // inbound speed-to-lead call, labelled as an example, never a real
 // customer's call.
@@ -45,16 +45,16 @@ export function ControlSection() {
     <section id="control" className="scroll-mt-20 px-5 py-28 sm:py-36">
       <div className="mx-auto max-w-[1180px]">
         <Words
-          text="You stay in control"
+          text="Nothing happens out of sight."
           className={`${serif} max-w-[800px] text-[42px] leading-[1.02] sm:text-[60px]`}
         />
         <Rise delay={0.2}>
           <p
             className={`mt-5 max-w-[560px] text-[17px] leading-[1.55] ${muted}`}
           >
-            Agents work on their own, but never out of sight. You can hear what
-            was said, read what was sent, decide what needs your yes, and step
-            in whenever you want.
+            Listen to every call. Read every message. Approve before anything
+            sends, until you trust it. When a lead wants a person, the agent
+            hands over with the full story.
           </p>
         </Rise>
       </div>

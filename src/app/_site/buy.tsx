@@ -1,39 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowRight } from "lucide-react";
 import { PLANS } from "@/lib/site";
 import { cn } from "@/lib/utils";
 import { startHref } from "./links";
-import { muted } from "./theme";
 
-// Signup buttons around the site, so anyone can start from wherever they
-// are on the page. Dialvo is in early access: they all open the early access
-// email.
-
-/** Under a feature section: what the plans include there, and a way in. */
-export function BuyStrip({ line }: { line: string }) {
-  return (
-    <div className="mx-auto mt-12 flex max-w-[1180px] flex-col items-center justify-center gap-4 px-5 text-center sm:flex-row sm:gap-5">
-      <p className={`text-[15px] leading-[1.5] ${muted}`}>{line}</p>
-      <div className="flex shrink-0 items-center gap-4">
-        <a
-          href={startHref()}
-          className="inline-flex h-10 items-center rounded-full bg-[#0B0B0C] px-5 text-[14.5px] font-medium text-white transition-colors hover:bg-black/85"
-        >
-          Join the waitlist
-        </a>
-        <a
-          href="/pricing"
-          className="inline-flex items-center gap-1 text-[14px] text-[#0B0B0C]/60 transition-colors hover:text-[#0B0B0C]"
-        >
-          All plans
-          <ArrowRight aria-hidden className="size-3.5" />
-        </a>
-      </div>
-    </div>
-  );
-}
+// The phone's signup bar. Dialvo is in early access: its button opens the
+// waitlist form.
 
 /**
  * On phones, an early access bar along the bottom once the hero is behind

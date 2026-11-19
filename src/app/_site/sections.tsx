@@ -3,34 +3,39 @@ import Link from "next/link";
 import {
   ArrowRight,
   Bot,
-  Check,
+  Database,
+  Lock,
+  Mail,
   MailX,
+  MessageCircle,
   MessageSquareText,
   Mic,
+  PhoneCall,
   PhoneIncoming,
   PhoneOff,
   ShieldCheck,
+  UserRound,
   type LucideIcon,
 } from "lucide-react";
-import {
-  GROUPS,
-  itemInfo,
-  MOTIONS as MOTION_LINKS,
-  PLAY_SLUGS,
-  type MotionId,
-} from "@/lib/content/catalog";
+import type { StaticImageData } from "next/image";
+import { Mark } from "@/components/brand/logo";
+import { featureHref, playHref, type MotionId } from "@/lib/content/catalog";
+import type { Visual } from "@/lib/content/types";
 import { cn } from "@/lib/utils";
 import labrador from "../../../public/images/art/bradford-coast-of-labrador.jpg";
-import { BuyStrip } from "./buy";
+import heade from "../../../public/images/art/heade-york-harbor.jpg";
+import kensett from "../../../public/images/art/kensett-rocky-coast.jpg";
 import { STARTER_DEAL, startHref } from "./links";
 import { Rise, Words } from "./motion";
-import { PlayCards } from "./pages/parts";
+import { Backdrop } from "./pages/parts";
+import { VisualPanel } from "./pages/visual";
 import { card, GRAIN, muted, serif } from "./theme";
 
-// The home page's sections after the hero and the channel tabs: the tools
-// Dialvo connects to, the three motions, the plays, the platform, compliance
-// and a last call to action. "You stay in control" (listen.tsx), pricing and
-// the FAQ have their own files.
+// The home page's sections between the hero and pricing, apart from the two
+// with moving parts (the live voice demo in voice-section.tsx and the channel
+// tabs in channels.tsx) and "Nothing happens out of sight" (listen.tsx):
+// the problem, the three jobs, existing customers, what Dialvo replaces,
+// trust, and the last call to action.
 
 export function Head({
   title,
@@ -74,7 +79,339 @@ export function Head({
   );
 }
 
-// --- Works with -----------------------------------------------------------------
+// --- The problem -------------------------------------------------------------------
+
+// The founder's paragraph, one sentence to a line; the last is the point.
+const WASTE = [
+  "Leads that wait hours for a reply.",
+  "Follow-ups that never get sent.",
+  "New accounts nobody has time to research.",
+  "Buyers who were ready to say yes and got no answer.",
+];
+
+export function Problem() {
+  return (
+    <section id="problem" className="scroll-mt-20 px-5 pt-24 pb-10 sm:pt-32">
+      <div className="mx-auto grid max-w-[1180px] gap-10 lg:grid-cols-[1fr_1fr] lg:gap-16">
+        <Words
+          text="There's more selling to do than your team has hours for."
+          className={`${serif} max-w-[560px] text-[40px] leading-[1.02] sm:text-[56px]`}
+        />
+        <Rise delay={0.15} className="lg:pt-3">
+          <p className="divide-y divide-black/[0.08] border-y border-black/[0.08]">
+            {WASTE.map((line) => (
+              <span
+                key={line}
+                className={`${serif} block py-4 text-[22px] leading-[1.25] text-[#0B0B0C]/80 sm:text-[26px]`}
+              >
+                {line}{" "}
+              </span>
+            ))}
+          </p>
+          <p className="mt-6 text-[17px] leading-[1.55] font-medium">
+            Every one of those is business you already paid to get.
+          </p>
+        </Rise>
+      </div>
+    </section>
+  );
+}
+
+// --- Three jobs --------------------------------------------------------------------
+
+type Tag = { label: string; href?: string };
+
+const JOBS: {
+  id: MotionId;
+  title: string;
+  body: string;
+  tags: Tag[];
+  art: StaticImageData;
+  visual: Visual;
+}[] = [
+  {
+    id: "inbound",
+    title: "Inbound: every lead answered in seconds.",
+    body: "Forms, calls and chats get a reply straight away, day or night. The agent asks your qualifying questions, books the meeting or passes the call to you live, and keeps following up by email, text and WhatsApp until they answer.",
+    tags: [
+      { label: "Speed to lead", href: playHref("speed-to-lead") },
+      {
+        label: "Qualification",
+        href: featureHref("inbound-lead-qualification"),
+      },
+      {
+        label: "Meeting scheduling",
+        href: playHref("automated-meeting-scheduling"),
+      },
+      { label: "No-show follow-up" },
+    ],
+    art: heade,
+    visual: {
+      kind: "timeline",
+      title: "Lead timeline",
+      note: "Lena Ortiz · Bright Smile Dental",
+      steps: [
+        {
+          when: "21:14",
+          channel: "Form",
+          text: "Asked for a quote on the website",
+          done: true,
+        },
+        {
+          when: "21:14",
+          channel: "Voice",
+          text: "Called back, said it's an AI and asked your qualifying questions",
+          done: true,
+        },
+        {
+          when: "21:19",
+          channel: "Calendar",
+          text: "Booked with Priya for Tuesday 10:30",
+          done: true,
+        },
+        {
+          when: "21:20",
+          channel: "SMS",
+          text: "Confirmation sent; a reminder goes out the day before",
+        },
+      ],
+      foot: "Sample data. Every person and business here is made up.",
+    },
+  },
+  {
+    id: "outbound",
+    title: "Outbound: new business, found and opened for you.",
+    body: "Dialvo builds lists of companies that fit you, researches each one and writes to every person for a reason. Cold email goes from your own inboxes, LinkedIn messages from your reps' own profiles, and your reps get a call list with the research ready. Replies are handled and meetings booked.",
+    tags: [
+      { label: "Lead generation", href: playHref("outbound-lead-generation") },
+      {
+        label: "Cold email",
+        href: featureHref("deliverability-and-mailbox-health"),
+      },
+      {
+        label: "LinkedIn outreach",
+        href: featureHref("multi-channel-sequences"),
+      },
+      { label: "Lead reactivation", href: playHref("lead-reactivation") },
+      { label: "Closed-lost win-back", href: playHref("closed-lost") },
+      { label: "Competitive takeout", href: playHref("competitive-takeout") },
+    ],
+    art: kensett,
+    visual: {
+      kind: "list",
+      title: "Outbound · this week",
+      note: "Northwind Agency",
+      rows: [
+        {
+          name: "Marcus Hale · Harbor Fitness",
+          detail: "Email, then LinkedIn · replied “Thursday works”",
+          tag: "Booked Thu 11:00",
+          strong: true,
+        },
+        {
+          name: "Dana Whitlock · Fernhill Logistics",
+          detail: "Asked about integrations · answered",
+          tag: "Reply handled",
+        },
+        {
+          name: "Jonas Keller · Praxis Leipzig",
+          detail: "LinkedIn note drafted from the research",
+          tag: "Awaiting approval",
+        },
+        {
+          name: "Maya Chen · Cedar Lane Fitness",
+          detail: "Opened twice · brief and opening line ready",
+          tag: "On Priya's call list",
+        },
+      ],
+      foot: "Sample data. Every person and business here is made up.",
+    },
+  },
+  {
+    id: "closing",
+    title: "Closing: simple sales, finished on the spot.",
+    body: "When the answer is yes, the agent doesn't wait for a meeting. It confirms the offer, answers the last questions, and sends the payment link, booking or agreement right there on the call or chat. Bigger or more complex deals go to your team with everything already covered.",
+    tags: [
+      { label: "Paid bookings", href: "/closing#scope" },
+      { label: "Fixed-price offers", href: "/closing#scope" },
+      { label: "Plan upgrades", href: playHref("customer-expansion") },
+      { label: "Renewals", href: "/expansion" },
+    ],
+    art: labrador,
+    visual: {
+      kind: "thread",
+      title: "Website chat",
+      note: "Northwind Agency · 21:07",
+      messages: [
+        { text: "That's all I needed. Let's go with the Care plan." },
+        {
+          agent: true,
+          text: "Great. To confirm: Care is $150 a month, with hosting, security updates and one hour of changes. Shall I send the payment link?",
+        },
+        { text: "Yes please. Is there a contract?" },
+        {
+          agent: true,
+          text: "No contract; you can cancel any month. Here's your secure link: pay.northwind.example/care",
+        },
+        { text: "Done." },
+        {
+          agent: true,
+          text: "Payment received, thank you. Priya will be in touch tomorrow to get you set up.",
+        },
+      ],
+      foot: "Sample conversation. The agent never asks for card details; payment happens on the secure page.",
+    },
+  },
+];
+
+export function Jobs() {
+  return (
+    <section id="what" className="scroll-mt-20 px-5 pt-12 pb-20 sm:pb-24">
+      <div className="mx-auto max-w-[1180px] space-y-3">
+        {JOBS.map((j, i) => (
+          <Rise
+            key={j.id}
+            delay={0.05}
+            className={cn(
+              card,
+              "grid items-stretch gap-7 p-5 sm:p-8 lg:grid-cols-2 lg:gap-12 lg:p-10",
+            )}
+          >
+            <div
+              id={j.id}
+              className={cn(
+                "flex min-w-0 scroll-mt-28 flex-col justify-center",
+                i % 2 === 1 && "lg:order-last",
+              )}
+            >
+              <p className="text-[13px] text-[#0B0B0C]/45 tabular-nums">
+                0{i + 1}
+              </p>
+              <h2
+                className={`${serif} mt-4 max-w-[500px] text-[32px] leading-[1.06] sm:text-[40px]`}
+              >
+                {j.title}
+              </h2>
+              <p
+                className={`mt-4 max-w-[500px] text-[15.5px] leading-[1.6] ${muted}`}
+              >
+                {j.body}
+              </p>
+              <ul className="mt-6 flex max-w-[500px] flex-wrap gap-1.5">
+                {j.tags.map((t) => {
+                  const pill =
+                    "inline-flex h-8 items-center rounded-full px-3 text-[13px]";
+                  return (
+                    <li key={t.label}>
+                      {t.href ? (
+                        <Link
+                          href={t.href}
+                          className={cn(
+                            pill,
+                            "border border-black/[0.1] bg-white text-[#0B0B0C]/80 transition-colors hover:border-black/25 hover:text-[#0B0B0C]",
+                          )}
+                        >
+                          {t.label}
+                        </Link>
+                      ) : (
+                        <span
+                          className={cn(
+                            pill,
+                            "bg-black/[0.055] text-[#0B0B0C]/70",
+                          )}
+                        >
+                          {t.label}
+                        </span>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+              <Link
+                href={`/${j.id}`}
+                className="group mt-8 inline-flex items-center gap-1.5 self-start text-[14.5px] font-medium underline decoration-black/25 underline-offset-4 transition-colors hover:decoration-black"
+              >
+                How {j.id} works
+                <ArrowRight
+                  aria-hidden
+                  className="size-3.5 transition-transform group-hover:translate-x-0.5"
+                />
+              </Link>
+            </div>
+            <Backdrop
+              image={j.art}
+              sizes="(min-width: 1024px) 540px, 100vw"
+              className="flex min-w-0 items-center rounded-[22px] sm:p-6"
+            >
+              <VisualPanel visual={j.visual} className="w-full" />
+            </Backdrop>
+          </Rise>
+        ))}
+      </div>
+      <Rise className="mx-auto mt-8 flex max-w-[1180px] flex-wrap items-center justify-center gap-x-7 gap-y-3 text-[14.5px]">
+        {[
+          { href: "/plays", label: "See all plays" },
+          { href: "/platform", label: "See the platform" },
+        ].map((l) => (
+          <Link
+            key={l.href}
+            href={l.href}
+            className="group inline-flex items-center gap-1.5 text-[#0B0B0C]/70 underline decoration-black/20 underline-offset-4 transition-colors hover:text-[#0B0B0C] hover:decoration-black"
+          >
+            {l.label}
+            <ArrowRight
+              aria-hidden
+              className="size-3.5 transition-transform group-hover:translate-x-0.5"
+            />
+          </Link>
+        ))}
+      </Rise>
+    </section>
+  );
+}
+
+// --- Existing customers -------------------------------------------------------------
+
+/** One line between the channels and control: expansion, and where to read on. */
+export function ExistingCustomers() {
+  return (
+    <section className="px-5">
+      <Rise className="mx-auto max-w-[1180px]">
+        <Link
+          href="/expansion"
+          className={cn(
+            card,
+            "group flex flex-col items-start justify-between gap-4 px-6 py-6 transition-colors hover:bg-white sm:flex-row sm:items-center sm:px-9 sm:py-7",
+          )}
+        >
+          <span
+            className={`${serif} text-[24px] leading-[1.15] sm:text-[28px]`}
+          >
+            And once they&apos;re customers: check-ins, renewals and upgrades,
+            handled the same way.
+          </span>
+          <span className="inline-flex shrink-0 items-center gap-1.5 text-[14.5px] font-medium">
+            Expansion
+            <ArrowRight
+              aria-hidden
+              className="size-4 transition-transform group-hover:translate-x-0.5"
+            />
+          </span>
+        </Link>
+      </Rise>
+    </section>
+  );
+}
+
+// --- What it replaces ---------------------------------------------------------------
+
+const PILE: { icon: LucideIcon; name: string }[] = [
+  { icon: PhoneCall, name: "A dialer" },
+  { icon: Mail, name: "An email sequencer" },
+  { icon: MessageCircle, name: "A chat widget" },
+  { icon: Database, name: "A lead database" },
+  { icon: UserRound, name: "Someone to run them all" },
+];
 
 // The tools Dialvo connects to. Those with a logo file in public/apps show
 // it; the rest show their name.
@@ -91,14 +428,61 @@ const TOOLS: { logo?: string; name: string }[] = [
   { name: "API" },
 ];
 
-export function Tools() {
+export function Replaces() {
   return (
-    <section className="px-5 pt-14 pb-10">
-      <Rise className="mx-auto max-w-[1180px]">
+    <section id="replaces" className="scroll-mt-20 px-5 py-24 sm:py-32">
+      <Head
+        title="One team instead of five tools and a hire."
+        lead="A dialer, an email sequencer, a chat widget, a lead database and someone to run them all. Dialvo is one system with one inbox, at a price you can decide on today."
+      />
+      <div className="mx-auto mt-12 grid max-w-[1180px] items-stretch gap-3 lg:grid-cols-[1.25fr_auto_1fr]">
+        <Rise className="flex items-center rounded-[28px] border border-dashed border-black/20 p-5 sm:p-7">
+          <ul className="grid w-full gap-2 sm:grid-cols-2">
+            {PILE.map((t) => (
+              <li
+                key={t.name}
+                className="flex h-14 items-center gap-3 rounded-2xl border border-black/[0.07] bg-white/60 px-4 text-[15px] text-[#0B0B0C]/65 last:sm:col-span-2"
+              >
+                <t.icon aria-hidden className="size-[18px] shrink-0" />
+                {t.name}
+              </li>
+            ))}
+          </ul>
+        </Rise>
+        <div
+          aria-hidden
+          className="grid place-items-center py-1 text-[#0B0B0C]/35 lg:px-2"
+        >
+          <ArrowRight className="size-6 rotate-90 lg:rotate-0" />
+        </div>
+        <Rise
+          delay={0.1}
+          className={cn(card, "flex flex-col justify-center p-7 sm:p-9")}
+        >
+          <span className="grid size-12 place-items-center rounded-2xl bg-[#1F3BFF] text-white">
+            <Mark white className="size-6" />
+          </span>
+          <p className={`${serif} mt-6 text-[34px] leading-[1.05]`}>Dialvo</p>
+          <ul className="mt-4 space-y-2 text-[15.5px] text-[#0B0B0C]/75">
+            {["One system", "One inbox", "A price you can decide on today"].map(
+              (t) => (
+                <li key={t} className="flex items-center gap-2.5">
+                  <span
+                    aria-hidden
+                    className="size-1.5 shrink-0 rounded-full bg-[#1F3BFF]"
+                  />
+                  {t}
+                </li>
+              ),
+            )}
+          </ul>
+        </Rise>
+      </div>
+      <Rise className="mx-auto mt-12 max-w-[1180px]">
         <p className={`text-center text-[15px] ${muted}`}>
           Works from your CRM, your inbox and your calendar
         </p>
-        <ul className="mt-7 flex flex-wrap justify-center gap-2">
+        <ul className="mt-6 flex flex-wrap justify-center gap-2">
           {TOOLS.map((t) => (
             <li
               key={t.name}
@@ -121,258 +505,10 @@ export function Tools() {
   );
 }
 
-// --- Three motions ---------------------------------------------------------------
-
-const MOTIONS: {
-  id: MotionId;
-  name: string;
-  title: string;
-  body: string;
-  flow: string[];
-  points: string[];
-}[] = [
-  {
-    id: "inbound",
-    name: "Inbound",
-    title: "Answer every lead while they're still interested",
-    body: "A form is filled in, a visitor opens the chat, someone rings your number. An agent replies in seconds, at any hour, and does the first conversation properly.",
-    flow: ["Lead arrives", "Agent replies", "Qualified", "Meeting booked"],
-    points: [
-      "Speed to lead: a call back or a chat reply within seconds, day or night",
-      "Qualification with your questions, scored against your ideal customer",
-      "Routing to the right rep by territory, account owner or round robin",
-      "Scheduling on the rep's calendar, or a live transfer with a summary",
-      "Follow-up by text, WhatsApp and email when nobody picks up",
-    ],
-  },
-  {
-    id: "outbound",
-    name: "Outbound",
-    title: "Start conversations with the accounts worth having",
-    body: "Agents build the list, read up on every company, and write to each person for a reason. Email and social carry the outreach; your reps make the calls, with the research in front of them.",
-    flow: ["Signal spotted", "Researched", "Sequence sent", "Reply handled"],
-    points: [
-      "Prospect data: a database of companies and contacts, or your own lists",
-      "Live signals: funding, hiring, job changes, new tools, visits to your site",
-      "Deep research on every account, with sources",
-      "Personalised sequences across email, social and rep calls",
-      "Replies sorted and answered, meetings booked, unsubscribes honoured",
-      "A human dialer that lines up the next call for your reps",
-    ],
-  },
-  {
-    id: "expansion",
-    name: "Expansion",
-    title: "Give every customer the attention your top ten get",
-    body: "Agents check in with the customers your team never has time for, find who is ready for more, and bring a person in when there's a real opportunity.",
-    flow: ["Renewal or usage", "Agent checks in", "Need found", "Rep steps in"],
-    points: [
-      "Upsell and cross-sell: more seats, a bigger plan, a second product",
-      "Renewal check-ins well before the date, and win-backs for quiet accounts",
-      "Onboarding calls and messages that get new customers to first value",
-      "Calls only to customers who opted in; everything logged to the CRM",
-    ],
-  },
-];
-
-export function Motions() {
-  return (
-    <section id="motions" className="scroll-mt-20 px-5 py-28 sm:py-36">
-      <Head
-        title="Three motions, one team"
-        lead="New leads, new accounts and existing customers each need a different kind of conversation. Dialvo's agents run all three from the same context, so nothing is asked twice."
-      />
-      <div className="mx-auto mt-16 max-w-[1180px] space-y-3">
-        {MOTIONS.map((m, i) => (
-          <Rise
-            key={m.id}
-            delay={0.05}
-            className={cn(
-              card,
-              "grid gap-8 p-7 sm:p-10 lg:grid-cols-[1fr_1.05fr] lg:gap-14",
-            )}
-          >
-            <div id={m.id} className="flex scroll-mt-28 flex-col">
-              <p className="flex items-center gap-3 text-[13px] text-[#0B0B0C]/50">
-                <span className="tabular-nums">0{i + 1}</span>
-                <span className="rounded-full bg-[#0B0B0C] px-2.5 py-0.5 text-[12px] font-medium text-white">
-                  {m.name}
-                </span>
-              </p>
-              <h3
-                className={`${serif} mt-5 max-w-[460px] text-[32px] leading-[1.06] sm:text-[40px]`}
-              >
-                <Link href={`/${m.id}`} className="hover:opacity-80">
-                  {m.title}
-                </Link>
-              </h3>
-              <p
-                className={`mt-4 max-w-[460px] text-[15.5px] leading-[1.6] ${muted}`}
-              >
-                {m.body}
-              </p>
-              <Link
-                href={`/${m.id}`}
-                className="group mt-6 inline-flex items-center gap-1.5 self-start text-[14.5px] font-medium underline decoration-black/25 underline-offset-4 transition-colors hover:decoration-black"
-              >
-                How {m.name.toLowerCase()} works
-                <ArrowRight
-                  aria-hidden
-                  className="size-3.5 transition-transform group-hover:translate-x-0.5"
-                />
-              </Link>
-              {/* The motion as four steps. */}
-              <ol className="mt-auto flex flex-wrap items-center gap-x-1.5 gap-y-2 pt-8">
-                {m.flow.map((f, j) => (
-                  <li key={f} className="flex items-center gap-1.5">
-                    <span
-                      className={cn(
-                        "rounded-full px-3 py-1.5 text-[12.5px]",
-                        j === m.flow.length - 1
-                          ? "bg-[#0B0B0C] text-white"
-                          : "bg-black/[0.055] text-[#0B0B0C]/75",
-                      )}
-                    >
-                      {f}
-                    </span>
-                    {j < m.flow.length - 1 && (
-                      <ArrowRight
-                        aria-hidden
-                        className="size-3.5 text-[#0B0B0C]/30"
-                      />
-                    )}
-                  </li>
-                ))}
-              </ol>
-            </div>
-            <ul className="divide-y divide-black/[0.07] self-start border-y border-black/[0.07]">
-              {m.points.map((p) => (
-                <li
-                  key={p}
-                  className="flex gap-3 py-3.5 text-[15px] leading-[1.5]"
-                >
-                  <Check
-                    aria-hidden
-                    className="mt-[4px] size-4 shrink-0 text-[#0B0B0C]/60"
-                  />
-                  {p}
-                </li>
-              ))}
-            </ul>
-          </Rise>
-        ))}
-      </div>
-      <BuyStrip line="Start with one motion and add the others when you're ready." />
-    </section>
-  );
-}
-
-// --- Plays -------------------------------------------------------------------------
-
-export function Plays() {
-  return (
-    <section id="plays" className="scroll-mt-20 px-5 py-28 sm:py-36">
-      <Head
-        title="Pick a play and switch it on"
-        lead="Each play comes with its own audience, research and follow-up, and its own page explaining how it runs. Start with one, or run several side by side."
-      />
-      <div className="mx-auto mt-8 flex max-w-[1180px] flex-wrap gap-2">
-        {MOTION_LINKS.map((m) => (
-          <Link
-            key={m.id}
-            href={m.href}
-            className="inline-flex h-10 items-center gap-2 rounded-full border border-black/[0.1] bg-white/70 px-4 text-[14px] text-[#0B0B0C]/80 transition-colors hover:bg-white hover:text-[#0B0B0C]"
-          >
-            <m.icon aria-hidden className="size-[15px]" />
-            {m.name}
-            <ArrowRight aria-hidden className="size-3.5 opacity-50" />
-          </Link>
-        ))}
-      </div>
-      <div className="mx-auto mt-8 max-w-[1180px]">
-        <PlayCards slugs={PLAY_SLUGS} />
-      </div>
-    </section>
-  );
-}
-
-// --- Platform ----------------------------------------------------------------------
-
-type Feature = { icon: LucideIcon; title: string; body: string };
-
-export function Platform() {
-  return (
-    <section id="platform" className="scroll-mt-20 px-5 py-28 sm:py-36">
-      <Head
-        title="The platform under every agent"
-        lead="The same data, research, rules and reporting sit behind every channel, so each agent knows who it's talking to and what happened last time."
-      />
-      <div className="mx-auto mt-14 grid max-w-[1180px] gap-3 md:grid-cols-2 lg:grid-cols-3">
-        {GROUPS.map((g, i) => (
-          <Rise
-            key={g.id}
-            delay={(i % 3) * 0.06}
-            className={cn(card, "flex flex-col p-6")}
-          >
-            <span className="grid size-10 place-items-center rounded-xl border border-black/12 bg-black/[0.05]">
-              <g.icon aria-hidden className="size-[18px]" />
-            </span>
-            <h3 className={`${serif} mt-5 text-[26px] leading-[1.1]`}>
-              <Link href={`/platform#${g.id}`} className="hover:opacity-80">
-                {g.title}
-              </Link>
-            </h3>
-            <p className={`mt-1.5 text-[14.5px] leading-[1.5] ${muted}`}>
-              {g.blurb}
-            </p>
-            <ul className="mt-4 divide-y divide-black/[0.06] border-t border-black/[0.06]">
-              {g.items.map((item) => {
-                const it = itemInfo(item);
-                return (
-                  <li key={it.key}>
-                    <Link
-                      href={it.href}
-                      className="group flex items-center gap-2.5 py-2.5 text-[14.5px] text-[#0B0B0C]/80 transition-colors hover:text-[#0B0B0C]"
-                    >
-                      <it.icon
-                        aria-hidden
-                        className="size-4 shrink-0 text-[#0B0B0C]/55"
-                      />
-                      <span className="min-w-0 flex-1">{it.title}</span>
-                      <ArrowRight
-                        aria-hidden
-                        className="size-3.5 shrink-0 opacity-0 transition-all group-hover:translate-x-0.5 group-hover:opacity-60"
-                      />
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </Rise>
-        ))}
-      </div>
-      <Rise className="mx-auto mt-8 max-w-[1180px]">
-        <p className={`max-w-[720px] text-[15px] leading-[1.55] ${muted}`}>
-          You set the rules for all of it: approval thresholds, escalation
-          rules, send windows, and agent instructions you can read and edit.{" "}
-          <Link
-            href="/platform"
-            className="inline-flex items-center gap-1 font-medium text-[#0B0B0C] underline decoration-black/25 underline-offset-4 hover:decoration-black"
-          >
-            See the whole platform
-            <ArrowRight aria-hidden className="size-3.5" />
-          </Link>
-        </p>
-      </Rise>
-      <BuyStrip line="CRM sync, chat, social, WhatsApp and dialer seats come with Pro." />
-    </section>
-  );
-}
-
 // --- Compliance ------------------------------------------------------------------
 
 // What Dialvo does by default. Plain claims only: no certifications.
-const RULES: Feature[] = [
+const RULES: { icon: LucideIcon; title: string; body: string }[] = [
   {
     icon: PhoneIncoming,
     title: "Voice agents call people who asked",
@@ -402,6 +538,11 @@ const RULES: Feature[] = [
     icon: MessageSquareText,
     title: "Texts only with consent",
     body: "SMS and WhatsApp go to people who agreed to them, inside the send windows you set.",
+  },
+  {
+    icon: Lock,
+    title: "Payments by secure link",
+    body: "When an agent closes a sale, payment goes through a secure link. Card numbers are never asked for or read out over a call.",
   },
 ];
 
@@ -475,17 +616,17 @@ export function Compliance() {
       />
       <Head
         center
-        title="Built to be trusted by the people it talks to"
-        lead="Reaching people has rules. These are on by default, on every channel, so you don't have to remember them."
+        title="Your name is on every call. We protect it."
+        lead="Voice agents call only people who asked or agreed. They say they're an AI. Calls are recorded with notice. Opt-outs and Do Not Call lists are honoured automatically. Every email has an unsubscribe link. Payments go through a secure link, never read out over a call."
       />
       <Rise delay={0.15}>
         <Shield />
       </Rise>
-      <div className="mx-auto mt-14 grid max-w-[1180px] gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mx-auto mt-14 grid max-w-[1180px] gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {RULES.map((s, i) => (
           <Rise
             key={s.title}
-            delay={(i % 3) * 0.08}
+            delay={(i % 4) * 0.08}
             className="group rounded-[22px] border border-black/[0.08] bg-white/80 p-6 shadow-[0_12px_32px_-18px_rgba(60,45,30,0.18)] backdrop-blur-md transition-colors duration-300 hover:border-black/15 hover:bg-white"
           >
             <span className="grid size-10 place-items-center rounded-xl border border-black/12 bg-black/[0.05] transition-transform duration-300 group-hover:scale-105">
@@ -497,15 +638,19 @@ export function Compliance() {
             </p>
           </Rise>
         ))}
+        {/* The eighth cell: what Dialvo doesn't claim. */}
+        <Rise
+          delay={0.24}
+          className="flex items-center rounded-[22px] border border-dashed border-black/20 p-6"
+        >
+          <p className="text-[13.5px] leading-[1.55] text-[#0B0B0C]/60">
+            Dialvo holds no certifications yet and doesn&apos;t claim any. The
+            rules for calls, texts and email differ by country and state, and
+            who you contact is up to you. If in doubt, check with a lawyer where
+            you sell.
+          </p>
+        </Rise>
       </div>
-      <Rise className="mx-auto mt-8 max-w-[660px] text-center">
-        <p className="text-[13.5px] leading-[1.55] text-[#0B0B0C]/55">
-          Dialvo holds no certifications yet and doesn&apos;t claim any. The
-          rules for calls, texts and email differ by country and state, and who
-          you contact is up to you. If in doubt, check with a lawyer where you
-          sell.
-        </p>
-      </Rise>
     </section>
   );
 }
@@ -536,22 +681,14 @@ export function FinalCall() {
           </p>
         </Rise>
         <Words
-          text="Agents open the conversations. Your team closes them."
+          text="Stop paying for leads nobody answers."
           className={`${serif} mx-auto mt-6 max-w-[820px] text-[44px] leading-[1.02] sm:text-[68px]`}
         />
         <Rise delay={0.3}>
-          <ul className="mx-auto mt-8 flex max-w-[680px] flex-wrap justify-center gap-x-6 gap-y-2 text-[14.5px] text-[#0B0B0C]/75">
-            {[
-              "Free until your first booked meeting",
-              "Every call and message visible",
-              "Cancel anytime",
-            ].map((t) => (
-              <li key={t} className="flex items-center gap-2">
-                <Check aria-hidden className="size-4" />
-                {t}
-              </li>
-            ))}
-          </ul>
+          <p className="mx-auto mt-6 max-w-[520px] text-[17px] leading-[1.55] text-[#0B0B0C]/75 sm:text-[18px]">
+            Join the waitlist. It costs nothing until Dialvo books your first
+            meeting.
+          </p>
         </Rise>
         <Rise
           delay={0.45}
@@ -565,10 +702,11 @@ export function FinalCall() {
             <ArrowRight aria-hidden className="size-4" />
           </a>
           <Link
-            href="/#channels"
-            className="inline-flex h-12 items-center rounded-full border border-black/10 bg-white/70 px-6 text-[15.5px] text-[#0B0B0C] backdrop-blur-md hover:bg-white/90"
+            href="/#voice-demo"
+            className="inline-flex h-12 items-center gap-2 rounded-full border border-black/10 bg-white/70 px-6 text-[15.5px] text-[#0B0B0C] backdrop-blur-md hover:bg-white/90"
           >
-            See the product
+            <Mic aria-hidden className="size-4" />
+            Talk to the agent
           </Link>
         </Rise>
         <Rise delay={0.55}>

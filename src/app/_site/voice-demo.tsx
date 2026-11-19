@@ -14,7 +14,7 @@ import { serif } from "./theme";
 import type { CallOutcome } from "./voice-call";
 import { Orb, PanelBar, Transcript, type Line } from "./voice-parts";
 
-// The Voice tab's panel: a real conversation with Dialvo's AI sales agent,
+// The live demo's panel (voice-section.tsx): a real conversation with Dialvo's AI sales agent,
 // spoken through the visitor's microphone and answered in an ElevenLabs
 // voice. Nothing starts by itself: the visitor presses the orb or the
 // button, the browser asks for the microphone, and only then do we ask our
@@ -269,6 +269,7 @@ export function VoiceDemo({
           )}
           <button
             type="button"
+            data-talk
             onClick={start}
             className="mt-4 inline-flex h-11 items-center gap-2 rounded-full bg-[#1F3BFF] px-5 text-[14.5px] font-medium text-white transition-colors hover:bg-[#1830d6] focus-visible:ring-2 focus-visible:ring-black/40 focus-visible:ring-offset-2 focus-visible:outline-none"
           >
