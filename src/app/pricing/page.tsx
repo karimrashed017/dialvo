@@ -17,56 +17,89 @@ export const viewport = siteViewport;
 
 export const metadata: Metadata = pageMetadata({
   title: "Pricing · Dialvo, AI sales agents for every channel",
-  description: `Dialvo is free until your first booked meeting. Then Starter at $${PLANS.starter.price} a month (voice, email and SMS agents for inbound leads) or Pro at $${PLANS.pro.price} a month (every channel, human dialer seats and CRM sync). Cancel anytime.`,
+  description: `Dialvo is free until your first booked meeting. Then Starter at $${PLANS.starter.price} a month (voice, email and SMS agents for inbound leads), Pro at $${PLANS.pro.price} a month (every channel, human dialer seats and CRM sync) or Scale at $${PLANS.scale.price} a month (several workspaces and much higher limits). Cancel anytime.`,
   path: "/pricing",
 });
 
 // true: included. false: not on this plan. A string: the allowance.
 type Cell = boolean | string;
-const { starter, pro } = PLANS;
-const ROWS: { group: string; rows: [string, Cell, Cell][] }[] = [
+const { starter, pro, scale } = PLANS;
+const ROWS: { group: string; rows: [string, Cell, Cell, Cell][] }[] = [
   {
     group: "Channels",
     rows: [
-      ["Voice agent for inbound leads and callers", true, true],
-      ["Email agent, from your own inbox", true, true],
-      ["SMS follow-up, with people who opted in", true, true],
-      ["Website chat agent", false, true],
-      ["Social agent", false, true],
-      ["WhatsApp follow-up, with people who opted in", false, true],
-      ["Human dialer for your reps", false, `${pro.dialerSeats} seats`],
+      ["Voice agent for inbound leads and callers", true, true, true],
+      ["Email agent, from your own inbox", true, true, true],
+      ["SMS follow-up, with people who opted in", true, true, true],
+      ["Website chat agent", false, true, true],
+      ["Social agent", false, true, true],
+      ["WhatsApp follow-up, with people who opted in", false, true, true],
+      [
+        "Human dialer for your reps",
+        false,
+        `${pro.dialerSeats} seats`,
+        `${scale.dialerSeats} seats`,
+      ],
     ],
   },
   {
     group: "Allowances",
     rows: [
-      ["AI calls a month", fmt(starter.calls), fmt(pro.calls)],
-      ["Lead credits a month", fmt(starter.leadCredits), fmt(pro.leadCredits)],
-      ["Sending inboxes", String(starter.inboxes), String(pro.inboxes)],
-      ["Voices", "Standard", "Standard and premium"],
+      [
+        "AI calls a month",
+        fmt(starter.calls),
+        fmt(pro.calls),
+        fmt(scale.calls),
+      ],
+      [
+        "Lead credits a month",
+        fmt(starter.leadCredits),
+        fmt(pro.leadCredits),
+        fmt(scale.leadCredits),
+      ],
+      [
+        "Sending inboxes",
+        String(starter.inboxes),
+        String(pro.inboxes),
+        String(scale.inboxes),
+      ],
+      ["Voices", "Standard", "Standard and premium", "Standard and premium"],
+      [
+        "Workspaces for separate clients or brands",
+        "1",
+        "1",
+        String(scale.workspaces),
+      ],
     ],
   },
   {
     group: "Motions and plays",
     rows: [
-      ["Inbound: speed to lead, qualification, scheduling", true, true],
-      ["Outbound: research and personalised email", true, true],
-      ["Multi-channel sequences (email, social, rep calls)", false, true],
-      ["Expansion: upsell, renewals and onboarding", false, true],
+      ["Inbound: speed to lead, qualification, scheduling", true, true, true],
+      ["Outbound: research and personalised email", true, true, true],
+      ["Multi-channel sequences (email, social, rep calls)", false, true, true],
+      ["Expansion: upsell, renewals and onboarding", false, true, true],
     ],
   },
   {
     group: "Platform",
     rows: [
-      ["Knowledge base and smart replies", true, true],
-      ["Google Calendar booking and live transfer", true, true],
-      ["Gmail and Outlook", true, true],
-      ["Recordings, transcripts and one inbox", true, true],
-      ["Approve before send", true, true],
-      ["CRM sync: Salesforce, HubSpot, Pipedrive, Zoho", false, true],
-      ["Lead routing rules", false, true],
-      ["Slack alerts and the API", false, true],
-      ["Approval thresholds, escalation rules, send windows", false, true],
+      ["Knowledge base and smart replies", true, true, true],
+      ["Google Calendar booking and live transfer", true, true, true],
+      ["Gmail and Outlook", true, true, true],
+      ["Recordings, transcripts and one inbox", true, true, true],
+      ["Approve before send", true, true, true],
+      ["CRM sync: Salesforce, HubSpot, Pipedrive, Zoho", false, true, true],
+      ["Lead routing rules", false, true, true],
+      ["Slack alerts and the API", false, true, true],
+      [
+        "Approval thresholds, escalation rules, send windows",
+        false,
+        true,
+        true,
+      ],
+      ["Custom playbooks for each workspace", false, false, true],
+      ["Priority support and hands-on setup", false, false, true],
     ],
   },
 ];
@@ -84,6 +117,7 @@ export default function Pricing() {
   const cols = [
     { id: "starter" as const, name: starter.name, price: starter.price },
     { id: "pro" as const, name: pro.name, price: pro.price },
+    { id: "scale" as const, name: scale.name, price: scale.price },
   ];
   return (
     <SiteFrame>
@@ -98,10 +132,10 @@ export default function Pricing() {
               className={`${serif} text-[40px] leading-none sm:text-[52px]`}
             />
             <Rise className="mt-10 overflow-x-auto">
-              <table className="w-full min-w-[560px] border-collapse text-left text-[14.5px]">
+              <table className="w-full min-w-[720px] border-collapse text-left text-[14.5px]">
                 <thead>
                   <tr className="border-b border-black/[0.1]">
-                    <th className="w-[46%] py-5 font-normal text-[#0B0B0C]/45">
+                    <th className="w-[37%] py-5 font-normal text-[#0B0B0C]/45">
                       Plans
                     </th>
                     {cols.map((c) => (
@@ -124,7 +158,7 @@ export default function Pricing() {
                   <tbody key={g.group}>
                     <tr>
                       <td
-                        colSpan={3}
+                        colSpan={4}
                         className="pt-10 pb-3 text-[13px] text-[#0B0B0C]/45"
                       >
                         {g.group}
@@ -147,9 +181,10 @@ export default function Pricing() {
             <p className="mt-6 max-w-[760px] text-[13.5px] leading-[1.55] text-[#0B0B0C]/55">
               The free trial covers up to {TRIAL.calls} AI calls and ends at
               your first booked meeting. Add-ons on any plan: extra AI calls,
-              lead credits, sending inboxes and dialer seats. Dialvo is in early
-              access: we bring teams on in small groups and switch channels on
-              as each account needs them.
+              lead credits, sending inboxes and dialer seats. Need more than
+              Scale? Email us and we&apos;ll put a plan together. Dialvo is in
+              early access: we bring teams on in small groups and switch
+              channels on as each account needs them.
             </p>
           </div>
         </section>

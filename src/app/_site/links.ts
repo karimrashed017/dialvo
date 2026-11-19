@@ -9,7 +9,7 @@ export const STARTER_DEAL = `$${PLANS.starter.price} a month`;
 
 /** The waitlist form, optionally naming a plan or a play. */
 export function startHref(
-  opts: { plan?: "starter" | "pro"; play?: string } = {},
+  opts: { plan?: "starter" | "pro" | "scale"; play?: string } = {},
 ) {
   const q = new URLSearchParams();
   if (opts.plan) q.set("plan", opts.plan);

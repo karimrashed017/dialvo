@@ -1,11 +1,12 @@
 import { fmt, PLANS } from "@/lib/site";
 
-// Starter and Pro (prices: founder, 19 Nov 2026). Every number comes from
+// Starter, Pro and Scale (prices: founder, 19 Nov 2026). Every number comes from
 // src/lib/site.ts. Dialvo as a whole is in early access; the plans describe
 // the product, not a list of what's switched on for each account today.
 
 export type Plan = {
-  id: "starter" | "pro";
+  id: "starter" | "pro" | "scale";
+  badge?: string;
   name: string;
   price: number;
   lead: string;
@@ -57,5 +58,24 @@ export const PLAN_CARDS: Plan[] = [
     ],
     note: NOTE,
     featured: true,
+    badge: "Most popular",
+  },
+  {
+    id: "scale",
+    name: PLANS.scale.name,
+    price: PLANS.scale.price,
+    lead: "For agencies running Dialvo for several clients, and teams with a lot of leads.",
+    cta: "Join the waitlist",
+    intro: "Everything in Pro, plus",
+    features: [
+      `${fmt(PLANS.scale.calls)} AI calls a month, with premium voices`,
+      `${PLANS.scale.workspaces} workspaces: run separate clients or brands, each with its own agents, knowledge and reporting`,
+      `${PLANS.scale.dialerSeats} human dialer seats`,
+      `${PLANS.scale.inboxes} sending inboxes, with deliverability monitoring across all of them`,
+      `${fmt(PLANS.scale.leadCredits)} lead credits a month`,
+      "Custom playbooks and scripts for each workspace",
+      "Priority support and hands-on setup",
+    ],
+    note: NOTE,
   },
 ];

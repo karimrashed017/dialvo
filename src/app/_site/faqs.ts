@@ -56,7 +56,7 @@ export const FAQS: Record<string, Faq[]> = {
     },
     {
       q: "What happens after the first booked meeting?",
-      a: `You pick a plan: Starter at $${PLANS.starter.price} a month (the voice agent for inbound leads, the email agent and SMS follow-up, with ${fmt(PLANS.starter.calls)} AI calls) or Pro at $${PLANS.pro.price} a month (every channel, human dialer seats, CRM sync and premium voices, with ${fmt(PLANS.pro.calls)} AI calls). If you'd rather not, you can stop there and pay nothing.`,
+      a: `You pick a plan: Starter at $${PLANS.starter.price} a month (the voice agent for inbound leads, the email agent and SMS follow-up, with ${fmt(PLANS.starter.calls)} AI calls), Pro at $${PLANS.pro.price} a month (every channel, human dialer seats, CRM sync and premium voices, with ${fmt(PLANS.pro.calls)} AI calls) or Scale at $${PLANS.scale.price} a month (${PLANS.scale.workspaces} workspaces for separate clients or brands, with ${fmt(PLANS.scale.calls)} AI calls). If you'd rather not, you can stop there and pay nothing.`,
     },
     {
       q: "Can I cancel?",

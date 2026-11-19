@@ -30,8 +30,8 @@ export function PricingSection({
           <p className={`mt-5 text-[17px] leading-[1.55] ${muted}`}>
             You pay nothing until an agent books your first meeting (the trial
             covers up to {TRIAL.calls} AI calls, with a card to start). Then $
-            {PLANS.starter.price} or ${PLANS.pro.price} a month. No contract,
-            cancel anytime.
+            {PLANS.starter.price}, ${PLANS.pro.price} or ${PLANS.scale.price} a
+            month. No contract, cancel anytime.
           </p>
         </Rise>
       </div>

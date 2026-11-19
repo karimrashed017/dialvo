@@ -35,6 +35,16 @@ export const PLANS = {
     inboxes: 3,
     dialerSeats: 3,
   },
+  // Founder, 19 Nov 2026: a larger third plan, for agencies and bigger teams.
+  scale: {
+    name: "Scale",
+    price: 799,
+    calls: 10000,
+    leadCredits: 6000,
+    inboxes: 10,
+    dialerSeats: 10,
+    workspaces: 5,
+  },
 } as const;
 
 /** "1,000", for copy. */

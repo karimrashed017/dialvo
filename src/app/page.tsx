@@ -62,7 +62,7 @@ const STRUCTURED = [
       "Lead qualification, routing and meeting scheduling",
       "CRM sync",
     ],
-    offers: [PLANS.starter, PLANS.pro].map((p) => ({
+    offers: [PLANS.starter, PLANS.pro, PLANS.scale].map((p) => ({
       "@type": "Offer",
       name: p.name,
       price: String(p.price),

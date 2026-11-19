@@ -104,6 +104,7 @@ AI voice agents call people who asked to hear from you or opted in; Dialvo's AI 
 - Free trial: free until your first booked meeting, up to 300 AI calls, card required.
 - Starter: $99 a month. Voice agent for inbound leads, email agent from your own inbox, SMS follow-up, 1,000 AI calls and 500 lead credits a month.
 - Pro: $299 a month. Every channel including chat, social and WhatsApp, human dialer seats, CRM sync, premium voices, 3,000 AI calls and 1,500 lead credits a month.
+- Scale: $799 a month. Everything in Pro with 10,000 AI calls, 6,000 lead credits, 10 sending inboxes, 10 dialer seats and 5 workspaces for separate clients or brands, plus priority support.
 - Add-ons: extra AI calls, lead credits, inboxes and dialer seats. Cancel anytime, no contract.
 
 ## Key pages

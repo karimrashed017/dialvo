@@ -10,7 +10,7 @@ import { card, muted, serif } from "./theme";
 
 export function PricingCards({ plans }: { plans: Plan[] }) {
   return (
-    <div className="mx-auto mt-14 grid max-w-[900px] gap-3 sm:grid-cols-2">
+    <div className="mx-auto mt-14 grid max-w-[1180px] gap-3 md:grid-cols-2 lg:grid-cols-3">
       {plans.map((p, i) => (
         <Rise
           key={p.id}
@@ -24,9 +24,9 @@ export function PricingCards({ plans }: { plans: Plan[] }) {
         >
           <div className="flex items-center justify-between">
             <p className={`${serif} text-[30px]`}>{p.name}</p>
-            {p.featured && (
+            {p.badge && (
               <span className="rounded-full bg-[#1F3BFF] px-2.5 py-1 text-[12px] font-medium text-white">
-                Every channel
+                {p.badge}
               </span>
             )}
           </div>
