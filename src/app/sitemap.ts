@@ -16,6 +16,7 @@ const PAGES: { path: string; priority: number }[] = [
   { path: "/waitlist", priority: 0.8 },
   ...MOTIONS.map((m) => ({ path: m.href, priority: 0.9 })),
   { path: "/platform", priority: 0.8 },
+  { path: "/plays", priority: 0.8 },
   ...PLAY_SLUGS.map((s) => ({ path: playHref(s), priority: 0.7 })),
   ...FEATURE_SLUGS.map((s) => ({ path: featureHref(s), priority: 0.6 })),
   { path: "/privacy", priority: 0.3 },
