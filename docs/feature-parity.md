@@ -133,19 +133,19 @@ conversion · competitor switch campaigns.
 
 ## 9. Dialvo's homepage (what we built)
 
-| #   | Section                                          | Covers                                             |
-| --- | ------------------------------------------------ | -------------------------------------------------- |
-| 1   | Hero with the example workspace dashboard        | Positioning; all channels in one inbox             |
-| 2   | Integrations strip                               | CRM, inbox, calendar, Slack, WhatsApp              |
-| 3   | Channels (six tabs, auto-advancing)              | Section 2 above                                    |
-| 4   | Three motions                                    | Sections 3, 4, 5                                   |
-| 5   | Plays grid (12)                                  | Section 6                                          |
-| 6   | Platform (16 features in five groups)            | Section 7                                          |
-| 7   | You stay in control, with the sample call player | Audit trail, approvals, handoff                    |
-| 8   | Trust and compliance                             | Consent, AI disclosure, recording notice, opt-outs |
-| 9   | Pricing                                          | Starter $99, Pro $299                              |
-| 10  | FAQ                                              |                                                    |
-| 11  | Final call to action                             |                                                    |
+| #   | Section                                           | Covers                                             |
+| --- | ------------------------------------------------- | -------------------------------------------------- |
+| 1   | Hero with the example workspace dashboard         | Positioning; all channels in one inbox             |
+| 2   | Integrations strip                                | CRM, inbox, calendar, Slack, WhatsApp              |
+| 3   | Channels (six tabs, auto-advancing)               | Section 2 above                                    |
+| 4   | Three motions                                     | Sections 3, 4, 5                                   |
+| 5   | Plays grid (14, each linking to its page)         | Section 6                                          |
+| 6   | Platform (six groups linking to 23 feature pages) | Section 7                                          |
+| 7   | You stay in control, with the sample call player  | Audit trail, approvals, handoff                    |
+| 8   | Trust and compliance                              | Consent, AI disclosure, recording notice, opt-outs |
+| 9   | Pricing                                           | Starter $99, Pro $299                              |
+| 10  | FAQ                                               |                                                    |
+| 11  | Final call to action                              |                                                    |
 
 ## 10. Where we differ on purpose
 
@@ -159,5 +159,107 @@ conversion · competitor switch campaigns.
 - **Public pricing, monthly, cancel anytime.** Theirs is sales-led.
 - **No live "talk to the voice agent" widget yet.** The voice tab is a visual
   example; the sample call player sits under "You stay in control".
-- **Review-site intent integration** is left off the site until we have it.
+- **Review-site intent** has a page, but names no review site as an
+  integration: it is described as buyer-intent signals from software review
+  sites, and says the customer brings their own intent data.
+- **No Customers, Blog, Solutions or Company menus.** We have no such pages.
+- **Cold calls:** their copy lists phone in some outbound sequences. Ours never
+  has the AI call a cold prospect; reps do that with the dialer.
+- **Website visitor tracking:** they describe resolving visits to named
+  people. We say companies, and people only when already known to us.
+- **Upgrades on the call:** they describe completing simple upgrades in the
+  conversation. Our agent confirms the request and hands billing to a person.
+- **Signals and triggers** has no page of its own; it is covered in the
+  database, web search and review-site intent pages.
+- **Inbound lead qualification** is a platform page only (theirs is also a
+  play); the play menu follows the founder's list.
 - **Language count:** we say "multilingual" without a number.
+
+## 11. Page by page (second read, 19 Nov 2026)
+
+Read again from their three motion pages, the platform page, 15 play pages and
+24 platform feature pages. Below: what each of their pages covers (in our
+words), and the Dialvo page that covers the same ground. All Dialvo copy is
+original and lives in `src/lib/content/`.
+
+### How their pages are built
+
+- **Motion pages:** hero; three or four benefit points; the flow step by
+  step; the plays in that motion as cards; a long feature list; a
+  before/after comparison; call to action. Ours: hero with a sample board, the
+  problem, steps, play cards, channels used, what you control, platform
+  links, FAQ, call to action. We use a problem section in place of their
+  before/after table, and add FAQ and controls.
+- **Play pages:** promise; "the gap"; "the shift"; four steps; customer
+  results; who it is for; other plays. Ours: promise, the situation, four to
+  six steps, a sample panel, channels and features used, what you set up,
+  FAQ, related plays. No results or quotes.
+- **Platform pages:** one-line promise; three overview points; customer
+  results; related features. Ours go deeper: five to eight capabilities, how
+  it fits with the agents, a sample panel, controls and limits, related
+  features.
+
+### Motions
+
+| Their page | What it covers                                                                                                                                                                                                                                                                                                                                                                                            | Dialvo page  |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| Inbound    | Voice or chat reply inside a minute, 24/7; discovery in the conversation; routing rules; book or live transfer; nurture, redirect or flag the rest; scoring, multi-channel re-engagement, after-hours and multi-language intake; audit trail, flagged-call review, branded caller ID, warm transfer, CRM write-back                                                                                       | `/inbound`   |
+| Outbound   | Signal-built lists (funding, hiring, job changes, tech changes, site visits); own lists or their database; research per contact; one message per person across email and social; rep-led calls with research on screen; deliverability managed; smart replies and objection handling; campaign planning; opt-out handling; power dialer; multi-language knowledge; regional reporting; review-site intent | `/outbound`  |
+| Expansion  | Triggers from customer signals, CRM and renewal timing; voice to opted-in customers with email, SMS and WhatsApp in support; whole-base coverage; simple changes on the call, bigger ones to a rep; upsell, cross-sell, discovery, free-to-paid, renewal protection, dormant customers; outcomes tracking                                                                                                 | `/expansion` |
+
+### Plays
+
+| Their play                     | What it covers                                                                                                                        | Dialvo page                             |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- |
+| Speed to lead                  | Instant call or chat for form leads at any hour; qualify, book or transfer; follow up non-converters                                  | `/plays/speed-to-lead`                  |
+| Automated meeting scheduling   | Booking inside the conversation; routing to the right rep; reminders and rescheduling; context with every booking                     | `/plays/automated-meeting-scheduling`   |
+| Customer onboarding operations | Onboarding line customers can call; proactive calls with permission; adaptive conversation; handoff of complex or high-value accounts | `/plays/customer-onboarding-operations` |
+| Customer expansion             | Usage, seat, adoption and renewal signals; relevant outreach; qualified opportunities to reps; whole-base coverage                    | `/plays/customer-expansion`             |
+| PLG conversion                 | Product-usage signals via API; message tied to what the user did; help not pitch; ready users routed with usage context               | `/plays/plg-conversion`                 |
+| Lead nurture                   | Sequences by role, industry and entry point; messaging that adapts to engagement; buying signals trigger handoff with context         | `/plays/lead-nurture`                   |
+| Lead reactivation              | Starts from CRM; picks leads whose timing changed; message built on what changed; continuous cycling                                  | `/plays/lead-reactivation`              |
+| Retargeting website visitors   | Visitor identification; outreach while intent is warm, tied to pages viewed; per-role messaging; follow-up sequences                  | `/plays/retargeting-website-visitors`   |
+| Closed lost                    | Deal history from CRM; outreach around what changed; different message per lost reason and per contact; resurfaced when ready         | `/plays/closed-lost`                    |
+| Competitive takeout            | Map a competitor's customers; watch for leadership, review, renewal and stack signals; lead with the buyer's pain; full sequence      | `/plays/competitive-takeout`            |
+| Outbound lead generation       | Lists from live signals; researched personal outreach; multi-channel sequences; optimise for replies and meetings                     | `/plays/outbound-lead-generation`       |
+| Event registration             | Invite list from pipeline; reason per person; sequenced push with follow-ups; hands on to post-event                                  | `/plays/event-registration`             |
+| Event follow-up                | Outreach within hours; tailored to sessions attended; whole attendee list; no-shows handled separately                                | `/plays/event-follow-up`                |
+| Event no-show                  | Prompt follow-up without guilt; built on the sessions registered for; opens a conversation, not just a replay; back into pipeline     | `/plays/event-no-show`                  |
+| Inbound lead qualification     | Own criteria; immediate; context at handoff; unqualified leads given a next step                                                      | `/platform/inbound-lead-qualification`  |
+
+### Platform
+
+| Their page                                | What it covers                                                                                           | Dialvo page                                                        |
+| ----------------------------------------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| Real-time company and lead database       | Live-verified records; firmographics, tech, org chart, funding, contacts together; signals on the record | `/platform/company-and-lead-database`                              |
+| Live web search and AI prospecting        | Audiences from live web events; reasoning and sources per match; quick iteration                         | `/platform/live-web-search-prospecting`                            |
+| Signals and triggers                      | Real events over scores; signal to outreach quickly; configurable signals                                | Folded into the two pages above and `/platform/review-site-intent` |
+| Lead qualification                        | Own criteria at scale; any lead source; research-first checking                                          | `/platform/lead-qualification`                                     |
+| Website visitor tracking                  | Identify visitors; behaviour shapes outreach; pipeline from existing traffic                             | `/platform/website-visitor-tracking`                               |
+| Multi-channel sequences                   | All channels in one sequence; each touch builds on the last; deliverability built in                     | `/platform/multi-channel-sequences`                                |
+| Sequence builder                          | Steps, timing, channels, fallbacks; agents execute; channel-native messages                              | `/platform/sequence-builder`                                       |
+| Smart replies                             | Instant handling; intent classification; hot leads booked with context                                   | `/platform/smart-replies`                                          |
+| Multi-lingual outreach                    | Written natively; same research depth; new markets by configuration                                      | `/platform/multilingual-outreach`                                  |
+| Consented outbound calling                | Calls to opted-in existing customers; account-aware; whole-base coverage                                 | `/platform/consented-outbound-calling`                             |
+| Deep analytics                            | One source of truth; all three motions; CRM-linked attribution                                           | `/platform/analytics`                                              |
+| AI deliverability and mailbox health      | Domain setup, warm-up, rotation, monitoring; volume scaling; health view                                 | `/platform/deliverability-and-mailbox-health`                      |
+| Call deliverability and number management | Number warm-up; spam-flag monitoring; pools that grow with volume                                        | `/platform/call-deliverability-and-number-management`              |
+| Deep research                             | Research beyond enrichment; layered with own context; sourced, with a messaging angle                    | `/platform/deep-research`                                          |
+| AI personalization                        | Research-based messages; same depth at any list size; per persona                                        | `/platform/ai-personalisation`                                     |
+| Playbooks                                 | Pre-built plays with research logic; fast launch; runs unattended                                        | `/platform/playbooks`                                              |
+| Knowledge base                            | Positioning everywhere; scoped per campaign; instant updates                                             | `/platform/knowledge-base`                                         |
+| AI phone agent                            | Answers and calls back; real conversation; knowledge-base grounding and accuracy checks                  | `/platform/ai-phone-agent`                                         |
+| Inbound lead qualification                | Own criteria in order; automated accuracy checks; outcomes beyond yes or no                              | `/platform/inbound-lead-qualification`                             |
+| Intelligent lead routing                  | Routed in the conversation; context travels; rules easy to change; own or existing router                | `/platform/intelligent-lead-routing`                               |
+| CRM integration                           | Automatic logging; triggers from CRM events; read and write permissions                                  | `/platform/crm-integration`                                        |
+| Slack integration                         | Instant alerts; routed per channel; enough context to act                                                | `/platform/slack-integration`                                      |
+| Review-site (G2) integration              | Intent from own listing, competitor and category pages starts outreach                                   | `/platform/review-site-intent` (no site named)                     |
+| API                                       | One API for all agents; data in and results out; triggers from any system                                | `/platform/api`                                                    |
+
+### Navigation
+
+Theirs: Use Cases (three motions, "see more plays"), Platform (six groups),
+Solutions, Customers, Company, Blog, log in, demo. Ours: Use cases (three
+motions, "See more plays" by motion), Platform (the same six groups, our
+wording), Pricing, Get early access. Desktop panels and a phone accordion,
+built in our own glass nav.

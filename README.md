@@ -22,12 +22,27 @@ npm run check   # lint, typecheck, format check
   - `channels.tsx`: the six channel tabs and their panels.
   - `sections.tsx`: tools, the three motions, plays, platform, compliance, last call.
   - `listen.tsx` and `call-player.tsx`: "You stay in control" and the sample call.
+- `src/app/inbound`, `outbound`, `expansion`: the three motion pages.
+- `src/app/plays/[slug]`: one page per play (14).
+- `src/app/platform` and `src/app/platform/[slug]`: the platform overview and
+  one page per feature (23).
+- `src/lib/content/`: all the copy for those pages, typed. `catalog.ts` is the
+  map (motions, plays, feature groups, one-liners) that the menus, footer,
+  sitemap and cards read; the `plays-*.ts`, `platform-*.ts` and `motions.ts`
+  files hold each page's copy. To add a page, add it to the catalog and write
+  its entry: TypeScript fails until both exist.
+- `src/app/_site/pages/`: the templates those pages render through
+  (`play-page`, `feature-page`, `motion-page`, `platform-page`), the shared
+  parts and the sample panels (`visual.tsx`).
+- `src/app/_site/nav.tsx`: the nav and its two menus (panels on desktop, an
+  accordion on phones).
 - `src/app/pricing/page.tsx`: plans, the comparison table and the FAQ.
 - `src/app/privacy`, `src/app/terms`: short draft placeholders.
 - `src/lib/site.ts`: name, URL, email, description, prices and allowances. Change them here.
 - `src/app/_site/plans.ts`: what each plan includes.
 - `src/app/_site/faqs.ts`: the FAQ.
-- `public/llms.txt`: a plain description of Dialvo for AI assistants.
+- `public/llms.txt`: a plain description of Dialvo for AI assistants, with a
+  link to every page. Update it when the catalog changes.
 - `public/og.png`: the share image (1200x630).
 - `docs/feature-parity.md`: the capabilities the site has to cover, and where it differs on purpose.
 
@@ -37,6 +52,12 @@ npm run check   # lint, typecheck, format check
 - Product visuals use made-up businesses and are marked "Example".
 - No certifications are claimed.
 - The whole product is in early access; individual features aren't tagged.
+- AI voice calls go only to people who asked or opted in, and say they're an
+  AI. Cold calls are made by reps with the dialer.
+- Cold email goes from the customer's own inboxes with an unsubscribe link;
+  LinkedIn messages go from the rep's own profile after they approve them.
+- The site never names the benchmark, and no review site is named as an
+  integration.
 
 ## Logo
 
