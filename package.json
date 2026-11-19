@@ -10,9 +10,11 @@
     "typecheck": "next typegen && tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check": "npm run lint && npm run typecheck && npm run format:check"
+    "check": "npm run lint && npm run typecheck && npm run format:check && npm test",
+    "test": "vitest run"
   },
   "dependencies": {
+    "@elevenlabs/react": "^1.23.1",
     "@vercel/analytics": "^2.0.1",
     "cn": "^0.5.1",
     "lucide-react": "^1.65.0",
@@ -35,6 +37,7 @@
     "prettier": "^3.9.10",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^5.1.1"
   }
 }
