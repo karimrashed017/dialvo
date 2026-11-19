@@ -42,13 +42,13 @@ export function Mark({
   );
 }
 
-/** The mark in a blue circle: the agent's picture in product visuals. */
+/** The mark in a black circle: the agent's picture in product visuals. */
 export function MarkAvatar({ className }: { className?: string }) {
   return (
     <span
       aria-hidden
       className={cn(
-        "grid shrink-0 place-items-center rounded-full bg-[#1F3BFF]",
+        "grid shrink-0 place-items-center rounded-full bg-[#0B0B0C]",
         className,
       )}
     >

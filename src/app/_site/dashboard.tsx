@@ -136,7 +136,7 @@ function Feed() {
   const [ref, t] = useTicker<HTMLDivElement>(n, 2600, 0);
   const shown = AGO.map((_, i) => (t - i + n * 2) % n);
   return (
-    <div ref={ref} className={cn(panel, "h-[348px] lg:h-full")}>
+    <div ref={ref} className={cn(panel, "h-[236px] sm:h-[348px] lg:h-full")}>
       <div className={panelHead}>
         Agent activity
         <span className="inline-flex items-center gap-1.5 text-[11.5px] font-normal text-[#0B0B0C]/50">
@@ -187,7 +187,7 @@ function LiveConversation() {
   const shown = Math.min(t + 1, CHAT.length);
   const booked = t >= CHAT.length;
   return (
-    <div ref={ref} className={cn(panel, "h-[348px] lg:h-full")}>
+    <div ref={ref} className={cn(panel, "hidden h-[348px] sm:flex lg:h-full")}>
       <div className={panelHead}>
         <span className="flex min-w-0 items-center gap-2">
           <MessageCircle aria-hidden className="size-3.5 shrink-0" />

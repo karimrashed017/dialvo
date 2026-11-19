@@ -477,7 +477,7 @@ export function Replaces() {
           delay={0.1}
           className={cn(card, "flex flex-col justify-center p-7 sm:p-9")}
         >
-          <span className="grid size-12 place-items-center rounded-2xl bg-[#1F3BFF] text-white">
+          <span className="grid size-12 place-items-center rounded-2xl bg-[#0B0B0C] text-white">
             <Mark white className="size-6" />
           </span>
           <p className={`${serif} mt-6 text-[34px] leading-[1.05]`}>Dialvo</p>
