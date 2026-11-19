@@ -2,47 +2,29 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
-  BadgeCheck,
-  BarChart3,
-  BookOpen,
   Bot,
-  CalendarCheck,
-  CalendarClock,
   Check,
-  Code2,
-  Database,
-  Eye,
-  FileSearch,
-  GraduationCap,
-  Hash,
-  History,
-  Languages,
-  ListTree,
-  MailCheck,
   MailX,
-  MessageSquareReply,
   MessageSquareText,
   Mic,
   PhoneIncoming,
   PhoneOff,
-  RefreshCw,
-  Route,
-  Send,
   ShieldCheck,
-  SlidersHorizontal,
-  Sparkles,
-  Sprout,
-  Ticket,
-  TrendingUp,
-  UserCheck,
-  Zap,
   type LucideIcon,
 } from "lucide-react";
+import {
+  GROUPS,
+  itemInfo,
+  MOTIONS as MOTION_LINKS,
+  PLAY_SLUGS,
+  type MotionId,
+} from "@/lib/content/catalog";
 import { cn } from "@/lib/utils";
 import labrador from "../../../public/images/art/bradford-coast-of-labrador.jpg";
 import { BuyStrip } from "./buy";
 import { STARTER_DEAL, startHref } from "./links";
 import { Rise, Words } from "./motion";
+import { PlayCards } from "./pages/parts";
 import { card, GRAIN, muted, serif } from "./theme";
 
 // The home page's sections after the hero and the channel tabs: the tools
@@ -142,7 +124,7 @@ export function Tools() {
 // --- Three motions ---------------------------------------------------------------
 
 const MOTIONS: {
-  id: string;
+  id: MotionId;
   name: string;
   title: string;
   body: string;
@@ -220,13 +202,25 @@ export function Motions() {
               <h3
                 className={`${serif} mt-5 max-w-[460px] text-[32px] leading-[1.06] sm:text-[40px]`}
               >
-                {m.title}
+                <Link href={`/${m.id}`} className="hover:opacity-80">
+                  {m.title}
+                </Link>
               </h3>
               <p
                 className={`mt-4 max-w-[460px] text-[15.5px] leading-[1.6] ${muted}`}
               >
                 {m.body}
               </p>
+              <Link
+                href={`/${m.id}`}
+                className="group mt-6 inline-flex items-center gap-1.5 self-start text-[14.5px] font-medium underline decoration-black/25 underline-offset-4 transition-colors hover:decoration-black"
+              >
+                How {m.name.toLowerCase()} works
+                <ArrowRight
+                  aria-hidden
+                  className="size-3.5 transition-transform group-hover:translate-x-0.5"
+                />
+              </Link>
               {/* The motion as four steps. */}
               <ol className="mt-auto flex flex-wrap items-center gap-x-1.5 gap-y-2 pt-8">
                 {m.flow.map((f, j) => (
@@ -275,118 +269,28 @@ export function Motions() {
 
 // --- Plays -------------------------------------------------------------------------
 
-type Play = { icon: LucideIcon; motion: string; title: string; body: string };
-
-const PLAYS: Play[] = [
-  {
-    icon: Zap,
-    motion: "Inbound",
-    title: "Speed to lead",
-    body: "Every form fill gets a call or a chat reply within seconds, not on Monday morning.",
-  },
-  {
-    icon: UserCheck,
-    motion: "Inbound",
-    title: "Inbound qualification",
-    body: "Your questions asked and scored in the first conversation, so reps only meet good fits.",
-  },
-  {
-    icon: CalendarCheck,
-    motion: "Inbound",
-    title: "Meeting scheduling",
-    body: "Booked on the right rep's calendar during the conversation, with reminders and rescheduling.",
-  },
-  {
-    icon: Send,
-    motion: "Outbound",
-    title: "Outbound lead generation",
-    body: "From a description of your ideal customer to researched, personal outreach on several channels.",
-  },
-  {
-    icon: Sprout,
-    motion: "Outbound",
-    title: "Lead nurture",
-    body: "Useful messages for people who aren't ready yet, and a handoff the moment they are.",
-  },
-  {
-    icon: RefreshCw,
-    motion: "Outbound",
-    title: "Lead reactivation",
-    body: "Old leads in your CRM get a fresh, relevant reason to talk when something changes.",
-  },
-  {
-    icon: History,
-    motion: "Outbound",
-    title: "Closed-lost win-back",
-    body: "Deals you lost are revisited when the reason they said no might no longer hold.",
-  },
-  {
-    icon: Eye,
-    motion: "Outbound",
-    title: "Website visitor follow-up",
-    body: "Accounts reading your pricing page are identified, researched and contacted while it's fresh.",
-  },
-  {
-    icon: Ticket,
-    motion: "Outbound",
-    title: "Event follow-up and no-shows",
-    body: "Everyone who attended hears from you within a day; everyone who missed it gets a second chance.",
-  },
-  {
-    icon: TrendingUp,
-    motion: "Expansion",
-    title: "Customer expansion",
-    body: "Upgrades, extra seats and second products raised at the right moment, with customers who opted in.",
-  },
-  {
-    icon: GraduationCap,
-    motion: "Expansion",
-    title: "Customer onboarding",
-    body: "New customers are welcomed and helped to first value, with a person brought in when it counts.",
-  },
-  {
-    icon: CalendarClock,
-    motion: "Expansion",
-    title: "Renewal check-ins",
-    body: "A conversation well before the renewal date, so problems surface while there's time to fix them.",
-  },
-];
-
 export function Plays() {
   return (
     <section id="plays" className="scroll-mt-20 px-5 py-28 sm:py-36">
       <Head
         title="Pick a play and switch it on"
-        lead="Each play comes with its own audience, research and follow-up. Run one, or several side by side."
+        lead="Each play comes with its own audience, research and follow-up, and its own page explaining how it runs. Start with one, or run several side by side."
       />
-      <div className="mx-auto mt-14 grid max-w-[1180px] gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {PLAYS.map((p, i) => (
-          <Rise
-            key={p.title}
-            delay={(i % 3) * 0.07}
-            className={cn(card, "group flex flex-col p-6")}
+      <div className="mx-auto mt-8 flex max-w-[1180px] flex-wrap gap-2">
+        {MOTION_LINKS.map((m) => (
+          <Link
+            key={m.id}
+            href={m.href}
+            className="inline-flex h-10 items-center gap-2 rounded-full border border-black/[0.1] bg-white/70 px-4 text-[14px] text-[#0B0B0C]/80 transition-colors hover:bg-white hover:text-[#0B0B0C]"
           >
-            <div className="flex items-center justify-between">
-              <span className="grid size-10 place-items-center rounded-xl border border-black/12 bg-black/[0.05] transition-transform duration-300 group-hover:scale-105">
-                <p.icon aria-hidden className="size-[18px]" />
-              </span>
-              <span className="rounded-full border border-black/[0.1] px-2.5 py-0.5 text-[12px] text-[#0B0B0C]/55">
-                {p.motion}
-              </span>
-            </div>
-            <h3 className="mt-6 text-[17px] font-medium">{p.title}</h3>
-            <p className={`mt-2 text-[14.5px] leading-[1.55] ${muted}`}>
-              {p.body}
-            </p>
-            <a
-              href={startHref({ play: p.title })}
-              className="mt-auto inline-flex items-center gap-1.5 pt-6 text-[13.5px] text-[#0B0B0C]/55 transition-colors hover:text-[#0B0B0C]"
-            >
-              Start with this play
-              <ArrowRight aria-hidden className="size-3.5" />
-            </a>
-          </Rise>
+            <m.icon aria-hidden className="size-[15px]" />
+            {m.name}
+            <ArrowRight aria-hidden className="size-3.5 opacity-50" />
+          </Link>
         ))}
+      </div>
+      <div className="mx-auto mt-8 max-w-[1180px]">
+        <PlayCards slugs={PLAY_SLUGS} />
       </div>
     </section>
   );
@@ -396,109 +300,6 @@ export function Plays() {
 
 type Feature = { icon: LucideIcon; title: string; body: string };
 
-const PLATFORM: { group: string; features: Feature[] }[] = [
-  {
-    group: "Find",
-    features: [
-      {
-        icon: Database,
-        title: "Prospect database and signals",
-        body: "Companies and contacts, refreshed as you prospect, with signals such as funding, hiring, job changes and site visits.",
-      },
-      {
-        icon: FileSearch,
-        title: "Deep research",
-        body: "A brief on every account from public sources, your CRM and your knowledge base, with the sources listed.",
-      },
-    ],
-  },
-  {
-    group: "Engage",
-    features: [
-      {
-        icon: Sparkles,
-        title: "AI personalisation",
-        body: "One message for one person, shaped by their role and what's happening at their company. No merge-field templates.",
-      },
-      {
-        icon: ListTree,
-        title: "Sequence builder",
-        body: "Steps, timing and channels in one builder, with branches for opens, replies and silence.",
-      },
-      {
-        icon: MessageSquareReply,
-        title: "Smart replies",
-        body: "Replies are sorted, questions and objections answered from your own positioning, and the tricky ones passed to you.",
-      },
-      {
-        icon: BookOpen,
-        title: "Knowledge base",
-        body: "Your site, documents, pricing and call notes, so agents answer the way your best rep would.",
-      },
-      {
-        icon: Languages,
-        title: "Multilingual",
-        body: "Agents speak and write in your buyer's language, working from knowledge you add for each market.",
-      },
-    ],
-  },
-  {
-    group: "Route and sync",
-    features: [
-      {
-        icon: Route,
-        title: "Lead routing",
-        body: "Rules for territory, account owner, seniority or round robin, applied during the conversation.",
-      },
-      {
-        icon: RefreshCw,
-        title: "CRM sync",
-        body: "Two-way with Salesforce, HubSpot, Pipedrive and Zoho. Every conversation and outcome lands on the right record.",
-      },
-      {
-        icon: CalendarCheck,
-        title: "Inbox and calendar",
-        body: "Sends from your Gmail or Outlook, and books straight into Google Calendar.",
-      },
-      {
-        icon: Hash,
-        title: "Slack",
-        body: "A note in the right channel when a lead is qualified, a meeting is booked or someone needs you.",
-      },
-      {
-        icon: Code2,
-        title: "API",
-        body: "Trigger agents from your product or forms, and pull transcripts, replies and outcomes back out.",
-      },
-    ],
-  },
-  {
-    group: "Measure and protect",
-    features: [
-      {
-        icon: MailCheck,
-        title: "Deliverability and mailbox health",
-        body: "Authenticated sending domains, gradual warm-up, sensible daily limits and mailbox rotation.",
-      },
-      {
-        icon: BadgeCheck,
-        title: "Number health and branded caller ID",
-        body: "Your name on the buyer's screen where carriers support it, with numbers monitored and rotated before they're flagged.",
-      },
-      {
-        icon: BarChart3,
-        title: "Analytics dashboard",
-        body: "Conversations, replies, qualified leads and meetings in one place, by channel and by play.",
-      },
-      {
-        icon: SlidersHorizontal,
-        title: "Governance",
-        body: "Approval thresholds, escalation rules, send windows, and agent instructions you can read and edit.",
-      },
-    ],
-  },
-];
-
 export function Platform() {
   return (
     <section id="platform" className="scroll-mt-20 px-5 py-28 sm:py-36">
@@ -506,35 +307,63 @@ export function Platform() {
         title="The platform under every agent"
         lead="The same data, research, rules and reporting sit behind every channel, so each agent knows who it's talking to and what happened last time."
       />
-      <div className="mx-auto mt-14 max-w-[1180px] space-y-10">
-        {PLATFORM.map((g) => (
-          <div
-            key={g.group}
-            className="grid gap-4 lg:grid-cols-[180px_1fr] lg:gap-8"
+      <div className="mx-auto mt-14 grid max-w-[1180px] gap-3 md:grid-cols-2 lg:grid-cols-3">
+        {GROUPS.map((g, i) => (
+          <Rise
+            key={g.id}
+            delay={(i % 3) * 0.06}
+            className={cn(card, "flex flex-col p-6")}
           >
-            <Rise>
-              <h3 className={`${serif} text-[28px] leading-none lg:pt-5`}>
-                {g.group}
-              </h3>
-            </Rise>
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-              {g.features.map((f, i) => (
-                <Rise
-                  key={f.title}
-                  delay={(i % 3) * 0.06}
-                  className="rounded-[20px] border border-black/[0.07] bg-white/75 p-5 transition-colors duration-300 hover:bg-white"
-                >
-                  <f.icon aria-hidden className="size-[19px]" />
-                  <h4 className="mt-4 text-[15.5px] font-medium">{f.title}</h4>
-                  <p className={`mt-1.5 text-[14px] leading-[1.55] ${muted}`}>
-                    {f.body}
-                  </p>
-                </Rise>
-              ))}
-            </div>
-          </div>
+            <span className="grid size-10 place-items-center rounded-xl border border-black/12 bg-black/[0.05]">
+              <g.icon aria-hidden className="size-[18px]" />
+            </span>
+            <h3 className={`${serif} mt-5 text-[26px] leading-[1.1]`}>
+              <Link href={`/platform#${g.id}`} className="hover:opacity-80">
+                {g.title}
+              </Link>
+            </h3>
+            <p className={`mt-1.5 text-[14.5px] leading-[1.5] ${muted}`}>
+              {g.blurb}
+            </p>
+            <ul className="mt-4 divide-y divide-black/[0.06] border-t border-black/[0.06]">
+              {g.items.map((item) => {
+                const it = itemInfo(item);
+                return (
+                  <li key={it.key}>
+                    <Link
+                      href={it.href}
+                      className="group flex items-center gap-2.5 py-2.5 text-[14.5px] text-[#0B0B0C]/80 transition-colors hover:text-[#0B0B0C]"
+                    >
+                      <it.icon
+                        aria-hidden
+                        className="size-4 shrink-0 text-[#0B0B0C]/55"
+                      />
+                      <span className="min-w-0 flex-1">{it.title}</span>
+                      <ArrowRight
+                        aria-hidden
+                        className="size-3.5 shrink-0 opacity-0 transition-all group-hover:translate-x-0.5 group-hover:opacity-60"
+                      />
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </Rise>
         ))}
       </div>
+      <Rise className="mx-auto mt-8 max-w-[1180px]">
+        <p className={`max-w-[720px] text-[15px] leading-[1.55] ${muted}`}>
+          You set the rules for all of it: approval thresholds, escalation
+          rules, send windows, and agent instructions you can read and edit.{" "}
+          <Link
+            href="/platform"
+            className="inline-flex items-center gap-1 font-medium text-[#0B0B0C] underline decoration-black/25 underline-offset-4 hover:decoration-black"
+          >
+            See the whole platform
+            <ArrowRight aria-hidden className="size-3.5" />
+          </Link>
+        </p>
+      </Rise>
       <BuyStrip line="CRM sync, chat, social, WhatsApp and dialer seats come with Pro." />
     </section>
   );
