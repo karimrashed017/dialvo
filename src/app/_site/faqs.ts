@@ -8,7 +8,7 @@ export const FAQS: Record<string, Faq[]> = {
   Product: [
     {
       q: "What is Dialvo?",
-      a: "An AI sales team. Its agents work voice, email, chat, social, SMS and WhatsApp to find, engage, qualify and book, for three jobs: answering inbound leads, starting outbound conversations and growing existing customers. Your reps get a dialer with the research on screen for the calls they make themselves.",
+      a: "AI agents that run inbound and outbound sales. They answer every lead within a minute, go out to find new business, follow up on voice, email, chat, social, SMS and WhatsApp, book the meetings and close simple sales. Bigger deals go to your team, and your reps get a dialer with the research on screen for the calls they make themselves.",
     },
     {
       q: "Is everything available today?",
@@ -16,7 +16,15 @@ export const FAQS: Record<string, Faq[]> = {
     },
     {
       q: "Does it replace my sales reps?",
-      a: "No. Agents do the first contact, the research, the qualifying, the follow-up and the booking. People do the meetings and close the deals, and can take over any conversation at any point.",
+      a: "No. Agents do the first contact, the research, the qualifying, the follow-up and the booking, and can finish simple sales with a clear price. People do the meetings and close the bigger deals, and can take over any conversation at any point.",
+    },
+    {
+      q: "Can it really close a sale?",
+      a: "Yes, for simple offers with a clear price. The agent confirms the offer and sends a payment link, booking or agreement. Complex or high-value deals go to your team with everything already covered.",
+    },
+    {
+      q: "Does it take card details?",
+      a: "No. Payments always go through a secure link. The agent never asks for or reads out card numbers.",
     },
     {
       q: "What does it need from me to start?",
@@ -56,7 +64,7 @@ export const FAQS: Record<string, Faq[]> = {
     },
     {
       q: "What happens after the first booked meeting?",
-      a: `You pick a plan: Starter at $${PLANS.starter.price} a month (the voice agent for inbound leads, the email agent and SMS follow-up, with ${fmt(PLANS.starter.calls)} AI calls), Pro at $${PLANS.pro.price} a month (every channel, human dialer seats, CRM sync and premium voices, with ${fmt(PLANS.pro.calls)} AI calls) or Scale at $${PLANS.scale.price} a month (${PLANS.scale.workspaces} workspaces for separate clients or brands, with ${fmt(PLANS.scale.calls)} AI calls). If you'd rather not, you can stop there and pay nothing.`,
+      a: `You pick a plan: Starter at $${PLANS.starter.price} a month (the voice agent for inbound leads, the email agent and SMS follow-up, with ${fmt(PLANS.starter.calls)} AI calls), Pro at $${PLANS.pro.price} a month (every channel, outbound, the AI closer for simple sales, human dialer seats, CRM sync and premium voices, with ${fmt(PLANS.pro.calls)} AI calls) or Scale at $${PLANS.scale.price} a month (${PLANS.scale.workspaces} workspaces for separate clients or brands, with ${fmt(PLANS.scale.calls)} AI calls). If you'd rather not, you can stop there and pay nothing.`,
     },
     {
       q: "Can I cancel?",
@@ -64,7 +72,7 @@ export const FAQS: Record<string, Faq[]> = {
     },
     {
       q: "What if I need more than a plan includes?",
-      a: "Add extra AI calls, lead credits, sending inboxes or dialer seats to either plan. For larger teams, email us and we'll work it out together.",
+      a: "Add extra AI calls, lead credits, sending inboxes or dialer seats to any plan. For larger teams, email us and we'll work it out together.",
     },
   ],
 };

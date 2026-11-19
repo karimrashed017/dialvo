@@ -30,8 +30,11 @@ export function PricingCards({ plans }: { plans: Plan[] }) {
               </span>
             )}
           </div>
+          <p className="mt-3 text-[15.5px] leading-[1.3] font-medium">
+            {p.tagline}
+          </p>
           <p
-            className={`mt-2 text-[14.5px] leading-[1.5] sm:min-h-[66px] ${muted}`}
+            className={`mt-1.5 text-[14.5px] leading-[1.5] md:min-h-[66px] ${muted}`}
           >
             {p.lead}
           </p>

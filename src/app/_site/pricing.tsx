@@ -7,7 +7,7 @@ import { muted, serif } from "./theme";
 /** The pricing section: on the home page's last stretch, and /pricing. */
 export function PricingSection({
   as = "h2",
-  title = "Free until your first booked meeting. Then two simple plans.",
+  title = "Free until it books your first meeting.",
 }: {
   as?: "h1" | "h2";
   title?: string;
@@ -36,7 +36,13 @@ export function PricingSection({
         </Rise>
       </div>
       <PricingCards plans={PLAN_CARDS} />
-      <Rise className="mx-auto mt-6 max-w-[900px] rounded-2xl border border-dashed border-black/20 px-5 py-4 text-center text-[14px] text-[#0B0B0C]/65">
+      <Rise className="mx-auto mt-14 max-w-[640px] text-center">
+        <p className={`${serif} text-[24px] leading-[1.25] sm:text-[28px]`}>
+          The maths is yours to do. If one extra customer a month comes from
+          answering faster, has Dialvo paid for itself?
+        </p>
+      </Rise>
+      <Rise className="mx-auto mt-10 max-w-[900px] rounded-2xl border border-dashed border-black/20 px-5 py-4 text-center text-[14px] text-[#0B0B0C]/65">
         <span className="font-medium text-[#0B0B0C]">Add-ons</span> on any plan:
         extra AI calls, lead credits, sending inboxes and dialer seats.
       </Rise>

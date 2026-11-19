@@ -9,6 +9,8 @@ export type Plan = {
   badge?: string;
   name: string;
   price: number;
+  /** What the plan is for, in a few words; the lead says who it's for. */
+  tagline: string;
   lead: string;
   cta: string;
   intro: string;
@@ -24,7 +26,8 @@ export const PLAN_CARDS: Plan[] = [
     id: "starter",
     name: PLANS.starter.name,
     price: PLANS.starter.price,
-    lead: "For founders and small teams who want every inbound lead answered and followed up.",
+    tagline: "Inbound.",
+    lead: "For a business that gets leads and loses them to slow replies. Every lead answered, qualified and booked.",
     cta: "Join the waitlist",
     intro: "Includes",
     features: [
@@ -43,11 +46,13 @@ export const PLAN_CARDS: Plan[] = [
     id: "pro",
     name: PLANS.pro.name,
     price: PLANS.pro.price,
-    lead: "For agencies and sales teams running inbound, outbound and expansion on every channel.",
+    tagline: "Inbound, outbound and closing.",
+    lead: "For agencies and sales teams that want every channel worked, new business opened and simple sales closed.",
     cta: "Join the waitlist",
     intro: "Everything in Starter, plus",
     features: [
       "All channels: chat, social and WhatsApp agents as well",
+      "AI closer for simple sales: payment links, bookings and agreements",
       `${fmt(PLANS.pro.calls)} AI calls a month, with premium voices`,
       `${PLANS.pro.dialerSeats} human dialer seats for your reps`,
       `${PLANS.pro.inboxes} sending inboxes, with multi-channel sequences`,
@@ -64,7 +69,8 @@ export const PLAN_CARDS: Plan[] = [
     id: "scale",
     name: PLANS.scale.name,
     price: PLANS.scale.price,
-    lead: "For agencies running Dialvo for several clients, and teams with a lot of leads.",
+    tagline: "For agencies and several brands.",
+    lead: "Everything in Pro, across five workspaces, with higher limits and hands-on setup.",
     cta: "Join the waitlist",
     intro: "Everything in Pro, plus",
     features: [

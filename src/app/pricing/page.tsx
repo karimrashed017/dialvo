@@ -16,8 +16,8 @@ import { serif, SiteFrame, siteViewport } from "../_site/theme";
 export const viewport = siteViewport;
 
 export const metadata: Metadata = pageMetadata({
-  title: "Pricing · Dialvo, AI sales agents for every channel",
-  description: `Dialvo is free until your first booked meeting. Then Starter at $${PLANS.starter.price} a month (voice, email and SMS agents for inbound leads), Pro at $${PLANS.pro.price} a month (every channel, human dialer seats and CRM sync) or Scale at $${PLANS.scale.price} a month (several workspaces and much higher limits). Cancel anytime.`,
+  title: "Pricing · Dialvo, inbound and outbound sales run by AI agents",
+  description: `Dialvo is free until it books your first meeting. Then Starter at $${PLANS.starter.price} a month (voice, email and SMS agents for inbound leads), Pro at $${PLANS.pro.price} a month (inbound, outbound and closing on every channel, with human dialer seats and CRM sync) or Scale at $${PLANS.scale.price} a month (several workspaces and much higher limits). Cancel anytime.`,
   path: "/pricing",
 });
 
@@ -78,6 +78,12 @@ const ROWS: { group: string; rows: [string, Cell, Cell, Cell][] }[] = [
       ["Inbound: speed to lead, qualification, scheduling", true, true, true],
       ["Outbound: research and personalised email", true, true, true],
       ["Multi-channel sequences (email, social, rep calls)", false, true, true],
+      [
+        "AI closer for simple sales: payment links, bookings and agreements",
+        false,
+        true,
+        true,
+      ],
       ["Expansion: upsell, renewals and onboarding", false, true, true],
     ],
   },
@@ -123,7 +129,7 @@ export default function Pricing() {
     <SiteFrame>
       <SiteNav />
       <main className="flex-1 pt-20">
-        <PricingSection as="h1" title="Free until your first booked meeting" />
+        <PricingSection as="h1" />
 
         <section className="px-5 pb-12">
           <div className="mx-auto max-w-[1180px]">
