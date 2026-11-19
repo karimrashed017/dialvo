@@ -1,19 +1,50 @@
 import Link from "next/link";
 import { Logo } from "@/components/brand/logo";
+import {
+  GROUPS,
+  itemInfo,
+  MOTIONS,
+  playHref,
+  PLAYS,
+  playsIn,
+} from "@/lib/content/catalog";
 import { CONTACT_EMAIL, START_HREF } from "@/lib/site";
 import { serif } from "./theme";
 
-const COLUMNS: { title: string; links: { href: string; label: string }[] }[] = [
+type Column = { title: string; links: { href: string; label: string }[] };
+
+// Every page on the site, grouped: the motions, the plays under each motion,
+// the six platform groups, then pricing, trust and contact.
+const COLUMNS: Column[] = [
+  {
+    title: "Use cases",
+    links: MOTIONS.map((m) => ({ href: m.href, label: m.name })),
+  },
+  ...MOTIONS.map((m) => ({
+    title: `${m.name} plays`,
+    links: playsIn(m.id).map((s) => ({
+      href: playHref(s),
+      label: PLAYS[s].title,
+    })),
+  })),
+  ...GROUPS.map((g) => ({
+    title: g.title,
+    links: g.items
+      // The plays in a platform group are already listed under their motion.
+      .filter((item) => item.type === "feature")
+      .map((item) => {
+        const it = itemInfo(item);
+        return { href: it.href, label: it.title };
+      }),
+  })),
   {
     title: "Product",
     links: [
+      { href: "/platform", label: "Platform overview" },
       { href: "/#channels", label: "Channels" },
-      { href: "/#inbound", label: "Inbound" },
-      { href: "/#outbound", label: "Outbound" },
-      { href: "/#expansion", label: "Expansion" },
-      { href: "/#plays", label: "Plays" },
-      { href: "/#platform", label: "Platform" },
+      { href: "/#plays", label: "All plays" },
       { href: "/pricing", label: "Pricing" },
+      { href: "/#faq", label: "FAQ" },
     ],
   },
   {
@@ -31,7 +62,6 @@ const COLUMNS: { title: string; links: { href: string; label: string }[] }[] = [
     links: [
       { href: START_HREF, label: "Get early access" },
       { href: `mailto:${CONTACT_EMAIL}`, label: "Contact" },
-      { href: "/#faq", label: "FAQ" },
     ],
   },
 ];
@@ -39,41 +69,52 @@ const COLUMNS: { title: string; links: { href: string; label: string }[] }[] = [
 export function SiteFooter() {
   return (
     <footer className="border-t border-black/[0.06] px-5 pt-16 pb-10">
-      <div className="mx-auto grid max-w-[1180px] gap-12 md:grid-cols-[1.4fr_repeat(3,1fr)]">
-        <div>
-          <Logo className="h-[26px]" />
-          <p
-            className={`${serif} mt-5 max-w-[300px] text-[22px] leading-[1.2]`}
-          >
-            Your AI sales team, on every channel your buyers use.
+      <div className="mx-auto max-w-[1180px]">
+        <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
+          <div>
+            <Logo className="h-[26px]" />
+            <p
+              className={`${serif} mt-5 max-w-[340px] text-[22px] leading-[1.2]`}
+            >
+              Your AI sales team, on every channel your buyers use.
+            </p>
+          </div>
+          <p className="inline-flex items-center gap-2 self-start rounded-full border border-black/10 bg-white/70 px-3 py-1 text-[13px] text-[#0B0B0C]/75 sm:self-auto">
+            <span className="size-1.5 rounded-full bg-[#1F3BFF]" />
+            Early access
           </p>
         </div>
-        {COLUMNS.map((c) => (
-          <div key={c.title}>
-            <p className="text-[13px] text-[#0B0B0C]/45">{c.title}</p>
-            <ul className="mt-4 space-y-2.5">
-              {c.links.map((l) => (
-                <li key={l.href}>
-                  <Link
-                    href={l.href}
-                    className="text-[14px] text-[#0B0B0C]/75 transition-colors hover:text-[#0B0B0C]"
-                  >
-                    {l.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
+        <nav
+          aria-label="Footer"
+          className="mt-14 columns-2 gap-x-8 md:columns-3 lg:columns-4 xl:columns-5"
+        >
+          {COLUMNS.map((c) => (
+            <div key={c.title} className="mb-9 break-inside-avoid">
+              <p className="text-[13px] text-[#0B0B0C]/45">{c.title}</p>
+              <ul className="mt-3.5 space-y-2.5">
+                {c.links.map((l) => (
+                  <li key={l.href}>
+                    <Link
+                      href={l.href}
+                      className="text-[14px] leading-[1.35] text-[#0B0B0C]/75 transition-colors hover:text-[#0B0B0C]"
+                    >
+                      {l.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </nav>
       </div>
-      <div className="mx-auto mt-16 flex max-w-[1180px] flex-col gap-2 text-[12.5px] text-[#0B0B0C]/40 sm:flex-row sm:justify-between">
-        <p>
+      <div className="mx-auto mt-8 flex max-w-[1180px] flex-col gap-2 text-[12.5px] text-[#0B0B0C]/40 sm:flex-row sm:justify-between sm:gap-8">
+        <p className="shrink-0">
           © 2026 Dialvo · Early access ·{" "}
           <a href={`mailto:${CONTACT_EMAIL}`} className="hover:text-[#0B0B0C]">
             {CONTACT_EMAIL}
           </a>
         </p>
-        <p>
+        <p className="sm:text-right">
           Paintings, all public domain: William Bradford, Coast of Labrador;
           Martin Johnson Heade, York Harbor, Coast of Maine (1877); John
           Frederick Kensett, Rocky Coast. The meadow photograph was made for
