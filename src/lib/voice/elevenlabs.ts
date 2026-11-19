@@ -19,7 +19,7 @@ export const AGENT_NAME = "Dialvo website demo";
 
 // Bump this when AGENT_SETTINGS changes: an agent tagged with an older
 // version is updated in place the next time the server starts.
-const SETTINGS_TAG = "dialvo-demo-settings-v2";
+const SETTINGS_TAG = "dialvo-demo-settings-v3";
 
 /**
  * The language models to try, fastest suitable first. All are on ElevenLabs'
@@ -116,10 +116,34 @@ export function agentSettings(llm: string, ttsModel: string | null) {
         ...(ttsModel ? { model_id: ttsModel } : {}),
       },
       turn: {
+        // Hard to interrupt (founder, 19 Nov 2026: any sound nearby stopped
+        // it mid-sentence): wait for real speech, and treat "mm-hm" and
+        // "okay" as listening noises, not as someone taking the turn.
+        turn_eagerness: "patient",
+        interruption_ignore_terms: [
+          "mm-hm",
+          "mhm",
+          "uh-huh",
+          "hmm",
+          "ok",
+          "okay",
+          "yeah",
+          "yes",
+          "yep",
+          "right",
+          "sure",
+          "got it",
+          "I see",
+          "cool",
+          "nice",
+        ],
+        merge_with_default_ignore_terms: true,
         turn_timeout: 7,
         // Nobody there: hang up rather than hold the line open.
         silence_end_call_timeout: 25,
       },
+      // Other people talking in the room are not the caller.
+      vad: { background_voice_detection: true },
       conversation: {
         max_duration_seconds: MAX_CALL_SECONDS,
       },
