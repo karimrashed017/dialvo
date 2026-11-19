@@ -12,7 +12,8 @@ every "Get early access" button opens an email to contact@trydialvo.com.
 npm install
 npm run dev     # http://localhost:3000
 npm run build   # production build
-npm run check   # lint, typecheck, format check
+npm run check   # lint, typecheck, format check, tests
+npm test        # the tests alone (vitest)
 ```
 
 ## Where things are
@@ -21,6 +22,8 @@ npm run check   # lint, typecheck, format check
   - `hero.tsx` and `dashboard.tsx`: the hero and its example workspace.
   - `channels.tsx`: the six channel tabs and their panels.
   - `sections.tsx`: tools, the three motions, plays, platform, compliance, last call.
+  - `voice-demo.tsx`, `voice-call.tsx` and `voice-parts.tsx`: the live voice
+    demo in the Voice tab (see "The live voice demo" below).
   - `listen.tsx` and `call-player.tsx`: "You stay in control" and the sample call.
 - `src/app/inbound`, `outbound`, `expansion`: the three motion pages.
 - `src/app/plays/[slug]`: one page per play (14).
@@ -49,7 +52,9 @@ npm run check   # lint, typecheck, format check
 ## Honesty rules for the site
 
 - No customers, logos, quotes, ratings or result numbers until there are real ones.
-- Product visuals use made-up businesses and are marked "Example".
+- Product visuals use made-up businesses and are marked "Example". The Voice
+  tab is the exception: it's a real AI agent, marked "Live demo", and it says
+  it's an AI in its first sentence and that nothing in the demo is booked.
 - No certifications are claimed.
 - The whole product is in early access; individual features aren't tagged.
 - AI voice calls go only to people who asked or opted in, and say they're an
@@ -70,6 +75,41 @@ logo and headline on the meadow photo.
 
 Colours: paper `#F7F5F1`, ink `#0B0B0C`, and the logo's blue `#1F3BFF` as a
 sparing accent (the active channel tab, live dots, small marks).
+
+## The live voice demo
+
+The Voice tab on the home page is a real conversation: the visitor presses the
+orb (or "Talk to the agent" in the hero), allows the microphone, and talks with
+Dialvo's AI sales agent, which answers in an ElevenLabs voice. It runs on
+ElevenLabs Agents ("ElevenAgents") through `@elevenlabs/react`, over WebRTC.
+
+- **Set it up:** put an ElevenLabs API key in `ELEVENLABS_API_KEY` (`.env.local`
+  here, Environment Variables on Vercel, then redeploy). Without the key the
+  tab shows the sample panel with "Live demo is being set up".
+  `node scripts/check-voice.mjs https://trydialvo.com` says whether it's working.
+- **The agent** is created by the server the first time someone starts a call:
+  it looks for an agent named "Dialvo website demo" in the ElevenLabs account
+  and creates it if it isn't there (`src/lib/voice/elevenlabs.ts`, which holds
+  every setting: language model, speech model, limits, privacy). To change the
+  settings later, edit that file and bump `SETTINGS_TAG`; the agent is updated
+  in place. `ELEVENLABS_AGENT_ID` skips the lookup and uses that agent as is.
+- **What it says** is `src/lib/voice/prompt.ts`: the rules, and one script and
+  opening line per scenario. **Scenarios, voices and limits** are
+  `src/lib/voice/config.ts`; each voice chip maps to an ElevenLabs premade
+  voice id there.
+- **`/api/voice/session`** (`src/app/api/voice/session/route.ts`): `GET` says
+  whether the demo is configured; `POST {scenario, voice}` checks the choice
+  and the rate limit and returns a one-conversation ElevenLabs token with that
+  call's script, opening line and voice. The API key never reaches the browser.
+- **Limits:** 2 minutes a call (enforced by ElevenLabs); 3 calls per 10 minutes
+  and 10 a day per visitor (`src/lib/voice/rate-limit.ts`: by IP address in
+  memory, plus a signed cookie that survives a cold start); 100 calls a day and
+  3 at once across everyone (set on the agent); a call ends after 25 seconds of
+  silence.
+- **Privacy:** Dialvo stores nothing. The agent is set to ElevenLabs' "maximum
+  privacy": audio isn't saved and transcripts are deleted rather than kept.
+  ElevenLabs and the language model's provider do process the audio and text
+  to run the call.
 
 ## The sample call
 

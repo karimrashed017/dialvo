@@ -28,6 +28,18 @@ export default function Privacy() {
         call says it&apos;s an AI and that it&apos;s recorded. We keep a log of
         opt-outs so nobody who asked to stop is contacted again.
       </p>
+      <h2>The live voice demo</h2>
+      <p>
+        The voice demo on our home page only starts when you press the button
+        and allow your microphone. While you talk, your voice and what you say
+        are processed by ElevenLabs, which runs the voice agent, and by the AI
+        model provider it uses, so the agent can answer. We don&apos;t record
+        the call or keep a transcript, and we&apos;ve set ElevenLabs not to save
+        the audio and to delete the transcript. To stop one visitor using up the
+        demo, we count how many calls came from your address for a day and keep
+        that count in a cookie on your device. Please don&apos;t share personal
+        or payment details in the demo.
+      </p>
       <h2>How we use it</h2>
       <ul>
         <li>To run Dialvo for you and support you.</li>
