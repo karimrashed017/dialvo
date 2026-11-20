@@ -19,3 +19,6 @@ npm-debug.log*
 
 # local Playwright screenshots
 /screenshots/
+
+# the confirmation token scripts/e2e-activation.mjs waits for
+.e2e-token
