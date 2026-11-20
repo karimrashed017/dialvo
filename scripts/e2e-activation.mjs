@@ -2,7 +2,7 @@
 // agent, and the trial clock), against a real Supabase project.
 //
 // It signs a new person up, confirms their address, onboards them with a
-// website, and follows the "Get started" checklist: the site read into
+// website, and follows the setup steps on Home: the site read into
 // Knowledge, the test chat, the chat widget on a made-up customer site
 // (another origin) and the install check, switching the agent on, the email
 // alert switch, and the trial banner before and after the trial ends.
@@ -163,7 +163,15 @@ const step = (page, id) => page.locator(`#get-started [data-step="${id}"]`);
 const stepDone = async (page, id) =>
   (await step(page, id).getAttribute("data-done")) === "true";
 const progress = (page) =>
-  page.locator("#get-started header span").first().innerText();
+  page.locator("#get-started [data-setup-count]").innerText();
+// Home shows the step to do next open and the others as one line each. Open
+// them all, so each can be read and pressed whatever state the others are in.
+const openSteps = async (page) => {
+  await openSteps(page);
+  await page
+    .locator("#get-started details")
+    .evaluateAll((all) => all.forEach((d) => (d.open = true)));
+};
 
 // ---------------------------------------------------------------------------
 // 1. Sign up and confirm the address
@@ -222,10 +230,10 @@ if (onboarding) {
   const started = Date.now();
   await page.click('button[type="submit"]');
   await page.waitForURL(/\/app$/, { timeout: 30000 });
-  await page.waitForSelector("#get-started", { timeout: 30000 });
+  await openSteps(page);
   const took = Date.now() - started;
   ok(
-    "onboarding: lands on Today without waiting for the website to be read",
+    "onboarding: lands on Home without waiting for the website to be read",
     took < 15000,
     `${took} ms`,
   );
@@ -240,7 +248,7 @@ if (onboarding) {
   );
   if (reading) await shot(page, "activation-reading");
 }
-await page.waitForSelector("#get-started", { timeout: 30000 });
+await openSteps(page);
 const token = await jwt(ctx);
 const [ws] = (
   await db(
@@ -288,6 +296,7 @@ ok(
         k.content.length >= 40,
     ),
 );
+await openSteps(page);
 const teachText = await step(page, "teach").innerText();
 ok(
   "checklist: 'Teach your agent' is done and lists what was read",
@@ -317,13 +326,17 @@ ok(
   `${days} days`,
 );
 const left = Math.ceil((new Date(ws.trial_ends_at) - Date.now()) / 86_400_000);
+// A running trial is said once, under the workspace's name (never as
+// "Starter plan"); the line across the top is kept for a trial that ended.
 const banner = () => page.locator("[data-trial]");
+const planLine = () => page.locator("[data-plan-line]:visible").first();
 ok(
-  "trial: the banner says how many days are left",
-  (await banner().innerText()) ===
-    `${left} ${left === 1 ? "day" : "days"} left in your free trial` &&
-    (await banner().getAttribute("data-trial")) === "running",
-  await banner().innerText(),
+  "trial: the workspace header says it is a free trial and how many days are left",
+  (await planLine().innerText()) ===
+    `Free trial · ${left} ${left === 1 ? "day" : "days"} left` &&
+    (await planLine().getAttribute("data-plan-line")) === "trial" &&
+    (await banner().count()) === 0,
+  await planLine().innerText(),
 );
 const selfServe = await db(`workspaces?id=eq.${ws.id}`, {
   token,
@@ -361,8 +374,8 @@ const WIDGET = widgets[0].token;
 const runtime = !/isn't switched on yet on Dialvo's side/.test(
   await step(page, "try").innerText(),
 );
-await step(page, "try").locator('a[href="/app/agents/try"]').click();
-await page.waitForURL(/\/app\/agents\/try$/, { timeout: 30000 });
+await step(page, "try").locator('a[href="/app/chat/try"]').click();
+await page.waitForURL(/\/app\/chat\/try$/, { timeout: 30000 });
 await page.waitForSelector('[aria-label="Test chat"]', { timeout: 30000 });
 if (!runtime) {
   const state = page.locator('[data-state="unavailable"]');
@@ -403,7 +416,7 @@ ok(
 // 5. The install check
 // ---------------------------------------------------------------------------
 await page.goto(`${BASE}/app`);
-await page.waitForSelector("#get-started", { timeout: 30000 });
+await openSteps(page);
 const snippet = await step(page, "install").locator("pre").innerText();
 ok(
   "install: the checklist holds the one line to paste",
@@ -416,9 +429,9 @@ ok(
     "Not seen yet" && !(await stepDone(page, "install")),
 );
 
-// The preview in Dialvo's own Settings loads the real widget. It must not
+// The preview on Dialvo's own Website chat page loads the real widget. It must not
 // count as the customer's site.
-await page.goto(`${BASE}/app/settings`);
+await page.goto(`${BASE}/app/chat`);
 await page.waitForSelector("#chat", { timeout: 30000 });
 await page.click('#chat button:has-text("Preview on this page")');
 await page.waitForSelector("[data-dialvo-chat] .panel", { timeout: 20000 });
@@ -478,7 +491,7 @@ ok(
 );
 
 await page.goto(`${BASE}/app`);
-await page.waitForSelector("#get-started", { timeout: 30000 });
+await openSteps(page);
 await step(page, "install").locator('button:has-text("Check again")').click();
 const seenText = await until(async () => {
   const text = await step(page, "install").locator("[data-seen]").innerText();
@@ -492,7 +505,7 @@ ok(
   seenText ?? "",
 );
 await shot(page, "activation-installed");
-await page.goto(`${BASE}/app/settings`);
+await page.goto(`${BASE}/app/chat`);
 await page.waitForSelector("#chat", { timeout: 30000 });
 ok(
   "install: Settings shows the same",
@@ -630,7 +643,7 @@ ok(
 // 8. Switch the agent on, from the checklist
 // ---------------------------------------------------------------------------
 await page.goto(`${BASE}/app`);
-await page.waitForSelector("#get-started", { timeout: 30000 });
+await openSteps(page);
 const before = await progress(page);
 if (!(await stepDone(page, "on"))) {
   await step(page, "on")
@@ -811,8 +824,8 @@ await needSql(
 // 11. Dismissing the checklist
 // ---------------------------------------------------------------------------
 await page.goto(`${BASE}/app`);
-await page.waitForSelector("#get-started", { timeout: 30000 });
-await page.click('#get-started button:has-text("Dismiss")');
+await openSteps(page);
+await page.click('#get-started button:has-text("Hide the setup steps")');
 const gone = await until(
   async () => !(await page.locator("#get-started").count()),
 );

@@ -77,16 +77,27 @@ settings and the manual test checklist.**
 - **Onboarding** (`src/app/onboarding`): workspace name, what you sell (saved
   as the first knowledge item), website, time zone. Invitations to the
   signed-in address are offered here.
-- **The shell and pages** (`src/app/app`): Today (four tiles, activity,
-  waiting queue, pipeline, all counted from rows), Leads (search, filter, add,
-  CSV import, lead page with timeline, consent, notes, do not contact), Inbox
-  (queues, thread, reply, assign, close), Knowledge, Agents, Settings
-  (workspace, profile, members and invitations, lead-capture forms).
-  Sequences, Calls and Analytics say what's coming and show no data.
+- **The shell and pages** (`src/app/app`), organised around the two jobs
+  Dialvo does. The nav, in order: **Home** (`/app`: what needs your yes, a
+  card for each job with its real state and one next step, the setup steps,
+  and this week's numbers only when they aren't zero), **Find leads**
+  (`/app/prospects`), **Website chat** (`/app/chat`: the agent's switch, mode,
+  instructions and qualifying questions, the code for the site and the
+  install check; "Try your agent" at `/app/chat/try`), **Inbox** (queues,
+  thread, reply, assign, close), **Leads** (search, filter, lead page with
+  timeline, consent, notes, do not contact; adding by hand and CSV import
+  are secondary), **Knowledge**, **Settings** (workspace, profile, alerts,
+  members and invitations, lead-capture forms). On phones the nav is a
+  drawer behind a menu button and lists become cards. `/app/agents` and
+  `/app/agents/try` redirect to Website chat; `/app/sequences`, `/app/calls`
+  and `/app/analytics` (which had nothing in them) redirect to Home
+  (`next.config.ts`). The workspace header says "Free trial · N days left"
+  until a plan is paid for.
 - **Honest about what isn't live:** the website chat is the one connected
   channel. On every other channel replies are stored and marked "Saved, not
-  delivered"; the outbound, closing and expansion agents are settings only
-  and say so; invitations say no email is sent.
+  delivered"; first emails are drafted and approved but never sent, and the
+  page says so; the closing and expansion agents aren't built and aren't
+  shown (their rows stay in the database); invitations say no email is sent.
 - **Website chat and the inbound agent** (slice 2a): `public/widget.js` is
   the embeddable chat (`<script src="/widget.js?id=...">`), talking to the
   public endpoints in `src/app/api/chat/[token]` (CORS open on those only).
@@ -100,16 +111,17 @@ settings and the manual test checklist.**
   refuses private addresses).
 - **Activation** (slice 2b): onboarding reads the customer's website into
   Knowledge after the redirect (`src/lib/knowledge/read-site.ts`); every new
-  workspace starts with a chat widget; Today shows a "Get started" checklist
-  (`src/lib/app/checklist.ts`) until it is done or dismissed; "Try your
-  agent" (`/app/agents/try`, `src/lib/agents/test-chat.ts`) runs the real
+  workspace starts with a chat widget; Home's job cards carry the setup steps
+  (`src/lib/app/checklist.ts`) until they are done or hidden; "Try your
+  agent" (`/app/chat/try`, `src/lib/agents/test-chat.ts`) runs the real
   agent on a test chat that is never a lead; the widget reports the site it
-  loads on (`/api/chat/[token]/seen`), so Settings can say "Seen on
+  loads on (`/api/chat/[token]/seen`), so Website chat can say "Seen on
   example.com, 2 minutes ago"; and the team is emailed through Resend when a
   chat is qualified, needs a person or has a draft waiting
   (`src/lib/alerts`, needs `RESEND_API_KEY`).
 - **The trial clock** (`src/lib/billing/trial.ts`): seven days from the
-  workspace's creation, shown in a banner. Nothing is blocked when it ends
+  workspace's creation, shown under the workspace's name while it runs and
+  in a line across the top once it has ended. Nothing is blocked when it ends
   unless the server runs with `BILLING_ENFORCED=1`, which is for when
   checkout exists.
 - **Data access** (`src/lib/app`): `context.ts` resolves the user and their
