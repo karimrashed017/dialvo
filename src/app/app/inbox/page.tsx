@@ -6,6 +6,8 @@ import { agentRuntimeStatus } from "@/lib/agents/config";
 import { getAppContext } from "@/lib/app/context";
 import type { InboxQueue } from "@/lib/app/repo";
 import { ago, dateTime } from "@/lib/app/time";
+import { mailReads } from "@/lib/mail/read";
+import { createClient } from "@/lib/supabase/server";
 import {
   CHANNEL_LABEL,
   OUTCOME_LABEL,
@@ -36,6 +38,12 @@ import {
   sendChatReply,
   setConversationStatus,
 } from "./actions";
+import { sendEmailReply } from "./email-actions";
+import {
+  EmailPending,
+  EmailStatus,
+  type MailConversation,
+} from "./email-thread";
 
 export const metadata: Metadata = { title: "Inbox" };
 
@@ -170,12 +178,15 @@ function Thread({
   timezone,
   back,
   chatAgent,
+  mail,
 }: {
   thread: ConversationThread;
   members: Member[];
   timezone: string;
   back: string;
   chatAgent: Agent | undefined;
+  /** Set when this is an email thread Dialvo sends in: replies go out. */
+  mail: MailConversation | null;
 }) {
   const names = new Map(members.map((m) => [m.user_id, m.name || m.email]));
   const channel = CHANNEL_LABEL[thread.channel];
@@ -248,6 +259,7 @@ function Thread({
         </ActionForm>
       </header>
       {chat && <ChatStatus thread={thread} agent={chatAgent} />}
+      {mail && <EmailStatus mail={mail} timezone={timezone} />}
 
       <div className="flex flex-1 flex-col gap-2 overflow-y-auto px-4 py-4">
         {thread.messages.length === 0 && (
@@ -301,8 +313,9 @@ function Thread({
 
       {/* Keyed, so a newer draft starts its fields afresh. */}
       {chat && <Draft key={thread.draft?.id} thread={thread} />}
+      {mail && <EmailPending mail={mail} timezone={timezone} />}
       <ActionForm
-        action={chat ? sendChatReply : reply}
+        action={chat ? sendChatReply : mail ? sendEmailReply : reply}
         resetOnSuccess
         quiet
         className="border-t border-black/[0.06] p-3"
@@ -327,14 +340,22 @@ function Thread({
               {!thread.agent_paused &&
                 " Replying pauses the agent on this conversation."}
             </p>
+          ) : mail ? (
+            <p className="max-w-[440px] text-[11.5px] leading-[1.45] text-[#0B0B0C]/55">
+              Your reply is emailed to {mail.thread.to_email} from the same
+              mailbox, in the same thread, within a minute or two.
+            </p>
           ) : (
             <p className="max-w-[440px] text-[11.5px] leading-[1.45] text-[#0B0B0C]/55">
               Saved, not delivered: {channel} isn&apos;t connected yet, so your
               reply is stored on this thread but not sent to the lead.
             </p>
           )}
-          <SubmitButton small pendingText={chat ? "Sending…" : "Saving…"}>
-            {chat ? "Send reply" : "Save reply"}
+          <SubmitButton
+            small
+            pendingText={chat || mail ? "Sending…" : "Saving…"}
+          >
+            {chat || mail ? "Send reply" : "Save reply"}
           </SubmitButton>
         </div>
       </ActionForm>
@@ -362,6 +383,13 @@ async function InboxContent({
     (a) => a.enabled && a.role === "inbound" && a.channel === "chat",
   );
   const link = (c?: string) => `/app/inbox?queue=${queue}${c ? `&c=${c}` : ""}`;
+  // An email conversation Dialvo sends in has a thread behind it.
+  const mail =
+    !preview && thread?.channel === "email"
+      ? await mailReads(await createClient(), workspace.id).conversation(
+          thread.id,
+        )
+      : null;
 
   return (
     <>
@@ -463,6 +491,7 @@ async function InboxContent({
             timezone={workspace.timezone}
             back={link()}
             chatAgent={chatAgent}
+            mail={mail}
           />
         ) : (
           <section className={cn(panel, "hidden min-h-[360px] lg:flex")}>

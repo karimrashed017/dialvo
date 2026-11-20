@@ -24,6 +24,7 @@ import {
 } from "@/lib/app/types";
 import { cn } from "@/lib/utils";
 import { ActionForm, SubmitButton } from "../../_ui/form";
+import { MarkMeetingBooked } from "../meeting";
 import {
   Badge,
   btn,
@@ -246,6 +247,8 @@ async function LeadPage({ params }: { params: Promise<{ id: string }> }) {
               </div>
             </ActionForm>
           </section>
+
+          <MarkMeetingBooked leadId={lead.id} timezone={workspace.timezone} />
 
           <section className={panel}>
             <h2 className={panelHead}>Profile</h2>

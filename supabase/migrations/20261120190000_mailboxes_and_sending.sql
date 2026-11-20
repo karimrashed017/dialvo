@@ -1803,8 +1803,8 @@ $$;
 -- Hands out the next replies to classify and the next follow-ups to write,
 -- at most p_limit together, and counts them against the day's cap on
 -- model-written emails (p_max_writes_per_day) and the day's spend.
---   { "capped": bool, "context": { workspace, instructions, knowledge,
---       booking_url, sender_name }, "replies": [...], "followups": [...] }
+--   { "capped": bool, "context": { workspace, business_name, instructions,
+--       knowledge, booking_url }, "replies": [...], "followups": [...] }
 -- A reply is leased for two minutes; a follow-up is reserved as a 'writing'
 -- row. Either is handed out again if its writer died, up to p_max_attempts.
 create function public.mail_write_claim(
@@ -1858,9 +1858,11 @@ begin
     and e.attempts >= greatest(p_max_attempts, 1) and e.updated_at < now() - interval '2 minutes';
 
   for r in
-    select x.*, th.subject as thread_subject, th.conversation_id, th.to_email, th.lead_id as t_lead
+    select x.*, th.subject as thread_subject, th.conversation_id, th.to_email, th.lead_id as t_lead,
+           mb.sender_name
     from public.mail_received x
     join public.mail_threads th on th.id = x.thread_id and th.workspace_id = x.workspace_id
+    join public.mailboxes mb on mb.id = th.mailbox_id and mb.workspace_id = th.workspace_id
     where x.workspace_id = p_workspace_id and x.kind = 'reply' and x.classification is null
       and (x.class_locked_until is null or x.class_locked_until < now())
     order by x.received_at, x.id
@@ -1871,7 +1873,7 @@ begin
     set class_locked_until = now() + interval '2 minutes', class_attempts = x.class_attempts + 1
     where x.id = r.id;
     v_replies := v_replies || jsonb_build_object(
-      'received_id', r.id, 'subject', r.thread_subject, 'body', r.body,
+      'received_id', r.id, 'subject', r.thread_subject, 'body', r.body, 'sender_name', r.sender_name,
       'lead', (select jsonb_build_object('name', l.name, 'company', coalesce(l.company, ''))
                from public.leads l where l.id = r.t_lead and l.workspace_id = p_workspace_id),
       -- The conversation so far, oldest first, without the reply itself.
@@ -1892,7 +1894,7 @@ begin
 
   if coalesce(v_set.sending_on, false) and coalesce(v_set.followups_enabled, false) then
     for t in
-      select th.*, w.id as writing_id
+      select th.*, w.id as writing_id, m.sender_name
       from public.mail_threads th
       join public.mailboxes m on m.id = th.mailbox_id and m.workspace_id = th.workspace_id and m.status = 'active'
       left join public.outbound_emails w
@@ -1918,7 +1920,7 @@ begin
         returning e.id into v_id;
       end if;
       v_followups := v_followups || jsonb_build_object(
-        'email_id', v_id, 'step', t.followups_sent + 1, 'subject', t.subject,
+        'email_id', v_id, 'step', t.followups_sent + 1, 'subject', t.subject, 'sender_name', t.sender_name,
         'lead', (select jsonb_build_object('name', l.name, 'company', coalesce(l.company, ''))
                  from public.leads l where l.id = t.lead_id and l.workspace_id = p_workspace_id),
         'prospect', (select jsonb_build_object('summary', p.summary, 'facts', p.facts)

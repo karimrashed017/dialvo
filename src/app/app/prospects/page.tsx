@@ -48,6 +48,13 @@ import {
 } from "./actions";
 import { DraftWriter, RunDriver } from "./drivers";
 import { SearchForm } from "./search-form";
+import {
+  loadSending,
+  SendingBoard,
+  SendingNotice,
+  SendingSummary,
+  type Sending,
+} from "./sending";
 import { field } from "./ui";
 
 export const metadata: Metadata = { title: "Find leads" };
@@ -637,29 +644,26 @@ function EmailsView({
   toWrite,
   usage,
   on,
+  sending,
 }: {
   drafts: DraftWithProspect[];
   toWrite: number;
   usage: Usage;
   on: boolean;
+  sending: Sending;
 }) {
   const waiting = drafts.filter((d) => d.status === "draft");
-  const ready = drafts.filter((d) => d.status === "approved");
+  // Once an approved email has a place in the outbox it is shown there
+  // (Scheduled, Sent, Replied or Failed), not here as well.
+  const ready = drafts.filter(
+    (d) => d.status === "approved" && !sending.byDraft.has(d.id),
+  );
   const failed = drafts.filter((d) => d.status === "failed").length;
   const discarded = drafts.filter((d) => d.status === "discarded").length;
   return (
     <>
-      <div
-        role="note"
-        className="mb-3 rounded-2xl border border-black/[0.1] bg-white px-4 py-3 text-[13px] leading-[1.5] text-[#0B0B0C]/75"
-      >
-        <span className="font-medium text-[#0B0B0C]">
-          Nothing is sent from here yet.
-        </span>{" "}
-        Approving an email stores it as ready to send. Sending switches on when
-        a mailbox is connected, which is the next thing Dialvo is building.
-        Until then no email leaves Dialvo, approved or not.
-      </div>
+      <SendingNotice s={sending} />
+      <SendingSummary s={sending} />
 
       <section aria-labelledby="write" className={panel}>
         <h2 id="write" className={panelHead}>
@@ -699,7 +703,7 @@ function EmailsView({
           {waiting.length > 1 && (
             <ActionForm
               action={approveDrafts}
-              confirm={`Approve all ${waiting.length} as they are? They'll be stored as ready to send. Nothing is sent yet.`}
+              confirm={`Approve all ${waiting.length} as they are? ${sending.live ? "They'll be scheduled and sent from your mailbox inside your send window." : "They'll be stored as ready to send. Nothing is sent yet."}`}
             >
               {waiting.map((d) => (
                 <input key={d.id} type="hidden" name="draft" value={d.id} />
@@ -731,11 +735,19 @@ function EmailsView({
               {ready.length}
             </span>
           </span>
-          <Badge tone="outline">Not sent: no mailbox connected</Badge>
+          <Badge tone="outline">
+            {!sending.connected
+              ? "Not sent: no mailbox connected"
+              : sending.live
+                ? "Waiting for a time slot"
+                : "Not sent: sending is off"}
+          </Badge>
         </h2>
         {ready.length === 0 ? (
           <p className="px-4 py-4 text-[13px] text-[#0B0B0C]/55">
-            Emails you approve are kept here until sending is switched on.
+            {sending.live
+              ? "Emails you approve wait here for a moment, then move to Scheduled."
+              : "Emails you approve are kept here until sending is switched on."}
           </p>
         ) : (
           <ul className="divide-y divide-black/[0.06]">
@@ -757,6 +769,7 @@ function EmailsView({
           </p>
         )}
       </section>
+      <SendingBoard s={sending} />
     </>
   );
 }
@@ -892,7 +905,8 @@ async function Content({
     );
 
   const on = prospectRuntimeStatus().on;
-  const reads = prospectReads(await createClient(), workspace.id);
+  const supabase = await createClient();
+  const reads = prospectReads(supabase, workspace.id);
   const [searches, runs, usage] = await Promise.all([
     reads.searches(),
     reads.runs(),
@@ -930,12 +944,18 @@ async function Content({
   );
   const toWrite = kept.filter((k) => !drafted.has(k.id)).length;
   const writing = drafts.some((d) => d.status === "drafting");
+  const sending =
+    view === "emails" ? await loadSending(supabase, workspace) : null;
 
   return (
     <>
       {/* Results and drafts show up as they are found, without a reload. */}
       {((view === "find" && activeRun) || (view === "emails" && writing)) && (
         <LiveRefresh every={4000} />
+      )}
+      {/* Scheduled emails turn into sent ones while the page is open. */}
+      {view === "emails" && !writing && sending?.live && (
+        <LiveRefresh every={20000} />
       )}
       {head}
       {!on && <NotOn />}
@@ -972,8 +992,14 @@ async function Content({
           on={on}
         />
       )}
-      {view === "emails" && (
-        <EmailsView drafts={drafts} toWrite={toWrite} usage={usage} on={on} />
+      {view === "emails" && sending && (
+        <EmailsView
+          drafts={drafts}
+          toWrite={toWrite}
+          usage={usage}
+          on={on}
+          sending={sending}
+        />
       )}
       {view === "never" && (
         <NeverView list={list} admin={workspace.role !== "member"} />
