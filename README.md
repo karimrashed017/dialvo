@@ -83,10 +83,21 @@ settings and the manual test checklist.**
   (queues, thread, reply, assign, close), Knowledge, Agents, Settings
   (workspace, profile, members and invitations, lead-capture forms).
   Sequences, Calls and Analytics say what's coming and show no data.
-- **Honest about what isn't live:** replies are stored and marked "Saved, not
-  delivered" (no channel is connected yet); agents are configuration only and
-  labelled "Not live yet"; URL knowledge items are "Not fetched yet";
-  invitations say no email is sent.
+- **Honest about what isn't live:** the website chat is the one connected
+  channel. On every other channel replies are stored and marked "Saved, not
+  delivered"; the outbound, closing and expansion agents are settings only
+  and say so; invitations say no email is sent.
+- **Website chat and the inbound agent** (slice 2a): `public/widget.js` is
+  the embeddable chat (`<script src="/widget.js?id=...">`), talking to the
+  public endpoints in `src/app/api/chat/[token]` (CORS open on those only).
+  Every chat is a lead and a conversation in the Inbox, live. The inbound
+  agent (`src/lib/agents`, model `claude-haiku-4-5`) answers from the
+  workspace's knowledge, either on its own or as drafts a person approves,
+  edits or discards; a teammate's reply pauses it until it is handed back.
+  It needs `ANTHROPIC_API_KEY` and `SUPABASE_SECRET_KEY`; without them the
+  app says the agent isn't switched on and chats are still saved. Knowledge
+  can be added from a web page (`src/lib/knowledge/fetch-page.ts`, which
+  refuses private addresses).
 - **Data access** (`src/lib/app`): `context.ts` resolves the user and their
   current workspace per request, `repo.ts` holds every read, `action.ts`
   wraps every Server Action in a session and membership check. The app talks
@@ -100,7 +111,8 @@ settings and the manual test checklist.**
 - **Database** (`supabase/migrations`, tests in `supabase/tests`): tables
   `profiles`, `workspaces`, `workspace_members`, `invitations`, `leads`,
   `conversations`, `messages`, `agents`, `knowledge_items`, `meetings`,
-  `calls`, `activity_events`, `lead_forms`. Every table has row-level
+  `calls`, `activity_events`, `lead_forms`, `chat_widgets`,
+  `message_drafts`. Every table has row-level
   security from its first migration, policies go through `private.*` helper
   functions, and child tables use `(parent_id, workspace_id)` foreign keys.
   `npm test` applies the migrations to an in-memory Postgres (PGlite) and
@@ -108,8 +120,10 @@ settings and the manual test checklist.**
 - **Design preview:** `DIALVO_DEV_FIXTURES=1 npm run dev` draws the shell
   with made-up data and no database. Development only; it is compiled out of
   production builds (`scripts/check-no-preview-data.mjs`).
-- **End-to-end check:** `scripts/e2e-app.mjs` drives a browser through the
-  app as two people and checks they can't see each other's data.
+- **End-to-end checks:** `scripts/e2e-app.mjs` drives a browser through the
+  app as two people and checks they can't see each other's data;
+  `scripts/e2e-chat.mjs` does the same for the chat widget, the Inbox, drafts
+  and takeover.
 
 ## Honesty rules for the site
 
