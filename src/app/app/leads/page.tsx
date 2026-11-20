@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { FileUp, Search, Users } from "lucide-react";
+import { FileUp, Search, Telescope, Users } from "lucide-react";
 import { getAppContext } from "@/lib/app/context";
 import { ago } from "@/lib/app/time";
 import { LEAD_STATUSES, STATUS_LABEL } from "@/lib/app/types";
@@ -41,13 +41,17 @@ async function Leads({
     <>
       <PageHead
         title="Leads"
-        note="Everyone your agents and your team are working, in one list."
+        note="Everyone Dialvo has found or talked to for you, and anyone you add yourself, in one list."
       >
         <Link href="/app/leads/import" className={btn.secondary}>
           <FileUp aria-hidden className="size-3.5" />
           Import CSV
         </Link>
-        <AddLead />
+        <AddLead variant="secondary" />
+        <Link href="/app/prospects" className={btn.primary}>
+          <Telescope aria-hidden className="size-3.5" />
+          Find leads
+        </Link>
       </PageHead>
 
       <form
@@ -110,18 +114,64 @@ async function Leads({
               icon={Users}
               title="No leads yet"
               action={
-                <Link href="/app/leads/import" className={btn.secondary}>
-                  Import a CSV
-                </Link>
+                <span className="flex flex-wrap justify-center gap-2">
+                  <Link href="/app/prospects" className={btn.primary}>
+                    Find leads
+                  </Link>
+                  <Link href="/app/chat#install" className={btn.secondary}>
+                    Put the chat on your site
+                  </Link>
+                </span>
               }
             >
-              Add your first lead, import a list, or put the form from Settings
-              on your website and enquiries will arrive on their own.
+              Leads show up here on their own: companies Dialvo finds that you
+              keep, and visitors who write in your website chat or fill in your
+              form. You don&apos;t need to bring a list.
             </Empty>
           )
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[640px] text-left text-[13px]">
+          <>
+            {/* On a phone each lead is a card; from a tablet up, a table. */}
+            <ul className="divide-y divide-black/[0.06] md:hidden">
+              {leads.map((l) => (
+                <li key={l.id}>
+                  <Link
+                    href={`/app/leads/${l.id}`}
+                    className="block px-4 py-3 hover:bg-black/[0.02] focus-visible:ring-2 focus-visible:ring-black/40 focus-visible:outline-none focus-visible:ring-inset"
+                  >
+                    <span className="flex items-start justify-between gap-3">
+                      <span className="min-w-0">
+                        <span className="block truncate text-[14px] font-medium">
+                          {leadLabel(l)}
+                        </span>
+                        {l.company && l.name && (
+                          <span className="block truncate text-[12.5px] text-[#0B0B0C]/55">
+                            {l.company}
+                          </span>
+                        )}
+                      </span>
+                      <span className="shrink-0 pt-0.5 text-[11.5px] text-[#0B0B0C]/45 tabular-nums">
+                        {ago(l.created_at)}
+                      </span>
+                    </span>
+                    <span className="mt-1 block truncate text-[12.5px] text-[#0B0B0C]/65">
+                      {[l.email, l.phone].filter(Boolean).join(" · ") ||
+                        "No contact details"}
+                    </span>
+                    <span className="mt-2 flex flex-wrap items-center gap-1.5">
+                      <StatusBadge status={l.status} />
+                      {l.do_not_contact && (
+                        <Badge tone="warn">Do not contact</Badge>
+                      )}
+                      <span className="min-w-0 truncate text-[11.5px] text-[#0B0B0C]/45">
+                        {l.source}
+                      </span>
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <table className="hidden w-full text-left text-[13px] md:table">
               <thead>
                 <tr className="border-b border-black/[0.06] text-[11.5px] text-[#0B0B0C]/50">
                   {["Lead", "Contact", "Status", "Source", "Added"].map((h) => (
@@ -178,7 +228,7 @@ async function Leads({
                 ))}
               </tbody>
             </table>
-          </div>
+          </>
         )}
       </section>
     </>

@@ -7,7 +7,11 @@ import { btn, hint, input, labelCls } from "../_ui/kit";
 import { addLead } from "./actions";
 
 /** "Add lead": a button that opens a small dialog with the form. */
-export function AddLead() {
+export function AddLead({
+  variant = "primary",
+}: {
+  variant?: "primary" | "secondary";
+}) {
   const dialog = useRef<HTMLDialogElement>(null);
   // Close on a click on the backdrop, and when the page is left.
   useEffect(() => {
@@ -29,7 +33,7 @@ export function AddLead() {
     <>
       <button
         type="button"
-        className={btn.primary}
+        className={btn[variant]}
         onClick={() => dialog.current?.showModal()}
       >
         <Plus aria-hidden className="size-3.5" />

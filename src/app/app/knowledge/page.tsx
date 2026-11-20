@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { BookOpen, FileText, Link2 } from "lucide-react";
+import { checklistState } from "@/lib/app/checklist";
 import { getAppContext } from "@/lib/app/context";
 import { ago } from "@/lib/app/time";
 import type { KnowledgeItem } from "@/lib/app/types";
 import { cn } from "@/lib/utils";
 import { ActionForm, SubmitButton } from "../_ui/form";
+import { LiveRefresh } from "../_ui/live";
+import { readWebsite } from "../setup-actions";
 import {
   Badge,
   ChannelTile,
@@ -169,13 +172,21 @@ function Item({ item }: { item: KnowledgeItem }) {
 }
 
 async function Knowledge() {
-  const { repo } = await getAppContext();
-  const items = await repo.knowledge();
+  const { repo, workspace } = await getAppContext();
+  const [items, setup] = await Promise.all([repo.knowledge(), repo.setup()]);
+  // The website is being read right now: show its pages as they land.
+  const { reading } = checklistState({
+    setup,
+    knowledge: items,
+    widgets: [],
+    agents: [],
+  });
   return (
     <>
+      {reading && <LiveRefresh every={3000} />}
       <PageHead
         title="Knowledge"
-        note="What your agents know about your business. The inbound agent answers website chats from this and nothing else, and offers a person when the answer isn't here."
+        note="What Dialvo knows about your business. Your agent answers website chats from this and nothing else, and offers a person when the answer isn't here. First emails are written from it too."
       />
       <div className="grid items-start gap-3 lg:grid-cols-[minmax(0,1fr)_360px]">
         <section className={cn(panel, "overflow-hidden")}>
@@ -186,9 +197,38 @@ async function Knowledge() {
             </span>
           </h2>
           {items.length === 0 ? (
-            <Empty icon={BookOpen} title="Nothing here yet">
-              Start with your prices and the five questions leads ask most.
-              Short and specific beats long and vague.
+            <Empty
+              icon={BookOpen}
+              title="Nothing here yet"
+              action={
+                reading ? undefined : (
+                  <ActionForm
+                    action={readWebsite}
+                    className="w-[min(78vw,360px)]"
+                  >
+                    <span className="flex gap-2">
+                      <label className="min-w-0 flex-1">
+                        <span className="sr-only">Your website</span>
+                        <input
+                          name="url"
+                          maxLength={300}
+                          inputMode="url"
+                          defaultValue={workspace.website ?? ""}
+                          placeholder="yourcompany.com"
+                          className={cn(input, "h-9 py-0 text-[13px]")}
+                        />
+                      </label>
+                      <SubmitButton pendingText="Starting…">
+                        Read my website
+                      </SubmitButton>
+                    </span>
+                  </ActionForm>
+                )
+              }
+            >
+              {reading
+                ? "Reading your website now. Its pages appear here within half a minute."
+                : "What Dialvo knows about your business shows up here: pages it reads from your website, and anything you add yourself. The quickest start is to let it read your website."}
             </Empty>
           ) : (
             <ul>
@@ -205,7 +245,9 @@ async function Knowledge() {
             <ActionForm action={saveKnowledge} resetOnSuccess className="p-4">
               <Fields kind="text" />
               <div className="mt-3 flex justify-end">
-                <SubmitButton pendingText="Adding…">Add text</SubmitButton>
+                <SubmitButton pendingText="Adding…" variant="secondary">
+                  Add text
+                </SubmitButton>
               </div>
             </ActionForm>
           </section>
