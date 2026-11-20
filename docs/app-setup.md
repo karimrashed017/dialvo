@@ -8,7 +8,7 @@ The signed-in app lives at `/app`, with `/signup`, `/login`,
 project.
 
 Status on 20 Nov 2026: the project `qpvdafpdjxvlqecpjrim` (eu-west-1,
-Postgres 17) has all seven migrations applied, and the app was run against it
+Postgres 17) has all eight migrations applied, and the app was run against it
 locally (see "What was tested" at the end). The steps below are what is left
 to do by hand, and how to repeat the setup on another project.
 
@@ -23,6 +23,9 @@ Project Settings, API keys.
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Vercel (all environments), `.env.local`  | `sb_publishable_...`. Safe in the browser.                                                                                                                           |
 | `SUPABASE_SECRET_KEY`                  | Vercel (Production and Preview) **only** | `sb_secret_...`. Server only. **The inbound agent needs it** (to read a workspace's knowledge and store replies). The lead form and the chat widget work without it. |
 | `ANTHROPIC_API_KEY`                    | Vercel (Production and Preview) **only** | An Anthropic API key. Server only. **The inbound agent needs it** to write replies. Never give it a `NEXT_PUBLIC_` name.                                             |
+
+| `RESEND_API_KEY` | Vercel (Production and Preview) **only** | A Resend API key that may send from `trydialvo.com`. Server only. **Email alerts to the team need it**, together with `SUPABASE_SECRET_KEY`. Without it nothing is sent and Settings says so. |
+| `BILLING_ENFORCED` | Vercel, **leave unset for now** | Only the exact value `1` switches enforcement of the trial on (section 5). Set it when customers can pay, not before. |
 
 **The agent runs only when both `SUPABASE_SECRET_KEY` and `ANTHROPIC_API_KEY`
 are set.** With either missing nothing breaks: the Agents page, Settings and
@@ -51,6 +54,15 @@ already applied, under the same versions as the file names:
    `chat_widgets` and `message_drafts`, new columns on `agents`,
    `knowledge_items` and `conversations`, and the chat's functions. Additive
    only.)
+
+8. `20261120143600_activation.sql` (slice 2b: the tables `workspace_setup`,
+   `agent_test_messages` and `team_alerts`; the trial columns on
+   `workspaces`, `alert_emails` on `profiles`, the "seen" columns on
+   `chat_widgets`; new functions; and `create_workspace` and
+   `chat_agent_context` replaced with the same body plus a little more.
+   Additive only. Existing workspaces had their trial set to seven days
+   after they were created, so for older ones it has already ended; with
+   enforcement off that only changes the banner.)
 
 For another project: `npx supabase link --project-ref <ref>` then
 `npx supabase db push`, or paste each file into the SQL editor in that order.
@@ -125,6 +137,13 @@ through the API), all intended:
 `chat_agent_context` and `chat_agent_commit` (what the agent reads and
 writes) are callable with the secret key only, so they are not listed.
 
+Slice 2b adds one more to that list: `chat_widget_seen`, callable by `anon`.
+It is the widget saying which site it loaded on; it takes an origin, checks
+its shape, writes at most once every 30 seconds per widget and returns
+nothing about the workspace. `chat_billing_state`, `agent_test_begin`,
+`agent_test_commit`, `claim_team_alerts` and `finish_team_alert` are for the
+secret key only.
+
 The performance advisor lists every index as unused until there is traffic.
 
 ## 4. The website chat and the inbound agent
@@ -184,7 +203,87 @@ characters), which can then be edited or read again. It only fetches public
 `https` pages: private, loopback and link-local addresses are refused, also
 after a redirect (`src/lib/knowledge/fetch-page.ts`).
 
-## 5. Manual test checklist
+## 5. Getting a new workspace going, and the trial (slice 2b)
+
+**Onboarding reads their website.** When the website field is filled in, the
+workspace is created and the person lands on Today at once; after that
+response the server reads the home page and up to four more pages of the
+same site (pricing, what they offer, FAQ, about, contact, found from the
+home page's own links) into Knowledge. Same rules as "Add from a web page":
+public `https` only, private addresses refused, 10 seconds a page, and 25
+seconds for the whole site. "Same site" means the same host name, with or
+without `www.`; links to other hosts and subdomains are not followed. If it
+fails, the checklist says it couldn't read the site and offers "Try again"
+and "Paste text instead". On Vercel this work runs after the response
+(`after()`), inside the function's time limit.
+
+**A chat widget from the start.** `create_workspace` now makes one. Older
+workspaces keep the "Create the chat" button.
+
+**"Get started"** sits at the top of Today until all four steps are done or
+someone presses Dismiss (for the whole workspace): Teach your agent, Try
+your agent, Put the chat on your website, Switch your agent on. Each step
+is worked out from real data, so it can't be ticked by hand.
+
+**Try your agent** (`/app/agents/try`, also linked from Agents). A signed-in
+teammate talks to the workspace's inbound agent with the same prompt, the
+same knowledge and the same model call as a visitor's chat. Differences:
+nothing is stored as a lead, conversation or message (it lives in
+`agent_test_messages`), it works while the agent is switched off, and the
+answer is shown at once whatever the approval mode. Replies count towards
+the daily cap of 300. Its own limits: 10 messages a minute per person on the
+server, and in the database 8 a minute per person and 150 a day per
+workspace. Without `ANTHROPIC_API_KEY` and `SUPABASE_SECRET_KEY` the page
+says the agent isn't switched on yet on Dialvo's side.
+
+**The install check.** When the widget loads it sends one request to
+`/api/chat/[token]/seen`. The server keeps the page's origin
+(`https://example.com`, from the browser's `Origin` header) and the time,
+first and latest, on the widget's row: no cookie, no address, no page path.
+The checklist and Settings show "Seen on example.com, 2 minutes ago" or
+"Not seen yet", with "Check again". The preview inside Settings doesn't
+count. Limits: 30 a minute per address and per widget, and one write per
+widget every 30 seconds. Anyone who has a widget's public id can send a
+sighting with any origin, so the line is a convenience for the team, not
+proof of anything.
+
+**Email alerts to the team.** One email per event, to every member whose
+switch is on (Settings, Email alerts; on by default, each person's own),
+from `Dialvo <contact@trydialvo.com>` through Resend's HTTP API:
+
+- a lead was qualified in the chat;
+- a chat needs a person (the agent handed over, or a new chat arrived while
+  no agent is switched on for the workspace);
+- a draft reply is waiting for approval.
+
+Each has a short summary and a link to the conversation. At most 20 an hour
+per workspace; the rest are marked skipped. Alerts older than 15 minutes
+are never sent, so adding the key later doesn't send a backlog. Leads and
+visitors are never emailed. Without `RESEND_API_KEY` (or without
+`SUPABASE_SECRET_KEY`) nothing is sent, and Settings says "Email alerts
+aren't switched on yet on Dialvo's side".
+
+**The trial clock.** `workspaces.trial_ends_at` (seven days after creation)
+and `workspaces.billing_status` (`trialing`, `active`, `past_due`,
+`canceled`); neither can be changed by anyone signed in. A slim banner says
+"6 days left in your free trial". After it ends:
+
+- **`BILLING_ENFORCED` unset (now):** nothing is blocked. The banner says
+  the trial has ended, that paid plans are coming, and to email
+  `contact@trydialvo.com`.
+- **`BILLING_ENFORCED=1` (when checkout exists):** the agent stops replying
+  (real chats and test chats), the widget tells visitors a team member will
+  reply and keeps saving their messages to the Inbox, and the banner and
+  Settings ask for a plan (the link goes to `/pricing` until there is a
+  checkout to send people to). A workspace whose `billing_status` is
+  `active` is never locked. If the trial dates can't be read, nothing is
+  locked.
+
+There is no checkout and no payment code. Setting a workspace to paid is,
+for now, a statement in the SQL editor:
+`update public.workspaces set billing_status = 'active' where id = '...';`
+
+## 6. Manual test checklist
 
 Run through this on production once the settings above are in. Use two
 browsers (or one normal and one private window) and two email addresses you
@@ -207,7 +306,7 @@ Sign-up and log-in
 Onboarding and the workspace
 
 - [ ] Onboarding asks for name, what you sell, website, time zone, and
-      lands on Today with zeros and "Get your workspace ready".
+      lands on Today with zeros and "Get started".
 - [ ] Knowledge has "What we sell" with what you typed.
 - [ ] Agents shows four agents, all off.
 
@@ -280,6 +379,47 @@ a real model yet**)
       carries on as before.
 - [ ] Switch the chat off in Settings: the button is gone from the test page.
 
+Getting started and the trial (slice 2b; the steps marked **keys** need
+`ANTHROPIC_API_KEY`, `SUPABASE_SECRET_KEY` and `RESEND_API_KEY` in
+production, and **none of those has been run yet**)
+
+- [ ] Sign up with a new address and fill in your real website in
+      onboarding: you land on Today straight away; "Teach your agent" says
+      it is reading the site, then lists the pages it read, without a
+      reload. Knowledge has those pages.
+- [ ] Sign up again with a website that doesn't exist: the step says it
+      couldn't read the site and offers "Try again" and "Paste text
+      instead".
+- [ ] The banner at the top says "7 days left in your free trial"; Settings,
+      Workspace says the date it ends.
+- [ ] **keys** "Try your agent": ask "what do you offer?" and "how much is
+      it?". It answers from the pages it read and doesn't invent a price.
+      Ask for a person: it says it would hand over. Leads, Inbox and
+      Today's numbers stay at zero. The step ticks.
+- [ ] "Put the chat on your website": it says "Not seen yet". Paste the
+      line into a real page, load it, press "Check again": "Seen on
+      yoursite.com, just now", and the step ticks. Settings, Website chat
+      says the same. "Preview on this page" in Settings does not change it.
+- [ ] "Switch your agent on" from the checklist: the step ticks; Agents
+      shows it on, on "Ask me first".
+- [ ] **keys** Send a message from the widget: within a minute an email
+      "A draft reply is waiting for your approval" arrives at your log-in
+      address, with a link that opens the conversation. Ask for a person in
+      the chat: "A website chat needs a person" arrives. Answer the
+      qualifying questions well: "A lead was qualified" arrives.
+- [ ] **keys** Settings, Email alerts: turn yours off, send another
+      message: no email. A teammate with theirs on still gets it.
+- [ ] Dismiss the checklist: it is gone for everyone in the workspace.
+- [ ] In the SQL editor, end a test workspace's trial
+      (`update public.workspaces set trial_ends_at = now() - interval '1 day' where id = '...'`):
+      the banner says the trial has ended and that plans are coming; the
+      agent, the widget and the app all still work.
+- [ ] Before `BILLING_ENFORCED=1` ever goes on in production: try it on a
+      preview deployment with a workspace whose trial has ended. The agent
+      must stay silent, the widget must say a team member will reply, the
+      message must be in the Inbox, and a workspace set to
+      `billing_status = 'active'` must be unaffected.
+
 Team and isolation
 
 - [ ] Settings: invite address B. It says no email is sent.
@@ -297,7 +437,7 @@ Team and isolation
 To repeat most of this automatically against a running app, see
 `scripts/e2e-app.mjs` and, for the chat, `scripts/e2e-chat.mjs`.
 
-## 6. The design preview (development only)
+## 7. The design preview (development only)
 
 `DIALVO_DEV_FIXTURES=1 npm run dev` draws the whole app shell with made-up
 data and no database, for looking at the design. It cannot run in
@@ -384,6 +524,73 @@ Not tested, and why:
   response, the per-address limits behind its proxy, a customer site with
   its own Content Security Policy). Nothing was pushed to `main`.
 - The widget in browsers other than Chromium, and on a phone.
+
+## What was tested for slice 2b on 20 Nov 2026, and what wasn't
+
+Tested:
+
+- **Unit tests** (`npm test`). For this slice: the website reader with the
+  fetcher faked (which links are followed, nothing off the site, slow and
+  failed pages left out, the time limit, what is written to Knowledge and
+  the quiet failure); "Try your agent" with the Anthropic client mocked and
+  the database faked (the same prompt and model as a real chat, every
+  reason it doesn't answer, the daily cap); team alerts with Resend mocked
+  (who is emailed, what the email says, visitor text kept as plain text, one
+  email per event, nothing without the key); the install check's endpoint
+  (stores an origin and nothing else, ignores Dialvo's own pages, its
+  limits); the trial clock and its switch (nothing locked unless
+  `BILLING_ENFORCED=1`, never a paid workspace, never on unreadable
+  dates); the agent and the message endpoint with the switch on; and the
+  checklist's rules.
+- **The migration on an in-memory Postgres** (`supabase/tests/`): the three
+  new tables in the cross-workspace tests; what a new workspace starts
+  with; the back-fill, by building a database as it was before, adding a
+  30-day-old workspace and then applying the migration; the trial columns
+  refusing changes from a signed-in owner; the install check's function;
+  test chats creating no lead, conversation, message, feed event or alert,
+  and counting towards the daily cap; alerts queued by the trigger, claimed
+  once, capped at 20 an hour, never claimed with another workspace's token.
+- **In a browser, against the real project** (`scripts/e2e-activation.mjs`,
+  app running locally with the publishable key only): a real sign-up and
+  its confirmation link; onboarding with a website (`trydialvo.com`: the
+  person was on Today in two seconds and four pages were in Knowledge four
+  seconds later); the checklist updating by itself; the widget existing
+  from the start; the trial banner and the API refusing the owner's attempt
+  to extend the trial; the "not switched on yet" state of Try your agent;
+  the install check from a page on another origin (one request with
+  nothing in it, no cookies, only the origin stored, the preview not
+  counted, the 30-second and rate limits); a visitor's message queuing one
+  alert; the alert switch; switching the agent on from the checklist; a
+  person in another workspace reading none of it; the server-only functions
+  refusing anon and signed-in callers; the banner after the trial was ended
+  by hand, with the app and widget still working; and dismissing the
+  checklist. The enforced banner was also checked in a browser with the
+  local server started with `BILLING_ENFORCED=1`.
+- The function bodies in the database were compared with the migration file
+  (same checksums).
+
+Not tested, and why:
+
+- **Try your agent with the real model.** No `ANTHROPIC_API_KEY` or
+  `SUPABASE_SECRET_KEY` here, so nobody has had an answer in the test chat
+  yet, and "Try your agent" has never been ticked on a real workspace. The
+  path from the button to the model and back has only run with both ends
+  faked.
+- **A real email.** No `RESEND_API_KEY` here: no alert has been sent,
+  received or looked at in a mail client. Whether Resend accepts the sender
+  and the `Idempotency-Key` header as written is unverified. The queue, the
+  claim and the cap are tested in the database; the send is tested against
+  a fake.
+- **Enforcement end to end.** With `BILLING_ENFORCED=1` the banner was seen
+  in a browser, but the agent going silent and the widget's "team member
+  will reply" on a locked workspace need the secret key, so they have only
+  run in unit tests.
+- **Reading a site after the response on Vercel.** Locally the read
+  finishes after the redirect as intended; on Vercel it depends on the
+  function staying alive for `after()`, as the agent's replies already do.
+  Sites that draw themselves with JavaScript, or block unknown readers,
+  will show "couldn't read".
+- Anything on the deployed site: nothing was pushed to `main`.
 
 ## Google log-in
 

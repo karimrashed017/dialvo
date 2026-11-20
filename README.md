@@ -98,6 +98,20 @@ settings and the manual test checklist.**
   app says the agent isn't switched on and chats are still saved. Knowledge
   can be added from a web page (`src/lib/knowledge/fetch-page.ts`, which
   refuses private addresses).
+- **Activation** (slice 2b): onboarding reads the customer's website into
+  Knowledge after the redirect (`src/lib/knowledge/read-site.ts`); every new
+  workspace starts with a chat widget; Today shows a "Get started" checklist
+  (`src/lib/app/checklist.ts`) until it is done or dismissed; "Try your
+  agent" (`/app/agents/try`, `src/lib/agents/test-chat.ts`) runs the real
+  agent on a test chat that is never a lead; the widget reports the site it
+  loads on (`/api/chat/[token]/seen`), so Settings can say "Seen on
+  example.com, 2 minutes ago"; and the team is emailed through Resend when a
+  chat is qualified, needs a person or has a draft waiting
+  (`src/lib/alerts`, needs `RESEND_API_KEY`).
+- **The trial clock** (`src/lib/billing/trial.ts`): seven days from the
+  workspace's creation, shown in a banner. Nothing is blocked when it ends
+  unless the server runs with `BILLING_ENFORCED=1`, which is for when
+  checkout exists.
 - **Data access** (`src/lib/app`): `context.ts` resolves the user and their
   current workspace per request, `repo.ts` holds every read, `action.ts`
   wraps every Server Action in a session and membership check. The app talks
@@ -112,7 +126,9 @@ settings and the manual test checklist.**
   `profiles`, `workspaces`, `workspace_members`, `invitations`, `leads`,
   `conversations`, `messages`, `agents`, `knowledge_items`, `meetings`,
   `calls`, `activity_events`, `lead_forms`, `chat_widgets`,
-  `message_drafts`. Every table has row-level
+  `message_drafts`, `workspace_setup` (the "Get started" checklist),
+  `agent_test_messages` ("Try your agent" chats, never leads) and
+  `team_alerts` (emails to the team, queued and sent). Every table has row-level
   security from its first migration, policies go through `private.*` helper
   functions, and child tables use `(parent_id, workspace_id)` foreign keys.
   `npm test` applies the migrations to an in-memory Postgres (PGlite) and
@@ -123,7 +139,8 @@ settings and the manual test checklist.**
 - **End-to-end checks:** `scripts/e2e-app.mjs` drives a browser through the
   app as two people and checks they can't see each other's data;
   `scripts/e2e-chat.mjs` does the same for the chat widget, the Inbox, drafts
-  and takeover.
+  and takeover; `scripts/e2e-activation.mjs` signs a new person up and
+  follows the checklist to the install check and the trial banner.
 
 ## Honesty rules for the site
 

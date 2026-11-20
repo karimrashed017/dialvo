@@ -269,18 +269,20 @@ built in our own glass nav.
 The site describes the whole product. The app at `/app` has caught up on one
 row of section 2 and part of section 3; the rest is still to build.
 
-| Benchmark capability (our words)                         | In the app                                                                                                                          |
-| -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| Chat: answers website visitors and qualifies them        | **Built.** Embeddable chat widget; the inbound agent answers from the knowledge base and asks the workspace's qualifying questions  |
-| Qualification in the conversation, your own questions    | **Built** for chat: qualified, not a fit or needs a person, with a short note. No conditional follow-ups, skip logic or scoring yet |
-| Approval thresholds; visible, editable instructions      | **Built** as two modes per agent: send on its own, or draft first with approve, edit and discard in the Inbox                       |
-| Escalation and human handoff                             | **Built** for chat: a teammate's reply pauses the agent; the agent hands over when asked for a person or to stop                    |
-| Knowledge base: docs, URLs                               | **Partly.** Text, and text read from a public web page. No file uploads, versions, per-campaign or per-language scoping             |
-| Automatic opt-outs                                       | **Partly.** A visitor who asks to stop is marked do not contact. Nothing sends outbound yet, so there is nothing else to stop       |
-| Audit trail                                              | **Partly.** Every message, draft decision, handoff and outcome is on the lead's timeline and the Today feed                         |
-| Books a meeting, live transfer, reminders                | Not built (no calendar yet): the agent passes the chat to the team instead of promising a booking                                   |
-| Voice, email, social, SMS and WhatsApp agents; sequences | Not built. Replies on those channels are stored and marked "Saved, not delivered"                                                   |
-| Lead scoring, routing, CRM write-back, Slack alerts      | Not built                                                                                                                           |
+| Benchmark capability (our words)                         | In the app                                                                                                                                                                                                   |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Chat: answers website visitors and qualifies them        | **Built.** Embeddable chat widget; the inbound agent answers from the knowledge base and asks the workspace's qualifying questions                                                                           |
+| Qualification in the conversation, your own questions    | **Built** for chat: qualified, not a fit or needs a person, with a short note. No conditional follow-ups, skip logic or scoring yet                                                                          |
+| Approval thresholds; visible, editable instructions      | **Built** as two modes per agent: send on its own, or draft first with approve, edit and discard in the Inbox                                                                                                |
+| Escalation and human handoff                             | **Built** for chat: a teammate's reply pauses the agent; the agent hands over when asked for a person or to stop                                                                                             |
+| Knowledge base: docs, URLs                               | **Partly.** Text, and text read from a public web page. Onboarding reads the home page and up to four more pages of the customer's own site. No file uploads, versions, per-campaign or per-language scoping |
+| Test an agent before it goes live                        | **Built** for chat (slice 2b): "Try your agent" in the app, with the real knowledge and instructions; test chats are never leads                                                                             |
+| Alerts to the team                                       | **Partly** (slice 2b). Email to the workspace's members when a chat is qualified, needs a person or has a draft waiting. No Slack                                                                            |
+| Automatic opt-outs                                       | **Partly.** A visitor who asks to stop is marked do not contact. Nothing sends outbound yet, so there is nothing else to stop                                                                                |
+| Audit trail                                              | **Partly.** Every message, draft decision, handoff and outcome is on the lead's timeline and the Today feed                                                                                                  |
+| Books a meeting, live transfer, reminders                | Not built (no calendar yet): the agent passes the chat to the team instead of promising a booking                                                                                                            |
+| Voice, email, social, SMS and WhatsApp agents; sequences | Not built. Replies on those channels are stored and marked "Saved, not delivered"                                                                                                                            |
+| Lead scoring, routing, CRM write-back, Slack alerts      | Not built                                                                                                                                                                                                    |
 
 Where the app differs on purpose: the chat widget carries no agent name or
 photo. Replies are labelled "Assistant" or "Team member", and the widget
