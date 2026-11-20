@@ -65,7 +65,14 @@ async function Settings() {
 
   return (
     <>
-      <PageHead title="Settings" />
+      <PageHead title="Settings">
+        <Link href="/app/settings/api" className={cn(btn.ghost, btn.small)}>
+          API keys
+        </Link>
+        <Link href="/app/features" className={cn(btn.secondary, btn.small)}>
+          All features
+        </Link>
+      </PageHead>
       <div className="grid items-start gap-3 lg:grid-cols-2">
         <section id="workspace" className={cn(panel, "scroll-mt-28")}>
           <h2 className={panelHead}>

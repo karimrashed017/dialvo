@@ -19,7 +19,7 @@ import { SetupNotice } from "../(auth)/frame";
 import { PAPER } from "../_site/theme";
 import { Dropdown, menuItem } from "./_ui/dropdown";
 import { Badge, Initial } from "./_ui/kit";
-import { AppNav, MobileNav } from "./_ui/nav";
+import { AppNav, FeaturesLink, MobileNav } from "./_ui/nav";
 import { switchWorkspace } from "./workspace-actions";
 
 export const viewport = { themeColor: PAPER };
@@ -106,9 +106,12 @@ async function Shell({ children }: { children: React.ReactNode }) {
 
       <aside className="sticky top-0 hidden h-dvh w-[220px] shrink-0 flex-col border-r border-black/[0.07] bg-white/70 p-3 lg:flex">
         {switcher}
-        <nav aria-label="App" className="mt-4">
+        <nav aria-label="App" className="mt-4 min-h-0 flex-1 overflow-y-auto">
           <AppNav waiting={waiting} emails={emails} />
         </nav>
+        <div className="mt-2 border-t border-black/[0.06] pt-2">
+          <FeaturesLink />
+        </div>
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">

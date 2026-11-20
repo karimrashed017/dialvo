@@ -4,27 +4,36 @@ import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  BarChart3,
   BookOpen,
   House,
   Inbox,
+  LayoutGrid,
+  ListOrdered,
   Menu,
   MessageCircle,
+  Phone,
   Settings,
   Telescope,
   Users,
+  Workflow,
   X,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// The app's sections, in the order of the jobs Dialvo does: what it finds,
-// what it answers, then where the results land.
+// The app's sections: the plays first, then what Dialvo finds and sends,
+// what it answers, and where the results land.
 const NAV: { href: string; icon: LucideIcon; label: string }[] = [
   { href: "/app", icon: House, label: "Home" },
+  { href: "/app/plays", icon: Workflow, label: "Plays" },
   { href: "/app/prospects", icon: Telescope, label: "Find leads" },
-  { href: "/app/chat", icon: MessageCircle, label: "Website chat" },
+  { href: "/app/sequences", icon: ListOrdered, label: "Sequences" },
   { href: "/app/inbox", icon: Inbox, label: "Inbox" },
+  { href: "/app/chat", icon: MessageCircle, label: "Website chat" },
+  { href: "/app/calls", icon: Phone, label: "Calls" },
   { href: "/app/leads", icon: Users, label: "Leads" },
+  { href: "/app/analytics", icon: BarChart3, label: "Analytics" },
   { href: "/app/knowledge", icon: BookOpen, label: "Knowledge" },
   { href: "/app/settings", icon: Settings, label: "Settings" },
 ];
@@ -40,7 +49,7 @@ export type NavCounts = {
 export function AppNav({ waiting, emails }: NavCounts) {
   const pathname = usePathname();
   return (
-    <ul className="space-y-0.5">
+    <ul className="space-y-px">
       {NAV.map((n) => {
         const active =
           n.href === "/app"
@@ -86,6 +95,27 @@ export function AppNav({ waiting, emails }: NavCounts) {
         );
       })}
     </ul>
+  );
+}
+
+/** Every play and platform feature, and where each lives: below the sections. */
+export function FeaturesLink() {
+  const pathname = usePathname();
+  const active = pathname.startsWith("/app/features");
+  return (
+    <Link
+      href="/app/features"
+      aria-current={active ? "page" : undefined}
+      className={cn(
+        "flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-[13px] transition-colors focus-visible:ring-2 focus-visible:ring-black/40 focus-visible:outline-none",
+        active
+          ? "bg-[#0B0B0C] text-white"
+          : "text-[#0B0B0C]/55 hover:bg-black/[0.05] hover:text-[#0B0B0C]",
+      )}
+    >
+      <LayoutGrid aria-hidden className="size-4 shrink-0" />
+      All features
+    </Link>
   );
 }
 
@@ -148,9 +178,12 @@ export function MobileNav(counts: NavCounts) {
               <X aria-hidden className="size-4" />
             </button>
           </div>
-          <nav aria-label="App">
+          <nav aria-label="App" className="min-h-0 flex-1 overflow-y-auto">
             <AppNav {...counts} />
           </nav>
+          <div className="mt-2 border-t border-black/[0.06] pt-2">
+            <FeaturesLink />
+          </div>
         </div>
       </dialog>
     </>

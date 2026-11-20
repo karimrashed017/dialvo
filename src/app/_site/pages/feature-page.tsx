@@ -1,3 +1,4 @@
+import { APP_FEATURES, statusLine } from "@/lib/plays/catalog";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import {
@@ -59,6 +60,13 @@ export function FeaturePage({ slug }: { slug: FeatureSlug }) {
               </Rise>
               <Rise delay={0.4} className="mt-8">
                 <HeroButtons />
+                {/* Whether the app does this today: the same status as in the app. */}
+                <p
+                  data-app-status={APP_FEATURES[slug].status}
+                  className={`mt-4 text-[13px] ${muted}`}
+                >
+                  {statusLine(APP_FEATURES[slug].status)}
+                </p>
               </Rise>
             </div>
             <Rise delay={0.2} className="min-w-0">

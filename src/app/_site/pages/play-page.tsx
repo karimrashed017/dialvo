@@ -1,3 +1,4 @@
+import { APP_PLAYS, statusLine } from "@/lib/plays/catalog";
 import { motionById, PLAY_PAGES, PLAYS, type PlaySlug } from "@/lib/content";
 import { Rise, Words } from "../motion";
 import { muted, serif } from "../theme";
@@ -54,6 +55,13 @@ export function PlayPage({ slug }: { slug: PlaySlug }) {
               </Rise>
               <Rise delay={0.4} className="mt-8">
                 <HeroButtons play={entry.title} />
+                {/* Whether the app does this today: the same status as in the app. */}
+                <p
+                  data-app-status={APP_PLAYS[slug].status}
+                  className={`mt-4 text-[13px] ${muted}`}
+                >
+                  {statusLine(APP_PLAYS[slug].status)}
+                </p>
               </Rise>
             </div>
             <Rise delay={0.2} className="min-w-0">

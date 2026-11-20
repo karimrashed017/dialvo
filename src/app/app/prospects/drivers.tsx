@@ -74,10 +74,13 @@ export function RunDriver({ runId }: { runId: string }) {
 export function DraftWriter({
   waiting,
   disabled,
+  noun = "first email",
 }: {
-  /** Kept prospects with an email address and no draft yet. */
+  /** Kept prospects (and play targets) with no draft yet. */
   waiting: number;
   disabled: boolean;
+  /** What the button calls one email: "first email", "email". */
+  noun?: string;
 }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
@@ -158,8 +161,8 @@ export function DraftWriter({
         {busy
           ? "Writing…"
           : waiting > 0
-            ? `Write ${waiting} first ${waiting === 1 ? "email" : "emails"}`
-            : "Write first emails"}
+            ? `Write ${waiting} ${waiting === 1 ? noun : `${noun}s`}`
+            : `Write ${noun}s`}
       </button>
       {note && (
         <p role="status" className={hint}>

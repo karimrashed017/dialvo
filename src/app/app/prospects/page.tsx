@@ -72,6 +72,8 @@ import {
   SendingSummary,
   type Sending,
 } from "./sending";
+import { playReads } from "@/lib/plays/read";
+import { FindTabs } from "./tabs";
 import { field } from "./ui";
 
 export const metadata: Metadata = { title: "Find leads" };
@@ -788,6 +790,24 @@ function FindView({
   );
 }
 
+/** Which play a draft came from, on its card. */
+const PLAY_BADGE: Record<string, string> = {
+  speed_to_lead: "Speed to lead",
+  reactivation: "Reactivation",
+  closed_lost: "Closed lost",
+  nurture: "Nurture",
+  onboarding: "Onboarding",
+  expansion: "Expansion",
+  plg: "Trial user",
+  takeout: "Competitive takeout",
+  event_registration: "Event registration",
+  event_followup: "Event follow-up",
+  event_no_show: "Event no-show",
+  accounts: "Target account",
+  lookalike: "Lookalike",
+  signal: "Buying signal",
+};
+
 function DraftCard({ d }: { d: DraftWithProspect }) {
   const approved = d.status === "approved";
   return (
@@ -801,12 +821,20 @@ function DraftCard({ d }: { d: DraftWithProspect }) {
             <Badge tone="plain">Waiting for you</Badge>
           )}
           <span className="font-medium">
-            {d.prospect?.company_name || d.to_email.split("@")[1]}
+            {d.prospect?.company_name ||
+              d.lead?.company ||
+              d.to_email.split("@")[1]}
           </span>
           <span className="text-[#0B0B0C]/55">
-            To {d.prospect?.contact_name ? `${d.prospect.contact_name}, ` : ""}
+            To{" "}
+            {d.prospect?.contact_name || d.lead?.name
+              ? `${d.prospect?.contact_name || d.lead?.name}, `
+              : ""}
             {d.to_email}
           </span>
+          {d.play && PLAY_BADGE[d.play] && (
+            <Badge tone="outline">{PLAY_BADGE[d.play]}</Badge>
+          )}
           {d.edited && <Badge tone="outline">Edited</Badge>}
         </div>
         <label className={cn(labelCls, "mt-2.5")} htmlFor={`s-${d.id}`}>
@@ -1273,6 +1301,7 @@ async function Content({
             (r.status === "searching" || r.status === "researching"),
         ),
       ) ||
+      searches.find((s) => s.kind !== "campaign") ||
       searches[0];
   const activeRun = runs.some(
     (r) => r.status === "searching" || r.status === "researching",
@@ -1294,7 +1323,9 @@ async function Content({
       .filter((d) => d.status !== "failed")
       .map((d) => d.prospect_id),
   );
-  const toWrite = kept.filter((k) => !drafted.has(k.id)).length;
+  const toWrite =
+    kept.filter((k) => !drafted.has(k.id)).length +
+    (view === "emails" ? await playReads(supabase, workspace.id).toWrite() : 0);
   const found = prospects.filter((p) => p.research_status === "found");
   const undecided = found.filter((p) => p.decision === "undecided").length;
   const keptCount = found.filter((p) => p.decision === "kept").length;
@@ -1313,6 +1344,7 @@ async function Content({
         <LiveRefresh every={20000} />
       )}
       {head}
+      {view === "find" && <FindTabs current="search" />}
       {!on && <NotOn />}
       <Flow
         current={
@@ -1350,7 +1382,10 @@ async function Content({
       />
       {view === "find" && (
         <FindView
-          searches={searches}
+          // A list's own search opens by its link, but isn't in the picker.
+          searches={searches.filter(
+            (s) => s.kind !== "campaign" || s.id === search?.id,
+          )}
           search={search ?? null}
           isNew={isNew}
           runs={runs}

@@ -34,20 +34,15 @@ const nextConfig: NextConfig = {
     return [
       // The waitlist closed when sign-up opened (founder, 20 Nov 2026).
       { source: "/waitlist", destination: "/signup", permanent: false },
-      // The app was reorganised around its two jobs. Agents became part of
-      // Website chat, and the three sections that had nothing in them yet
-      // went away. Old links and bookmarks still land somewhere useful.
+      // Agents became part of Website chat. Old links and bookmarks still
+      // land somewhere useful. (Sequences, Calls and Analytics are pages
+      // again, so they no longer redirect.)
       { source: "/app/agents", destination: "/app/chat", permanent: false },
       {
         source: "/app/agents/try",
         destination: "/app/chat/try",
         permanent: false,
       },
-      ...["sequences", "calls", "analytics"].map((section) => ({
-        source: `/app/${section}`,
-        destination: "/app",
-        permanent: false,
-      })),
     ];
   },
   async headers() {
