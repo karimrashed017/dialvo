@@ -1,6 +1,6 @@
 -- The plays inside the app (/app/plays): the settings a play keeps, event
 -- lists, speed to lead, competitive takeout's technology check and the
--- numbers on Analytics. Additive. Builds on 20261121000100_campaigns.sql.
+-- numbers on Analytics. Additive. Builds on the campaigns migration.
 --
 --   play_settings            per workspace and play: on/off, send on its own
 --                            or wait for approval (approval is the default),

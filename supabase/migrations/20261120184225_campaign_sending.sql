@@ -1,7 +1,7 @@
 -- Sending the plays' first emails. A play (lead reactivation, closed-lost
 -- check-in, trial users ready to buy, customer expansion) writes to one of
 -- the workspace's own leads, so its draft has a lead and no prospect (see
--- 20261121000100_campaigns.sql). Four existing functions learn that, each
+-- the campaigns migration). Four existing functions learn that, each
 -- otherwise unchanged line for line:
 --
 --   outbound_suppression_added  adding to the never-contact list also

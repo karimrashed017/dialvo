@@ -35,9 +35,9 @@ create table public.outbound_campaigns (
   id uuid primary key default gen_random_uuid(),
   workspace_id uuid not null references public.workspaces (id) on delete cascade,
   -- 'signals' is the one campaign per workspace that kept buying signals
-  -- (20261121000300_signals.sql) become prospects of.
+  -- (the signals migration) become prospects of.
   -- The rest are plays on the workspace's own leads (see
-  -- 20261121000400_plays.sql for nurture, onboarding, event and speed_to_lead).
+  -- the plays migration for nurture, onboarding, event and speed_to_lead).
   kind text not null check (kind in (
     'accounts', 'lookalike', 'signals', 'reactivation', 'closed_lost', 'plg', 'expansion',
     'nurture', 'onboarding', 'event', 'speed_to_lead'
@@ -887,7 +887,7 @@ $$;
 revoke all on function private.lead_won_at(uuid, uuid) from public;
 
 -- Which of a workspace's leads a play would write to, and why, now. The
--- rules (each also proved in supabase/tests/campaigns.test.ts):
+-- rules (each also proved in supabase/tests/plays.test.ts):
 --   every play: has an email; not do not contact, not unsubscribed, not on
 --     the never-contact list; nothing waiting, scheduled or sending to them;
 --     no first email from this same play in the last p_repeat_days days;

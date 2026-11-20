@@ -6,7 +6,7 @@ import { createServiceClient } from "@/lib/supabase/service";
 
 // The scheduler's door for buying signals. Every 15 minutes, only when a
 // monitor is due (not pulled for 23 hours), the database calls this (pg_cron
-// + pg_net, see 20261121000300_signals.sql). No session and no person: the
+// + pg_net, see the signals migration, *_signals.sql). No session and no person: the
 // call carries the scheduler's random token from Supabase Vault, checked by
 // asking the database (mail_cron_token_ok), which only the secret key may do.
 // A call without the right token learns nothing. Each call claims a few due
