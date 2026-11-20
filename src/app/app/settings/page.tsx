@@ -234,6 +234,26 @@ async function Settings() {
         </section>
 
         <section
+          id="mailboxes"
+          className={cn(panel, "scroll-mt-28 lg:col-span-2")}
+        >
+          <h2 className={panelHead}>Mailboxes and sending</h2>
+          <div className="flex flex-wrap items-center justify-between gap-3 p-4">
+            <p className="max-w-[640px] text-[13px] leading-[1.5] text-[#0B0B0C]/70">
+              Connect the mailbox your outbound emails come from, say who is
+              sending, set follow-ups and your booking link, and turn sending on
+              or off.
+            </p>
+            <a
+              href="/app/settings/mailboxes"
+              className="inline-flex h-9 shrink-0 items-center rounded-full border border-black/15 bg-white px-4 text-[13px] font-medium hover:bg-black/[0.04]"
+            >
+              Open Mailboxes
+            </a>
+          </div>
+        </section>
+
+        <section
           id="members"
           className={cn(panel, "scroll-mt-28 lg:col-span-2")}
         >

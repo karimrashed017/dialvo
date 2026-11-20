@@ -294,23 +294,52 @@ The first outbound slice. The benchmark's outbound starts from a contact
 database or the customer's own list; ours starts from a description: the
 customer says who they sell to and Dialvo finds the companies itself.
 
-| Benchmark capability (our words)                      | In the app                                                                                                                                                                                                                                       |
-| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Live web search prospecting, with sources per match   | **Built, not yet run with the real model.** Find leads: describe the ideal customer, Dialvo searches the web and reads each company's own site. Every email, phone number, contact and fact is shown with the page it came from                  |
-| Company and contact database                          | Not built, on purpose. No bought or scraped contact data: only what a company publishes on its own website. No social-network profiles, no guessed or pattern-built email addresses                                                              |
-| Research per contact                                  | **Built** per company: what they do, where, a named contact if the site names one, and one to three checkable facts, each with a quote found on the page                                                                                         |
-| One researched message per person                     | **Partly.** One first email per kept company, drafted by the outbound agent from Knowledge, its instructions and the research. Email only; no follow-ups or sequence yet                                                                         |
-| Approval before send, editable drafts                 | **Built.** Approve, edit, discard, bulk approve. Approved means "ready to send"                                                                                                                                                                  |
-| Sending, deliverability, send windows, reply handling | Not built. **Nothing is sent**: no mailbox is connected yet, and the app says so on the page. That is the next slice                                                                                                                             |
-| Opt-out handling, suppression                         | **Partly.** A per-workspace never-contact list (addresses and whole domains) honoured when finding, drafting and approving; do not contact on a lead blocks approval. No unsubscribe link or automatic opt-out from replies until sending exists |
-| Signal-built lists (funding, hiring, tech changes)    | Not built                                                                                                                                                                                                                                        |
-| Lead scoring                                          | Not built. A result is marked "has email" or "no email found", nothing more                                                                                                                                                                      |
+| Benchmark capability (our words)                      | In the app                                                                                                                                                                                                                                                                                                  |
+| ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Live web search prospecting, with sources per match   | **Built, not yet run with the real model.** Find leads: describe the ideal customer, Dialvo searches the web and reads each company's own site. Every email, phone number, contact and fact is shown with the page it came from                                                                             |
+| Company and contact database                          | **Built, not yet run against the real API** (20 Nov 2026). With `FINDYMAIL_API_KEY` set, runs use Findymail's contact database: matching companies, one named decision-maker each, and the work email Findymail verified. Still no scraping, no LinkedIn reading, and no guessed or pattern-built addresses |
+| Research per contact                                  | **Built** per company: what they do, where, a named contact if the site names one, and one to three checkable facts, each with a quote found on the page                                                                                                                                                    |
+| One researched message per person                     | **Partly.** One first email per kept company, drafted by the outbound agent from Knowledge, its instructions and the research. Email only; no follow-ups or sequence yet                                                                                                                                    |
+| Approval before send, editable drafts                 | **Built.** Approve, edit, discard, bulk approve. Approved means "ready to send"                                                                                                                                                                                                                             |
+| Sending, deliverability, send windows, reply handling | Not built. **Nothing is sent**: no mailbox is connected yet, and the app says so on the page. That is the next slice                                                                                                                                                                                        |
+| Opt-out handling, suppression                         | **Partly.** A per-workspace never-contact list (addresses and whole domains) honoured when finding, drafting and approving; do not contact on a lead blocks approval. No unsubscribe link or automatic opt-out from replies until sending exists                                                            |
+| Signal-built lists (funding, hiring, tech changes)    | Not built                                                                                                                                                                                                                                                                                                   |
+| Lead scoring                                          | **Partly.** Results from the contact database show its match score as "Strong / Good / Possible fit"; web results are marked "has email" or "no email found"                                                                                                                                                |
 
 Where the app differs on purpose: it finds companies, not people. A named
 contact is shown only when the company's own site presents that person as
 the one to talk to; private individuals' pages are skipped; and a company
 with no published address is still listed, marked "No email found", rather
 than given a guessed one.
+
+With the contact database on (Findymail, when its key is set), a run does
+find people: one decision-maker per company, by the job titles in "Search
+details", with the work email Findymail returned and verified. Their
+LinkedIn address is kept as data only and never read. Each company's site is
+still read for facts, and never replaces the contact Findymail returned.
+
+## 14. What sending adds (slice 3b, 20 Nov 2026)
+
+Approved emails go out from the customer's own mailbox, follow-ups happen,
+and replies come back into the Inbox. Nothing here has been run against a
+real mailbox yet: see `docs/app-setup.md`, "Sending (slice 3b)".
+
+| Benchmark capability (our words)        | In the app                                                                                                                                                                                                                                                   |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Sending from the customer's own mailbox | **Built.** Settings > Mailboxes: Google Workspace/Gmail, Microsoft 365/Outlook or any SMTP + IMAP provider, with an app password that is checked by a real login and kept only in Supabase Vault. Several mailboxes per workspace                            |
+| Mailbox rotation and warm-up            | **Partly.** Emails rotate across mailboxes; each has a daily limit (30 by default, 50 at most) and a new one ramps from 10 a day by 5 a day; the workspace sends at most 150 a day. No warm-up network, no placement checks, no domain authentication checks |
+| Send windows                            | **Built.** Emails are spread over the outbound agent's send window in the workspace's time zone, a few minutes apart at random                                                                                                                               |
+| Multi-step sequences                    | **Partly.** Up to two follow-ups by email, 3 and 7 days after the first (configurable, can be switched off), each shorter than the last, in the same thread. Email only; no sequence builder                                                                 |
+| Smart replies and objection handling    | **Partly.** Each reply is read as interested, question, not now, not interested, wrong person or unsubscribe. For interested and question the agent drafts an answer from Knowledge (approve first by default). It does not argue with a no                  |
+| Opt-out handling                        | **Built.** One-click unsubscribe link and headers in every email; "unsubscribe" and "not interested" replies go on the never-contact list at once; bounces mark the address bad; all of it re-checked at the moment of sending                               |
+| Meeting booking                         | **Partly.** A booking link the agents may offer, and "Mark meeting booked" on a lead. No calendar integration                                                                                                                                                |
+| Alerts                                  | **Built** by email for interested replies and paused mailboxes, through the existing team alerts. No Slack                                                                                                                                                   |
+| Open and click tracking                 | Not built, on purpose: no tracking pixels and no rewritten links                                                                                                                                                                                             |
+
+Where the app differs on purpose: the sender is always the real person and
+business that connected the mailbox. Every email carries their name, the
+business name and a postal address, and there is no way to send under an
+invented name or from an address that isn't the mailbox's own.
 
 ## 14. What CRM sync adds (20 Nov 2026)
 

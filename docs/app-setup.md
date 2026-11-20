@@ -24,6 +24,7 @@ Project Settings, API keys.
 | `SUPABASE_SECRET_KEY`                  | Vercel (Production and Preview) **only** | `sb_secret_...`. Server only. **The inbound agent needs it** (to read a workspace's knowledge and store replies). The lead form and the chat widget work without it. |
 | `ANTHROPIC_API_KEY`                    | Vercel (Production and Preview) **only** | An Anthropic API key. Server only. **The inbound agent needs it** to write replies. Never give it a `NEXT_PUBLIC_` name.                                             |
 
+| `FINDYMAIL_API_KEY` | Vercel (Production) **only** | Optional. A Findymail API key. Server only. With it, Find leads uses Findymail's contact database for companies, named decision-makers and verified work emails (see "Find leads with the contact database" at the end). Without it, Find leads searches the web as before. Never give it a `NEXT_PUBLIC_` name. |
 | `RESEND_API_KEY` | Vercel (Production and Preview) **only** | A Resend API key that may send from `trydialvo.com`. Server only. **Email alerts to the team need it**, together with `SUPABASE_SECRET_KEY`. Without it nothing is sent and Settings says so. |
 | `BILLING_ENFORCED` | Vercel, **leave unset for now** | Only the exact value `1` switches enforcement of the trial on (section 5). Set it when customers can pay, not before. |
 
@@ -67,7 +68,9 @@ already applied, under the same versions as the file names:
 9. `20261120150000_find_leads_and_first_emails.sql` (slice 3a, Find leads:
    see the section at the end of this page.)
 
-10. `20261120230000_crm_sync.sql` and `20261120230100_crm_scheduler.sql`
+10. `20261120164840_contact_database.sql` (Find leads with Findymail:
+    see "Find leads with the contact database" at the end of this page.)
+11. `20261120230000_crm_sync.sql` and `20261120230100_crm_scheduler.sql`
     (CRM sync: see "CRM sync" at the end of this page.)
 
 For another project: `npx supabase link --project-ref <ref>` then
@@ -850,6 +853,187 @@ with one timeline entry; and three never-contact entries
 through the app, the one never-contact address it had added in each run;
 nothing else was deleted.
 
+## Sending (slice 3b)
+
+Approved first emails go out from the customer's own mailbox, follow-ups
+happen, and replies come back into the Inbox. The code is in `src/lib/mail`,
+the settings page is `/app/settings/mailboxes`, and every limit is in
+`src/lib/mail/config.ts`.
+
+### What it needs
+
+No new environment variable. It uses three that already exist:
+
+- `SUPABASE_SECRET_KEY`: without it nothing is sent or read. A mailbox can
+  still be connected (connecting logs in to SMTP and IMAP for real and
+  stores the app password in Vault), and every page says plainly that
+  nothing is going out.
+- `ANTHROPIC_API_KEY`: for follow-ups, reading replies and drafting
+  answers. Without it emails still send and replies still land in the
+  Inbox; they just aren't classified or answered.
+- `RESEND_API_KEY`: for the alert email when a lead replies with interest
+  or a mailbox is paused.
+
+Two secrets live in Supabase Vault, made by the migrations, never in code:
+`dialvo_cron_token` (the scheduler's token) and `dialvo_unsubscribe_key`
+(signs unsubscribe links). A third Vault entry, `dialvo_app_url`, says where
+the scheduler calls the app: `https://trydialvo.com`. To point it elsewhere:
+`select vault.update_secret((select id from vault.secrets where name = 'dialvo_app_url'), 'https://...');`
+
+### Migrations and extensions
+
+Five migrations, applied to `qpvdafpdjxvlqecpjrim` on 20 Nov 2026:
+`20261120164719_mail_tables`, `20261120164816_mail_team_functions`,
+`20261120165129_mail_send_functions`, `20261120171651_mail_reply_functions`,
+`20261120171920_mail_scheduler`. The last one enabled `pg_cron` and `pg_net`
+and scheduled one job, `dialvo-mail-steps`, every minute. The copies in the
+database have no comments (they were sent without them to keep the calls
+small); function bodies and columns were compared with these files by hash
+and match.
+
+### How it runs
+
+Once a minute the database runs `private.mail_cron_tick()`. If there is
+nothing to do (no active mailbox, no unread reply, no alert waiting) it
+does nothing. Otherwise it makes three calls with the token:
+
+- `POST /api/mail/step?job=send`: gives waiting emails a time and a
+  mailbox, then sends what is due, at most one email per mailbox per call.
+- `POST /api/mail/step?job=poll`: reads mailboxes not read for 3 minutes.
+- `POST /api/mail/step?job=write`: reads replies with the model, drafts
+  answers and follow-ups.
+
+Never sending twice: an email is claimed in the database (scheduled ->
+sending, under a row lock), then sent, then marked sent. Only a scheduled
+email can be claimed. One left "sending" by a step that died becomes "needs
+checking" after 10 minutes and is never sent again on its own; a person
+says whether it went. The same when the connection drops after the email
+was handed to the mail server. Only an email that certainly wasn't sent
+(the server said try later, or was never reached) is retried: after 10
+minutes, then an hour, three tries in all.
+
+### The limits (all in `src/lib/mail/config.ts`)
+
+| Limit                                                  | Value                                                             |
+| ------------------------------------------------------ | ----------------------------------------------------------------- |
+| Emails a mailbox sends a day                           | 30 by default, 50 at most                                         |
+| A new mailbox                                          | 10 on its first day, 5 more each day, up to its limit             |
+| Emails a workspace sends a day                         | 150                                                               |
+| Mailboxes per workspace                                | 5                                                                 |
+| Gap between two emails from one mailbox                | 4 to 11 minutes, at random                                        |
+| Emails per mailbox per step                            | 1                                                                 |
+| Tries when the server says "try later"                 | 3, waiting 10 then 60 minutes                                     |
+| Refused logins before a mailbox is paused              | 3 in a row                                                        |
+| Claimed and unheard of, before "needs checking"        | 10 minutes                                                        |
+| How often an inbox is read                             | every 3 minutes, up to 40 new messages                            |
+| Follow-ups written and replies read by the model a day | 100 per workspace, inside the existing $3 a day spend cap         |
+| Follow-ups                                             | 2 at most; 3 and 7 days after the first email by default          |
+| Follow-up length                                       | asked to stay under 70 then 45 words; thrown away over 100 and 70 |
+| Test emails                                            | 5 an hour per person                                              |
+
+### Manual checklist for the first real send
+
+Nobody has connected a real mailbox yet. Do this once, with a mailbox you
+own and a second address you own to write to.
+
+1. Deploy the `sending` branch. Check Vercel has `SUPABASE_SECRET_KEY`,
+   `ANTHROPIC_API_KEY` and `RESEND_API_KEY`.
+2. `curl -X POST https://trydialvo.com/api/mail/step?job=send` answers 401.
+   If it answers 404, the deploy doesn't have this code.
+3. In the app, Settings > Mailboxes: fill in "Who is sending" and tick the
+   confirmation. Connect your mailbox with an app password. Try a wrong
+   password first: it must say the login was refused and save nothing.
+4. Press "Send me a test email". It should reach your login address. Check
+   it didn't land in spam.
+5. In the Supabase dashboard, Integrations > Cron > `dialvo-mail-steps`:
+   runs should say succeeded. In the SQL editor,
+   `select status_code, created from net._http_response order by created desc limit 6;`
+   should show 200s within two minutes of connecting the mailbox. 401 means
+   the token doesn't match (it shouldn't happen); 404 or a timeout means
+   `dialvo_app_url` points at the wrong place.
+6. You need one found company whose published address is a mailbox you
+   own. The simplest way: put that address on a page of a site you
+   control, describe that business in Find leads, run the search and keep
+   it. Draft and approve its first email, turn sending on, and wait for
+   the send window (weekdays 9 to 5 in the workspace's time zone unless
+   the outbound agent says otherwise).
+7. When it arrives: the sender is your name and address; under the text are
+   your name, business and postal address and the opt-out line; the mail
+   app shows its own Unsubscribe button; there is no image in the source.
+8. Reply to it from the second mailbox. Within about five minutes the reply
+   is in the Inbox on that lead, classified, with a draft answer. Approve
+   it and check it arrives in the same thread.
+9. Send another and press the unsubscribe link in it. The page asks first;
+   after the button the address is on the never-contact list and the lead
+   says do not contact.
+10. Turn sending off again until you are ready.
+
+### What was tested for slice 3b on 20 Nov 2026, and what wasn't
+
+Tested:
+
+- 532 automated tests pass (`npm run check`), and `npm run build` passes.
+- The database, against the real migrations on an in-memory Postgres (36
+  tests in `supabase/tests/mail.test.ts`): one workspace can't see or change
+  another's mailboxes, settings, threads, emails or replies; a password is
+  only in Vault and only the server reads it; an email is handed out once;
+  suppression, do-not-contact, the lead's status and the draft are checked
+  again at send time; the ramp, the allowance, the workspace cap and the
+  send window; retries and "needs checking"; reply matching, bounces,
+  auto-replies; classification outcomes; follow-up stop conditions; the
+  unsubscribe token; the scheduler's token.
+- The mail code against a small fake SMTP and IMAP server on a local port
+  (`src/lib/mail/transport.test.ts`): logging in, precise failures, one
+  plain-text email with the right headers, "try later" against "refused"
+  against "dropped after handing over", reading only new mail, read-only.
+- The planner, the reader of incoming mail, the prompts and model answers
+  (model mocked), and the three steps (database and mail servers faked).
+- On the real project: the five migrations applied; `pg_cron` and `pg_net`
+  are on; the job runs every minute and reports succeeded; the seed in
+  `scripts/e2e-mail-seed.sql` ran through the real functions, including the
+  Vault-signed unsubscribe token.
+- In a real browser against the real project (`scripts/e2e-mail.mjs`: 60 checks on the first full run, of which 58 passed and 2 failed because of mistakes in the script itself; with those fixed, the rerun passed 58 of 58, the 2 fewer being checks that only apply before a reply by hand exists): the Mailboxes page, the help text per provider, a
+  connection refused for a private address and for a server that doesn't
+  exist, the sender details and their confirmation, the First emails
+  states (Waiting for you, Scheduled with time and mailbox, Sent, Replied,
+  Failed, needs checking, bounced), the summary, the honest notice with no
+  mailbox, an email thread in the Inbox with the agent's draft, a reply by
+  hand queued, Mark meeting booked, the unsubscribe page and one-click
+  POST, and who is refused what through the API.
+
+Not tested:
+
+- **No real mailbox has been connected, and no email has been sent to
+  anyone.** Gmail's and Microsoft's servers, TLS, app passwords, how their
+  bounces and auto-replies really look, and whether mail lands in the inbox
+  or in spam are all unproven. The fake servers speak plain text only.
+- The scheduler reaching the app. The job runs, but with no active mailbox
+  it has made no HTTP call; and `/api/mail/step` isn't deployed yet. So the
+  token check end to end, and a step finishing inside Vercel's time limit,
+  are unproven.
+- Anything that needs `SUPABASE_SECRET_KEY` or `ANTHROPIC_API_KEY` in the
+  app: "Send me a test email", a real send, a real read, the model reading
+  a real reply or writing a real follow-up, the alert emails. Neither key
+  was available locally.
+- Many workspaces at once, a mailbox with thousands of new messages, and
+  how the limits feel in real use.
+
+Test data left in the real project by the seed and the browser check, all
+made-up companies on `.example` domains. In workspace "E2E Activation"
+(`contact+e2e3`): one paused mailbox `e2e-sender@mailbox.example` with no
+password; sender details "E2E Test Business" with sending switched on (it
+can't send: the mailbox is paused and has no password); one saved search
+"E2E sending search" with one run, six prospects, six approved drafts and
+six leads (`pat@e2e-mail-*.example`); nine outgoing emails (one scheduled,
+three sent, one failed, one needs checking, one follow-up draft, one agent
+reply now cancelled, one reply by hand queued); three email conversations
+with their messages; two received emails (a reply and a bounce); one
+skipped team alert; never-contact entries for
+`pat@e2e-mail-bounced.example` and `pat@e2e-mail-unknown.example`; two
+meetings "E2E intro call" on the E2E Replied Co lead. In workspace "E2E
+Activation Two" (`contact+e2e4`): sender details "E2E Second Business", a
+booking link `https://cal.example/e2e`. Nothing was deleted.
+
 ## The app's layout (the dashboard reorganisation, 20 Nov 2026)
 
 The app used to read like an empty CRM: a tile grid of zeros, nine nav items
@@ -983,6 +1167,124 @@ addresses and labels and checked for syntax, but not run. A workspace with
 nothing in it at all was not available: the brand-new Home, and the empty
 Leads and Knowledge pages, were looked at by forcing the lists empty
 locally. Safari and real phones were not tried.
+
+## Find leads with the contact database (Findymail)
+
+**What changes.** When `FINDYMAIL_API_KEY` is set on the server, "Find
+leads" no longer searches the web for companies. Each run asks Findymail's
+Intellimatch for companies that match the saved search, each with one named
+decision-maker and the work email Findymail found and verified for them.
+Then, as before, Dialvo reads each company's own website for one to three
+sourced facts a first email can use. Without the key nothing changes: runs
+search the web exactly as before (`contactDatabaseStatus()` in
+`src/lib/prospects/config.ts`).
+
+**Search details.** Saving "who you sell to" now also writes the query and
+job titles the run will send (one `claude-haiku-4-5` call,
+`src/lib/prospects/contact-query.ts`; if the model isn't available, a plain
+query made from the search's own words). They show under the Find button as
+"Search details", where the team can edit them, or write them again from
+the description. A person's edit is never replaced without them asking.
+
+**A run, step by step** (`src/lib/prospects/contact-run.ts`, inside the same
+leased, resumable steps as before):
+
+1. `GET /api/credits` (free). Out of credits or paused: the run fails with
+   "the contact database is out of credits". Nobody else is alerted.
+2. The workspace's own exclusion list in the Findymail account ("Dialvo
+   workspace <id>", made on first use, its id kept in
+   `prospect_contact_settings`), sent the workspace's suppressed domains, its
+   prospects' domains and its leads' websites since the last sync (free).
+   The account's global exclusion list is never used, because every
+   workspace shares the account.
+3. The day's credit cap, reserved in the database before anything is spent
+   (`prospect_contact_reserve`).
+4. `POST /api/intellimatch/search` with `find_contact`, `find_email`,
+   `require_email`, `mode: "targeted"`, the title tiers, no phones, and
+   `limit` = the companies granted. This is the only paid call.
+5. `GET /api/intellimatch/status` every 5 seconds (or after the
+   `retry_after` Findymail asks for) until the export is ready; at most 180
+   questions (about 15 minutes) before the run stops.
+6. `GET /api/intellimatch/data`, page by page. Every field is checked and
+   cut to length (`findymail-parse.ts`). Companies the workspace already has
+   as a prospect or lead, and suppressed domains and addresses, are left
+   out. Reserved credits for companies that weren't returned go back to the
+   day.
+7. Each company's site is read for facts (robots.txt respected). That never
+   replaces Findymail's contact or email; an address printed on the site is
+   used only when Findymail returned none. A site that can't be read, or
+   asks not to be, still leaves the company in the results without facts.
+   A competitor or a site that isn't a business is left out.
+
+**Caps** (`src/lib/prospects/config.ts`, all cost decisions):
+`CONTACT_COMPANIES_PER_RUN` 25, `DAILY_CONTACT_CREDIT_CAP` 100 estimated
+credits per workspace per UTC day, `CONTACT_CREDITS_PER_COMPANY` 3 (1
+company in targeted mode + 1 contact + 1 email, from Findymail's docs),
+polls every 5 s, at most 180. The existing caps (4 runs a day, $3 of model
+spend a day) still apply. Estimated credits are counted on
+`prospect_runs.contact_credits` and `outbound_usage.contact_credits`.
+
+**Cost of one run of 25**, estimated: 75 Findymail credits (only companies
+with an email are charged). On the credit-based Starter plan ($99 a month for
+5,000 credits, findymail.com/pricing on 20 Nov 2026) that is about $1.49. On
+the usage-based plans (Individual $99, Team $399, Scale $999 a month) there
+are no credits: `has_capacity` from `/api/credits` decides, and the daily cap
+still counts estimated credits. Plus the model: about $0.01 to write the
+query and roughly $0.25 to read 25 sites.
+
+**Robots.txt.** The page reader now identifies as `DialvoBot
+(+https://trydialvo.com)` and, for Find leads, reads each host's robots.txt
+first (cached for an hour), following rules for `DialvoBot`, else for `*`.
+
+**Manual checklist for the first real run in production** (the API has
+never been called from this code):
+
+- [ ] `FINDYMAIL_API_KEY` is set in Vercel for Production only, then
+      redeploy. Never paste it anywhere else.
+- [ ] In Findymail, check the account's plan and credits before you start,
+      and note the balance.
+- [ ] Sign in as a test user, open Find leads, save a narrow search (for
+      example one city and one kind of business). Open "Search details": the
+      query should describe the buyers, not what the workspace sells. Fix it
+      if not.
+- [ ] Press Find leads. The status line says it is looking companies up in
+      Findymail. Within a few minutes, results appear with a name, a title,
+      an email and "Verified email".
+- [ ] In Findymail, an exclusion list "Dialvo workspace <id>" now exists and
+      holds the workspace's domains, and the balance went down by about 3
+      credits per result (no more than 75).
+- [ ] In Supabase, `prospect_runs.contact_credits` for the run and
+      `outbound_usage.contact_credits` for today match the number of results
+      times 3.
+- [ ] Run the same search again: none of the first run's companies come
+      back.
+- [ ] Spot-check three results: the person works there with that title, and
+      the email domain is the company's.
+- [ ] Check Vercel's logs for `[findymail]` lines: status codes only, never
+      the key or anyone's email.
+- [ ] If anything is wrong, remove `FINDYMAIL_API_KEY` and redeploy: Find
+      leads goes back to the web search, nothing else changes.
+
+**Migration.** `20261120164840_contact_database.sql`, applied to
+`qpvdafpdjxvlqecpjrim` on 20 Nov under that version. Additive: new columns
+on `prospect_searches`, `prospect_runs`, `prospects` and `outbound_usage`;
+one new table, `prospect_contact_settings` (RLS on, members read their own
+workspace's row, only the server writes); new server-only functions; and
+`prospect_save_research` replaced (unchanged for web prospects). The two
+email checks on `prospects` were replaced by equivalent ones that also allow
+`email_kind = 'person'` and an email with no web page when it came from
+Findymail. The security advisor shows no new entries.
+
+**What was tested, and what wasn't.** Tested: `npm run check` and
+`npm run build`; unit tests with Findymail, the model and the network faked
+(query building, the start, wait and read steps, retry_after, every error
+code, the daily cap checked before the paid call, out of credits, the
+exclusion list, the no-key fallback, robots.txt); PGlite tests of the
+migration (isolation, dedupe, suppression, credit reservation and refunds,
+the site never replacing Findymail's contact). **Not tested: the real
+Findymail API has never been called** (no key in development), so the exact
+shapes of real answers, how long an export takes, the real credit charges and
+the quality of the contacts are unknown until the first production run.
 
 ## CRM sync: HubSpot and Pipedrive (20 Nov 2026)
 

@@ -175,7 +175,7 @@ function requestOnce(
         // No shared sockets: a kept-alive connection would skip the lookup.
         agent: false,
         headers: {
-          "user-agent": "DialvoKnowledgeFetcher/1.0 (+https://trydialvo.com)",
+          "user-agent": "DialvoBot (+https://trydialvo.com)",
           accept: "text/html,application/xhtml+xml,text/plain;q=0.9",
           "accept-language": "en",
         },

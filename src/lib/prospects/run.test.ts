@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { PageFetchError, type PageSource } from "@/lib/knowledge/fetch-page";
 import {
   DAILY_SEARCH_CAP,
@@ -12,9 +12,13 @@ import {
   WEB_SEARCH_TOOL,
 } from "./config";
 import { findCompanies, spendOf, type ModelClient } from "./model";
+import { clearRobotsCache } from "./robots";
 import { advanceDrafts, advanceRun, defaultDeps } from "./run";
 import type { Claim, DraftClaim, ProspectStore } from "./store";
 import type { Usage } from "./types";
+
+// Each test reads robots.txt afresh: the cache is per process.
+beforeEach(() => clearRobotsCache());
 
 // The run's steps with the model, the network and the database all faked.
 
@@ -401,6 +405,8 @@ describe("a research step", () => {
       "https://acme.example/",
       "https://acme.example/about",
       "https://acme.example/contact",
+      // Asked first, through the same safe reader (there is none here).
+      "https://acme.example/robots.txt",
     ]);
     const params = create.mock
       .calls[0][0] as Anthropic.MessageCreateParamsNonStreaming;

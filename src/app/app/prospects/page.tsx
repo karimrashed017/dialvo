@@ -22,8 +22,10 @@ import {
   DAILY_RUN_CAP,
   DAILY_SPEND_CAP_MICROS,
   MAX_COMPANIES_PER_RUN,
+  contactDatabaseStatus,
   prospectRuntimeStatus,
 } from "@/lib/prospects/config";
+import { contactQueryStale } from "@/lib/prospects/contact-search";
 import { prospectReads, type DraftWithProspect } from "@/lib/prospects/read";
 import type {
   Prospect,
@@ -60,8 +62,16 @@ import {
   startRun,
   stopRun,
 } from "./actions";
+import { ContactCell, ContactCompanyLine, SearchDetails } from "./contact-ui";
 import { DraftWriter, RunDriver } from "./drivers";
 import { SearchForm } from "./search-form";
+import {
+  loadSending,
+  SendingBoard,
+  SendingNotice,
+  SendingSummary,
+  type Sending,
+} from "./sending";
 import { field } from "./ui";
 
 export const metadata: Metadata = { title: "Find leads" };
@@ -78,6 +88,7 @@ const LEFT_OUT: Record<string, string> = {
   too_large: "much larger than you asked for",
   not_a_business: "not a business's own website",
   no_website: "no website of their own",
+  robots_disallowed: "site asks not to be read",
   unreadable: "website couldn't be read",
   suppressed: "on your never-contact list",
   already_a_lead: "already one of your leads",
@@ -102,6 +113,22 @@ const STOPPED: Record<string, string> = {
     "Stopped: Dialvo couldn't reach its search service. This is on Dialvo's side; nothing is wrong with your search.",
   refused:
     "Stopped: this search couldn't be run as described. Try rewording it.",
+  contact_no_credits:
+    "Stopped: the contact database is out of credits. This is on Dialvo's side; nothing is wrong with your search.",
+  contact_daily_limit:
+    "Stopped: this workspace has used today's contact-database allowance. It resets at midnight UTC.",
+  contact_not_authorised:
+    "Stopped: Dialvo couldn't sign in to the contact database. This is on Dialvo's side; nothing is wrong with your search.",
+  contact_query_refused:
+    "Stopped: the contact database didn't accept this search. Check Search details and try again.",
+  contact_unavailable:
+    "Stopped: the contact database didn't answer in time. Try again in a few minutes.",
+  contact_failed:
+    "Stopped: the contact database couldn't finish this search. Try again, or reword Search details.",
+  contact_expired:
+    "Stopped: the contact database's results were no longer available. Run it again.",
+  contact_timeout:
+    "Stopped: the contact database took too long. Try again in a few minutes.",
 };
 
 const host = (url: string) => {
@@ -243,14 +270,16 @@ function RunStatus({
   const found = mine.filter((p) => p.research_status === "found").length;
   const active = run.status === "searching" || run.status === "researching";
   const words =
-    run.status === "searching"
-      ? `Searching the web for companies that match. ${mine.length} found so far.`
-      : run.status === "researching"
-        ? `Reading each company's own website. ${read} of ${mine.length} read.`
-        : run.status === "done" && !run.stop_reason
-          ? `Finished ${ago(run.finished_at)}. ${read} ${read === 1 ? "company" : "companies"} read, ${found} listed below.`
-          : (STOPPED[run.stop_reason ?? ""] ??
-            "This search stopped early. What was found is below.");
+    run.status === "searching" && run.source === "findymail"
+      ? "Looking up matching companies and the person to contact at each in Findymail's contact database. This can take a few minutes."
+      : run.status === "searching"
+        ? `Searching the web for companies that match. ${mine.length} found so far.`
+        : run.status === "researching"
+          ? `Reading each company's own website. ${read} of ${mine.length} read.`
+          : run.status === "done" && !run.stop_reason
+            ? `Finished ${ago(run.finished_at)}. ${read} ${read === 1 ? "company" : "companies"} read, ${found} listed below.`
+            : (STOPPED[run.stop_reason ?? ""] ??
+              "This search stopped early. What was found is below.");
   return (
     <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-t border-black/[0.06] bg-black/[0.02] px-4 py-2.5 text-[12.5px] leading-[1.45] text-[#0B0B0C]/70">
       <p role="status" className="flex min-w-0 flex-1 items-center gap-2">
@@ -316,39 +345,44 @@ function ProspectRow({ p }: { p: Prospect }) {
               {[p.summary, p.location].filter(Boolean).join(" · ")}
             </p>
           )}
+          {p.source === "findymail" && <ContactCompanyLine p={p} />}
         </div>
 
-        <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-[12.5px] leading-[1.45] lg:flex-col lg:items-start">
-          {p.email ? (
-            <Badge tone="ink">
-              <Mail aria-hidden className="size-3" />
-              Has email
-            </Badge>
-          ) : null}
-          {p.email ? (
-            <span data-email-kind className="text-[12px] text-[#0B0B0C]/55">
-              {isUnsuitableEmail(p.email)
-                ? "Not a sales inbox"
-                : EMAIL_ROLE[emailRole(p.email, p.contact_name)]}
-            </span>
-          ) : (
-            <Badge tone="outline">
-              <MailX aria-hidden className="size-3" />
-              No email found
-            </Badge>
-          )}
-          {(p.contact_name || p.email) && (
-            <p className="min-w-0 break-words">
-              {p.contact_name}
-              {p.contact_name && p.contact_role && (
-                <span className="text-[#0B0B0C]/55">, {p.contact_role}</span>
-              )}
-              {!p.contact_name && (
-                <span className="break-all text-[#0B0B0C]/70">{p.email}</span>
-              )}
-            </p>
-          )}
-        </div>
+        {p.source === "findymail" ? (
+          <ContactCell p={p} />
+        ) : (
+          <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-[12.5px] leading-[1.45] lg:flex-col lg:items-start">
+            {p.email ? (
+              <Badge tone="ink">
+                <Mail aria-hidden className="size-3" />
+                Has email
+              </Badge>
+            ) : null}
+            {p.email ? (
+              <span data-email-kind className="text-[12px] text-[#0B0B0C]/55">
+                {isUnsuitableEmail(p.email)
+                  ? "Not a sales inbox"
+                  : EMAIL_ROLE[emailRole(p.email, p.contact_name)]}
+              </span>
+            ) : (
+              <Badge tone="outline">
+                <MailX aria-hidden className="size-3" />
+                No email found
+              </Badge>
+            )}
+            {(p.contact_name || p.email) && (
+              <p className="min-w-0 break-words">
+                {p.contact_name}
+                {p.contact_name && p.contact_role && (
+                  <span className="text-[#0B0B0C]/55">, {p.contact_role}</span>
+                )}
+                {!p.contact_name && (
+                  <span className="break-all text-[#0B0B0C]/70">{p.email}</span>
+                )}
+              </p>
+            )}
+          </div>
+        )}
 
         <div className="flex flex-wrap items-start gap-1.5 lg:w-[150px] lg:justify-end">
           {p.lead_id ? (
@@ -461,6 +495,7 @@ function FindView({
   prospects,
   usage,
   on,
+  contactOn = false,
 }: {
   searches: ProspectSearch[];
   search: ProspectSearch | null;
@@ -469,6 +504,8 @@ function FindView({
   prospects: Prospect[];
   usage: Usage;
   on: boolean;
+  /** Runs use the contact database (Findymail). */
+  contactOn?: boolean;
 }) {
   const active = runs.find(
     (r) => r.status === "searching" || r.status === "researching",
@@ -608,12 +645,22 @@ function FindView({
             2. Find
           </h2>
           <div className="p-4">
-            <p className="text-[13px] leading-[1.5] text-[#0B0B0C]/70">
-              Dialvo searches the web for companies that fit, then reads each
-              company&apos;s own website for what they do, how to reach them and
-              something specific to say. It only uses what a company publishes
-              itself, and it never guesses an email address.
-            </p>
+            {contactOn ? (
+              <p className="text-[13px] leading-[1.5] text-[#0B0B0C]/70">
+                Dialvo looks up companies that fit in Findymail&apos;s contact
+                database, each with a named person to contact and the work email
+                Findymail found and verified for them. Then it reads each
+                company&apos;s own website for something specific to say. It
+                never guesses an email address.
+              </p>
+            ) : (
+              <p className="text-[13px] leading-[1.5] text-[#0B0B0C]/70">
+                Dialvo searches the web for companies that fit, then reads each
+                company&apos;s own website for what they do, how to reach them
+                and something specific to say. It only uses what a company
+                publishes itself, and it never guesses an email address.
+              </p>
+            )}
             <ActionForm action={startRun} className="mt-3">
               <input type="hidden" name="search" value={search?.id ?? ""} />
               <SubmitButton
@@ -640,6 +687,13 @@ function FindView({
                       ? "This workspace has reached today's limit for finding leads. It resets at midnight UTC."
                       : `Each search looks at up to ${MAX_COMPANIES_PER_RUN} companies and takes a few minutes. ${runsLeft} of ${DAILY_RUN_CAP} searches left today.`}
             </p>
+            {contactOn && search && (
+              <SearchDetails
+                key={`${search.id}-${search.updated_at}`}
+                search={search}
+                stale={contactQueryStale(search)}
+              />
+            )}
           </div>
           {latest && <RunStatus run={latest} prospects={prospects} />}
         </section>
@@ -842,6 +896,7 @@ function EmailsView({
   toWrite,
   usage,
   on,
+  sending,
   writer,
   admin,
 }: {
@@ -849,27 +904,23 @@ function EmailsView({
   toWrite: number;
   usage: Usage;
   on: boolean;
+  sending: Sending;
   /** The agent whose instructions the first emails follow. */
   writer: Agent | undefined;
   admin: boolean;
 }) {
   const waiting = drafts.filter((d) => d.status === "draft");
-  const ready = drafts.filter((d) => d.status === "approved");
+  // Once an approved email has a place in the outbox it is shown there
+  // (Scheduled, Sent, Replied or Failed), not here as well.
+  const ready = drafts.filter(
+    (d) => d.status === "approved" && !sending.byDraft.has(d.id),
+  );
   const failed = drafts.filter((d) => d.status === "failed").length;
   const discarded = drafts.filter((d) => d.status === "discarded").length;
   return (
     <>
-      <div
-        role="note"
-        className="mb-3 rounded-2xl border border-black/[0.1] bg-white px-4 py-3 text-[13px] leading-[1.5] text-[#0B0B0C]/75"
-      >
-        <span className="font-medium text-[#0B0B0C]">
-          Nothing is sent from here yet.
-        </span>{" "}
-        Approving an email stores it as ready to send. Sending switches on when
-        a mailbox is connected, which is the next thing Dialvo is building.
-        Until then no email leaves Dialvo, approved or not.
-      </div>
+      <SendingNotice s={sending} />
+      <SendingSummary s={sending} />
 
       <section aria-labelledby="write" className={panel}>
         <h2 id="write" className={panelHead}>
@@ -967,7 +1018,7 @@ function EmailsView({
           {waiting.length > 1 && (
             <ActionForm
               action={approveDrafts}
-              confirm={`Approve all ${waiting.length} as they are? They'll be stored as ready to send. Nothing is sent yet.`}
+              confirm={`Approve all ${waiting.length} as they are? ${sending.live ? "They'll be scheduled and sent from your mailbox inside your send window." : "They'll be stored as ready to send. Nothing is sent yet."}`}
             >
               {waiting.map((d) => (
                 <input key={d.id} type="hidden" name="draft" value={d.id} />
@@ -1015,11 +1066,19 @@ function EmailsView({
               {ready.length}
             </span>
           </span>
-          <Badge tone="outline">Not sent: no mailbox connected</Badge>
+          <Badge tone="outline">
+            {!sending.connected
+              ? "Not sent: no mailbox connected"
+              : sending.live
+                ? "Waiting for a time slot"
+                : "Not sent: sending is off"}
+          </Badge>
         </h2>
         {ready.length === 0 ? (
           <p className="px-4 py-4 text-[13px] text-[#0B0B0C]/55">
-            Emails you approve are kept here until sending is switched on.
+            {sending.live
+              ? "Emails you approve wait here for a moment, then move to Scheduled."
+              : "Emails you approve are kept here until sending is switched on."}
           </p>
         ) : (
           <ul className="divide-y divide-black/[0.06]">
@@ -1041,6 +1100,7 @@ function EmailsView({
           </p>
         )}
       </section>
+      <SendingBoard s={sending} />
     </>
   );
 }
@@ -1193,7 +1253,8 @@ async function Content({
     );
 
   const on = prospectRuntimeStatus().on;
-  const reads = prospectReads(await createClient(), workspace.id);
+  const supabase = await createClient();
+  const reads = prospectReads(supabase, workspace.id);
   const [searches, runs, usage] = await Promise.all([
     reads.searches(),
     reads.runs(),
@@ -1238,12 +1299,18 @@ async function Content({
   const undecided = found.filter((p) => p.decision === "undecided").length;
   const keptCount = found.filter((p) => p.decision === "kept").length;
   const writing = drafts.some((d) => d.status === "drafting");
+  const sending =
+    view === "emails" ? await loadSending(supabase, workspace) : null;
 
   return (
     <>
       {/* Results and drafts show up as they are found, without a reload. */}
       {((view === "find" && activeRun) || (view === "emails" && writing)) && (
         <LiveRefresh every={4000} />
+      )}
+      {/* Scheduled emails turn into sent ones while the page is open. */}
+      {view === "emails" && !writing && sending?.live && (
+        <LiveRefresh every={20000} />
       )}
       {head}
       {!on && <NotOn />}
@@ -1290,14 +1357,16 @@ async function Content({
           prospects={prospects}
           usage={usage}
           on={on}
+          contactOn={on && contactDatabaseStatus().on}
         />
       )}
-      {view === "emails" && (
+      {view === "emails" && sending && (
         <EmailsView
           drafts={drafts}
           toWrite={toWrite}
           usage={usage}
           on={on}
+          sending={sending}
           writer={agents.find((a) => a.role === "outbound")}
           admin={workspace.role !== "member"}
         />

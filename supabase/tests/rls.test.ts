@@ -1,5 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { migrationFiles, TestDb } from "./harness";
+import { MAIL_SECRET_TABLES, MAIL_TABLES } from "./mail-tables";
+import { CONTACT_TABLES } from "./contact-tables";
 import { CRM_TABLES } from "./crm-tables";
 import { OUTBOUND_TABLES } from "./outbound-tables";
 
@@ -271,6 +273,8 @@ const ALL_TABLES = [
   "workspaces",
   "profiles",
   ...OUTBOUND_TABLES,
+  ...MAIL_TABLES,
+  ...CONTACT_TABLES,
   ...CRM_TABLES,
 ];
 
@@ -299,7 +303,9 @@ describe("the migrations", () => {
        join pg_namespace n on n.oid = c.relnamespace
        where n.nspname = 'public' and c.relkind = 'r'`,
     );
-    expect(rows.map((r) => r.relname).sort()).toEqual([...ALL_TABLES].sort());
+    expect(rows.map((r) => r.relname).sort()).toEqual(
+      [...ALL_TABLES, ...MAIL_SECRET_TABLES].sort(),
+    );
     for (const r of rows) expect(r.relrowsecurity, r.relname).toBe(true);
   });
 
