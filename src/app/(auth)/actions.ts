@@ -37,6 +37,22 @@ function passwordProblem(password: string): string | null {
 const confirmUrl = (origin: string, next: string) =>
   `${origin}/auth/confirm?next=${encodeURIComponent(next)}`;
 
+/** Sends the visitor to Google; they come back through /auth/confirm. */
+export async function continueWithGoogle(form: FormData): Promise<void> {
+  if (!APP_CONFIGURED) redirect("/login");
+  const next = safeNextPath(String(form.get("next") ?? ""));
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: { redirectTo: confirmUrl(await requestOrigin(), next) },
+  });
+  if (error || !data.url) {
+    console.error("[auth] google:", error?.code, error?.message);
+    redirect("/login?error=google");
+  }
+  redirect(data.url);
+}
+
 export async function logIn(_: AuthState, form: FormData): Promise<AuthState> {
   if (!APP_CONFIGURED) return NOT_READY;
   const email = normalizeEmail(form.get("email"));

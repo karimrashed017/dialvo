@@ -9,8 +9,9 @@ import { createClient } from "@/lib/supabase/server";
 // link, a password reset. Two link shapes are accepted:
 //   ?token_hash=...&type=...  (the email templates in docs/app-setup.md;
 //                              works in any browser or device)
-//   ?code=...                 (Supabase's default templates; only works in
-//                              the browser that asked for the email)
+//   ?code=...                 (coming back from Google, and Supabase's
+//                              default templates; only works in the browser
+//                              that started it)
 // Either way the visitor ends up signed in and is sent to `next`, which is
 // only ever a path inside the app.
 
@@ -38,6 +39,10 @@ export async function GET(request: NextRequest) {
     type === "recovery"
       ? "/reset-password"
       : safeNextPath(searchParams.get("next"));
+
+  // Google sent them back without signing in (they cancelled, or it failed).
+  if (!tokenHash && !code && searchParams.has("error"))
+    return NextResponse.redirect(new URL("/login?error=google", request.url));
 
   const supabase = await createClient();
   if (tokenHash && type && TYPES.has(type)) {

@@ -385,3 +385,18 @@ Not tested, and why:
   response, the per-address limits behind its proxy, a customer site with
   its own Content Security Policy). Nothing was pushed to `main`.
 - The widget in browsers other than Chromium, and on a phone.
+
+## Google log-in
+
+The "Continue with Google" button on /login and /signup appears by itself
+once the Google provider is enabled in Supabase (the pages ask Supabase which
+providers are on, and remember the answer for a few minutes).
+
+1. Google Cloud Console → APIs & Services → OAuth consent screen: External,
+   app name Dialvo, support email, authorised domain `trydialvo.com`; publish
+   the app (the default scopes email, profile and openid need no review).
+2. Credentials → Create credentials → OAuth client ID → Web application.
+   Authorised JavaScript origin: `https://trydialvo.com`. Authorised redirect
+   URI: `https://qpvdafpdjxvlqecpjrim.supabase.co/auth/v1/callback`.
+3. Supabase → Authentication → Sign In / Providers → Google: enable it and
+   paste the client ID and client secret there (never in code or chat).

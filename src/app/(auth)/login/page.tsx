@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
+import { googleLoginEnabled } from "@/lib/auth/providers";
 import { APP_CONFIGURED } from "@/lib/supabase/env";
 import { siteViewport } from "../../_site/theme";
 import { LoginForm } from "../forms";
@@ -12,11 +13,13 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function Login() {
+export default async function Login() {
   if (!APP_CONFIGURED) return <SetupNotice />;
+  const google = await googleLoginEnabled();
   return (
     <AuthFrame
-      title="Log in"
+      title="Welcome back"
+      intro="Log in to see what your agents have been doing."
       footer={
         <>
           New to Dialvo?{" "}
@@ -28,7 +31,7 @@ export default function Login() {
     >
       {/* The form reads ?next= and ?error= from the address. */}
       <Suspense>
-        <LoginForm />
+        <LoginForm google={google} />
       </Suspense>
     </AuthFrame>
   );
