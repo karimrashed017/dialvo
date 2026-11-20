@@ -1,10 +1,22 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { Ban, Mail, MailX, Search, Telescope } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Ban,
+  Check,
+  ChevronDown,
+  Mail,
+  MailX,
+  Search,
+  Telescope,
+} from "lucide-react";
 import { getAppContext } from "@/lib/app/context";
 import { ago } from "@/lib/app/time";
+import type { Agent } from "@/lib/app/types";
 import { isUuid } from "@/lib/leads/fields";
+import { emailRole, isUnsuitableEmail } from "@/lib/prospects/extract";
 import {
   DAILY_DRAFT_CAP,
   DAILY_RUN_CAP,
@@ -22,6 +34,8 @@ import type {
 } from "@/lib/prospects/types";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
+import { updateEmailInstructions } from "../chat/actions";
+import { Dropdown, menuItem } from "../_ui/dropdown";
 import { ActionForm, SubmitButton } from "../_ui/form";
 import { LiveRefresh } from "../_ui/live";
 import {
@@ -52,24 +66,29 @@ import { field } from "./ui";
 
 export const metadata: Metadata = { title: "Find leads" };
 
-const VIEWS = [
-  { id: "find", label: "Find" },
-  { id: "emails", label: "First emails" },
-  { id: "never", label: "Never contact" },
-] as const;
-type View = (typeof VIEWS)[number]["id"];
+const VIEWS = ["find", "emails", "never"] as const;
+type View = (typeof VIEWS)[number];
 
 const link =
   "underline decoration-black/25 underline-offset-2 hover:decoration-black/60";
 
 const LEFT_OUT: Record<string, string> = {
   not_a_match: "didn't match your description",
+  competitor: "sell the same kind of thing as you",
+  too_large: "much larger than you asked for",
   not_a_business: "not a business's own website",
   no_website: "no website of their own",
   unreadable: "website couldn't be read",
   suppressed: "on your never-contact list",
   already_a_lead: "already one of your leads",
 };
+
+/** Whose mailbox the address is, as the review list says it. */
+const EMAIL_ROLE = {
+  person: "Named person",
+  general: "General inbox",
+  other: "Printed on their site",
+} as const;
 
 const STOPPED: Record<string, string> = {
   daily_limit:
@@ -105,6 +124,92 @@ function Source({ url, label }: { url: string | null; label?: string }) {
     >
       {label ?? host(url)}
     </a>
+  );
+}
+
+/**
+ * The four steps as one line across the top: which are done, which is next.
+ * The first three live on one page; the fourth is the emails page.
+ */
+function Flow({
+  current,
+  done,
+  notes,
+  searchId,
+}: {
+  /** The step to do next (1 to 4), or 0 on the never-contact list. */
+  current: number;
+  done: boolean[];
+  /** A few words under each step, when there is something to say. */
+  notes: string[];
+  searchId: string | null;
+}) {
+  const base = searchId
+    ? `/app/prospects?search=${searchId}`
+    : "/app/prospects";
+  const steps = [
+    { label: "Who you sell to", href: `${base}#who` },
+    { label: "Find", href: `${base}#find` },
+    { label: "Review", href: `${base}#results` },
+    { label: "First emails", href: "/app/prospects?view=emails" },
+  ];
+  return (
+    <nav aria-label="Steps" className="mb-3">
+      <ol className="grid grid-cols-4 gap-1 rounded-2xl border border-black/[0.07] bg-white p-1 sm:gap-1.5 sm:p-1.5">
+        {steps.map((step, i) => {
+          const on = current === i + 1;
+          return (
+            <li key={step.label} className="min-w-0">
+              <Link
+                href={step.href}
+                aria-current={on ? "step" : undefined}
+                data-flow-step={i + 1}
+                data-done={done[i] ? "true" : "false"}
+                className={cn(
+                  "flex h-full flex-col items-start gap-1.5 rounded-xl px-2 py-2 focus-visible:ring-2 focus-visible:ring-black/40 focus-visible:outline-none sm:flex-row sm:items-center sm:gap-2.5 sm:px-3",
+                  on ? "bg-[#0B0B0C] text-white" : "hover:bg-black/[0.04]",
+                )}
+              >
+                <span
+                  className={cn(
+                    "grid size-[22px] shrink-0 place-items-center rounded-full text-[11px] font-medium tabular-nums",
+                    on
+                      ? "bg-white text-[#0B0B0C]"
+                      : done[i]
+                        ? "bg-[#0B0B0C] text-white"
+                        : "border border-black/20 text-[#0B0B0C]/55",
+                  )}
+                >
+                  {done[i] && !on ? (
+                    <Check aria-hidden className="size-3" />
+                  ) : (
+                    i + 1
+                  )}
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-[12px] leading-[1.25] font-medium sm:text-[13px]">
+                    {step.label}
+                    <span className="sr-only">
+                      {done[i] ? " (done)" : on ? " (next)" : ""}
+                    </span>
+                  </span>
+                  {notes[i] && (
+                    <span
+                      className={cn(
+                        "block truncate text-[11px] leading-[1.3] sm:text-[11.5px]",
+                        on ? "text-white/65" : "text-[#0B0B0C]/50",
+                      )}
+                    >
+                      {notes[i]}
+                    </span>
+                  )}
+                </span>
+              </Link>
+            </li>
+          );
+        })}
+      </ol>
+    </nav>
   );
 }
 
@@ -184,133 +289,166 @@ function ProspectRow({ p }: { p: Prospect }) {
       </SubmitButton>
     </ActionForm>
   );
+  const sourced = p.facts.length + (p.email ? 1 : 0) + (p.phone ? 1 : 0);
   return (
     <li
       data-prospect={p.domain}
-      className={cn(
-        "grid gap-x-5 gap-y-2 px-4 py-3.5 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1.3fr)_auto]",
-        p.decision === "removed" && "opacity-55",
-      )}
+      className={cn("px-4 py-3", p.decision === "removed" && "opacity-55")}
     >
-      <div className="min-w-0">
-        <p className="text-[13.5px] font-medium">
-          {p.company_name || p.domain}
-        </p>
-        <a
-          href={p.website}
-          target="_blank"
-          rel="noreferrer nofollow"
-          className={cn(link, "text-[12.5px] text-[#0B0B0C]/60")}
-        >
-          {host(p.website)}
-        </a>
-        {p.summary && (
-          <p className="mt-1 text-[12.5px] leading-[1.45] text-[#0B0B0C]/70">
-            {p.summary}
+      <div className="grid gap-x-5 gap-y-2 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_auto] lg:items-start">
+        <div className="min-w-0">
+          <p className="flex flex-wrap items-baseline gap-x-2 text-[13.5px] font-medium">
+            {p.company_name || p.domain}
+            <a
+              href={p.website}
+              target="_blank"
+              rel="noreferrer nofollow"
+              className={cn(
+                link,
+                "text-[12.5px] font-normal text-[#0B0B0C]/55",
+              )}
+            >
+              {host(p.website)}
+            </a>
           </p>
-        )}
-        {p.location && (
-          <p className="mt-0.5 text-[12px] text-[#0B0B0C]/50">{p.location}</p>
-        )}
-      </div>
+          {(p.summary || p.location) && (
+            <p className="mt-0.5 line-clamp-2 text-[12.5px] leading-[1.45] text-[#0B0B0C]/65 lg:line-clamp-1">
+              {[p.summary, p.location].filter(Boolean).join(" · ")}
+            </p>
+          )}
+        </div>
 
-      <div className="min-w-0 text-[12.5px] leading-[1.5]">
-        {p.email ? (
-          <Badge tone="ink">
-            <Mail aria-hidden className="size-3" />
-            Has email
-          </Badge>
-        ) : (
-          <Badge tone="outline">
-            <MailX aria-hidden className="size-3" />
-            No email found
-          </Badge>
-        )}
-        {p.contact_name && (
-          <p className="mt-1.5">
-            {p.contact_name}
-            {p.contact_role && (
-              <span className="text-[#0B0B0C]/55">, {p.contact_role}</span>
-            )}
-          </p>
-        )}
-        {p.email && (
-          <p className="mt-1 break-all">
-            {p.email}
-            <span className="block text-[12px] text-[#0B0B0C]/50">
-              {p.email_kind === "free_mail"
-                ? "A free mailbox the business lists as its contact. "
-                : ""}
-              Found on <Source url={p.email_source_url} />
+        <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-[12.5px] leading-[1.45] lg:flex-col lg:items-start">
+          {p.email ? (
+            <Badge tone="ink">
+              <Mail aria-hidden className="size-3" />
+              Has email
+            </Badge>
+          ) : null}
+          {p.email ? (
+            <span data-email-kind className="text-[12px] text-[#0B0B0C]/55">
+              {isUnsuitableEmail(p.email)
+                ? "Not a sales inbox"
+                : EMAIL_ROLE[emailRole(p.email, p.contact_name)]}
             </span>
-          </p>
-        )}
-        {p.phone && (
-          <p className="mt-1">
-            {p.phone}
-            {p.phone_source_url && (
-              <span className="block text-[12px] text-[#0B0B0C]/50">
-                Found on <Source url={p.phone_source_url} />
-              </span>
+          ) : (
+            <Badge tone="outline">
+              <MailX aria-hidden className="size-3" />
+              No email found
+            </Badge>
+          )}
+          {(p.contact_name || p.email) && (
+            <p className="min-w-0 break-words">
+              {p.contact_name}
+              {p.contact_name && p.contact_role && (
+                <span className="text-[#0B0B0C]/55">, {p.contact_role}</span>
+              )}
+              {!p.contact_name && (
+                <span className="break-all text-[#0B0B0C]/70">{p.email}</span>
+              )}
+            </p>
+          )}
+        </div>
+
+        <div className="flex flex-wrap items-start gap-1.5 lg:w-[150px] lg:justify-end">
+          {p.lead_id ? (
+            <Link
+              href={`/app/leads/${p.lead_id}`}
+              className={cn(btn.secondary, btn.small)}
+            >
+              In Leads
+            </Link>
+          ) : p.decision === "kept" ? (
+            <>
+              <Badge tone="ink" className="h-8 px-3">
+                Kept
+              </Badge>
+              {decide("undecided", "Undo", "ghost")}
+            </>
+          ) : p.decision === "removed" ? (
+            <>
+              <Badge tone="outline" className="h-8 px-3">
+                Removed
+              </Badge>
+              {decide("undecided", "Undo", "ghost")}
+            </>
+          ) : (
+            <>
+              {decide("kept", "Keep", "secondary")}
+              {decide("removed", "Remove", "ghost")}
+            </>
+          )}
+        </div>
+      </div>
+
+      <details className="group mt-1.5 text-[12.5px] leading-[1.5]">
+        <summary className="flex w-fit cursor-pointer list-none items-center gap-1 rounded text-[#0B0B0C]/60 hover:text-[#0B0B0C] focus-visible:ring-2 focus-visible:ring-black/40 focus-visible:outline-none [&::-webkit-details-marker]:hidden">
+          <ChevronDown
+            aria-hidden
+            className="size-3.5 transition-transform group-open:rotate-180"
+          />
+          Why this company
+          {sourced > 0 && (
+            <span className="text-[#0B0B0C]/40">
+              · {sourced} {sourced === 1 ? "detail" : "details"} with sources
+            </span>
+          )}
+        </summary>
+        <div className="mt-2 grid gap-x-8 gap-y-3 rounded-xl bg-black/[0.025] px-3.5 py-3 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+          <div className="min-w-0">
+            <p className="text-[11.5px] font-medium text-[#0B0B0C]/50">
+              Found on their website
+            </p>
+            {p.facts.length > 0 ? (
+              <ul className="mt-1 space-y-1.5">
+                {p.facts.map((f, i) => (
+                  <li key={i}>
+                    {f.fact}{" "}
+                    <span className="text-[12px] text-[#0B0B0C]/50">
+                      (<Source url={f.source_url} label="source" />)
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-1 text-[#0B0B0C]/55">
+                Nothing specific enough to quote was found on their site.
+              </p>
             )}
-          </p>
-        )}
-        {!p.email && (
-          <p className="mt-1 text-[12px] text-[#0B0B0C]/50">
-            Their site doesn&apos;t print an address, and Dialvo never guesses
-            one.
-          </p>
-        )}
-      </div>
-
-      <div className="min-w-0 text-[12.5px] leading-[1.5]">
-        {p.facts.length > 0 ? (
-          <ul className="space-y-1.5">
-            {p.facts.map((f, i) => (
-              <li key={i}>
-                {f.fact}{" "}
-                <span className="text-[12px] text-[#0B0B0C]/50">
-                  (<Source url={f.source_url} label="source" />)
+          </div>
+          <div className="min-w-0">
+            <p className="text-[11.5px] font-medium text-[#0B0B0C]/50">
+              How to reach them
+            </p>
+            {p.email ? (
+              <p className="mt-1 break-all">
+                {p.email}
+                <span className="block text-[12px] break-normal text-[#0B0B0C]/50">
+                  {p.email_kind === "free_mail"
+                    ? "A free mailbox the business lists as its contact. "
+                    : ""}
+                  Found on <Source url={p.email_source_url} />
                 </span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-[#0B0B0C]/50">
-            Nothing specific enough to quote was found on their site.
-          </p>
-        )}
-      </div>
-
-      <div className="flex flex-wrap items-start gap-1.5 lg:w-[150px] lg:justify-end">
-        {p.lead_id ? (
-          <Link
-            href={`/app/leads/${p.lead_id}`}
-            className={cn(btn.secondary, btn.small)}
-          >
-            In Leads
-          </Link>
-        ) : p.decision === "kept" ? (
-          <>
-            <Badge tone="ink" className="h-8 px-3">
-              Kept
-            </Badge>
-            {decide("undecided", "Undo", "ghost")}
-          </>
-        ) : p.decision === "removed" ? (
-          <>
-            <Badge tone="outline" className="h-8 px-3">
-              Removed
-            </Badge>
-            {decide("undecided", "Undo", "ghost")}
-          </>
-        ) : (
-          <>
-            {decide("kept", "Keep", "primary")}
-            {decide("removed", "Remove", "secondary")}
-          </>
-        )}
-      </div>
+              </p>
+            ) : (
+              <p className="mt-1 text-[#0B0B0C]/55">
+                Their site doesn&apos;t print an address, and Dialvo never
+                guesses one.
+              </p>
+            )}
+            {p.phone && (
+              <p className="mt-1.5">
+                {p.phone}
+                {p.phone_source_url && (
+                  <span className="block text-[12px] text-[#0B0B0C]/50">
+                    Found on <Source url={p.phone_source_url} />
+                  </span>
+                )}
+              </p>
+            )}
+          </div>
+        </div>
+      </details>
     </li>
   );
 }
@@ -360,52 +498,112 @@ function FindView({
     <>
       {active && <RunDriver runId={active.id} />}
       <div className="grid items-start gap-3 lg:grid-cols-[minmax(0,5fr)_minmax(0,3fr)]">
-        <section aria-labelledby="who" className={panel}>
+        <section aria-labelledby="who" className={cn(panel, "scroll-mt-28")}>
           <h2 id="who" className={panelHead}>
             1. Who you sell to
             {searches.length > 0 && (
-              <Link
-                href="/app/prospects?search=new"
-                className={cn(btn.ghost, btn.small)}
-              >
-                New search
-              </Link>
+              <span className="flex min-w-0 items-center gap-1">
+                {/* More than one description: a small switcher, not a wall. */}
+                {searches.length > 1 && (
+                  <Dropdown
+                    label="Switch to another saved search"
+                    align="right"
+                    panelClassName="w-[280px] max-h-[320px] overflow-y-auto"
+                    trigger={
+                      <span className={cn(btn.ghost, btn.small, "font-normal")}>
+                        {searches.length} saved
+                        <ChevronDown aria-hidden className="size-3.5" />
+                      </span>
+                    }
+                  >
+                    {searches.map((s) => (
+                      <Link
+                        key={s.id}
+                        href={`/app/prospects?search=${s.id}`}
+                        aria-current={s.id === search?.id ? "page" : undefined}
+                        className={menuItem}
+                      >
+                        <span className="min-w-0 flex-1 truncate">
+                          {s.name}
+                        </span>
+                        {s.id === search?.id && (
+                          <Check
+                            aria-label="Showing"
+                            className="size-3.5 shrink-0"
+                          />
+                        )}
+                      </Link>
+                    ))}
+                  </Dropdown>
+                )}
+                {isNew ? (
+                  <Link
+                    href="/app/prospects"
+                    className={cn(btn.ghost, btn.small)}
+                  >
+                    Cancel
+                  </Link>
+                ) : (
+                  <Link
+                    href="/app/prospects?search=new"
+                    className={cn(btn.ghost, btn.small)}
+                  >
+                    New search
+                  </Link>
+                )}
+              </span>
             )}
           </h2>
-          {searches.length > 1 || (searches.length === 1 && isNew) ? (
-            <nav
-              aria-label="Saved searches"
-              className="flex flex-wrap gap-1 border-b border-black/[0.06] px-3 py-2"
-            >
-              {searches.map((s) => (
-                <Link
-                  key={s.id}
-                  href={`/app/prospects?search=${s.id}`}
-                  aria-current={s.id === search?.id ? "page" : undefined}
-                  className={cn(
-                    "flex h-7 max-w-[220px] items-center rounded-full px-2.5 text-[12px] font-medium",
-                    s.id === search?.id
-                      ? "bg-[#0B0B0C] text-white"
-                      : "text-[#0B0B0C]/60 hover:bg-black/[0.05]",
+          {search ? (
+            // Saved: shown as a sentence, with the form one click away.
+            <details className="group">
+              <summary className="flex cursor-pointer list-none items-start gap-3 px-4 py-3.5 focus-visible:ring-2 focus-visible:ring-black/40 focus-visible:outline-none focus-visible:ring-inset [&::-webkit-details-marker]:hidden">
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[13.5px] leading-[1.5]">
+                    {search.description}
+                  </span>
+                  {(search.location ||
+                    search.company_size ||
+                    search.exclusions) && (
+                    <span className="mt-1 block text-[12.5px] leading-[1.45] text-[#0B0B0C]/55">
+                      {[
+                        search.location,
+                        search.company_size,
+                        search.exclusions && `leaving out ${search.exclusions}`,
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </span>
                   )}
-                >
-                  <span className="truncate">{s.name}</span>
-                </Link>
-              ))}
-            </nav>
-          ) : null}
-          <div className="p-4">
-            <SearchForm
-              // A different search is a different form.
-              key={search?.id ?? "new"}
-              search={search}
-              canSuggest={on}
-              suggestOnOpen={on && searches.length === 0}
-            />
-          </div>
+                </span>
+                <span className={cn(btn.secondary, btn.small)}>
+                  <span className="group-open:hidden">Edit</span>
+                  <span className="hidden group-open:inline">Close</span>
+                </span>
+              </summary>
+              <div className="border-t border-black/[0.06] p-4">
+                <SearchForm
+                  // A different search is a different form.
+                  key={search.id}
+                  search={search}
+                  canSuggest={on}
+                  suggestOnOpen={false}
+                />
+              </div>
+            </details>
+          ) : (
+            <div className="p-4">
+              <SearchForm
+                key="new"
+                search={null}
+                canSuggest={on}
+                suggestOnOpen={on && searches.length === 0}
+              />
+            </div>
+          )}
         </section>
 
-        <section aria-labelledby="find" className={panel}>
+        <section aria-labelledby="find" className={cn(panel, "scroll-mt-28")}>
           <h2 id="find" className={panelHead}>
             2. Find
           </h2>
@@ -420,19 +618,22 @@ function FindView({
               <input type="hidden" name="search" value={search?.id ?? ""} />
               <SubmitButton
                 pendingText="Starting…"
+                data-find
+                // The black button is whichever step comes next.
+                variant={found.length > 0 ? "secondary" : "primary"}
                 disabled={
                   !on || !search || Boolean(active) || runsLeft === 0 || spent
                 }
               >
                 <Search aria-hidden className="size-3.5" />
-                Find leads
+                {found.length > 0 ? "Find more leads" : "Find leads"}
               </SubmitButton>
             </ActionForm>
             <p className={cn(hint, "mt-2")}>
               {!on
                 ? "Not switched on yet on Dialvo's side."
                 : !search
-                  ? "Save who you sell to first."
+                  ? "Step 1 first: save who you sell to."
                   : active && active.search_id !== search.id
                     ? "Another search is running. One at a time."
                     : runsLeft === 0 || spent
@@ -444,7 +645,10 @@ function FindView({
         </section>
       </div>
 
-      <section aria-labelledby="results" className={cn(panel, "mt-3")}>
+      <section
+        aria-labelledby="results"
+        className={cn(panel, "mt-3 scroll-mt-28")}
+      >
         <h2 id="results" className={panelHead}>
           <span>
             3. Review
@@ -475,8 +679,8 @@ function FindView({
         {found.length === 0 ? (
           <Empty icon={Telescope} title="No results yet">
             {search
-              ? "Press Find leads. Companies appear here as their websites are read, each with where its details were found."
-              : "Describe who you sell to, save it, then press Find leads."}
+              ? "Press Find leads above. Companies appear here as their websites are read, each with where its details were found."
+              : "Companies Dialvo finds for you appear here. Start with step 1: describe who you sell to."}
           </Empty>
         ) : (
           <>
@@ -506,9 +710,10 @@ function FindView({
                 </ActionForm>
                 <Link
                   href="/app/prospects?view=emails"
-                  className={cn(btn.primary)}
+                  className={cn(kept.length > 0 ? btn.primary : btn.secondary)}
                 >
-                  Draft first emails
+                  Next: first emails
+                  <ArrowRight aria-hidden className="size-3.5" />
                 </Link>
               </div>
             </div>
@@ -637,11 +842,16 @@ function EmailsView({
   toWrite,
   usage,
   on,
+  writer,
+  admin,
 }: {
   drafts: DraftWithProspect[];
   toWrite: number;
   usage: Usage;
   on: boolean;
+  /** The agent whose instructions the first emails follow. */
+  writer: Agent | undefined;
+  admin: boolean;
 }) {
   const waiting = drafts.filter((d) => d.status === "draft");
   const ready = drafts.filter((d) => d.status === "approved");
@@ -667,10 +877,10 @@ function EmailsView({
         </h2>
         <div className="p-4">
           <p className="max-w-[640px] text-[13px] leading-[1.5] text-[#0B0B0C]/70">
-            For each company you kept that has an email address, your outbound
-            agent writes one short, plain first email from your Knowledge, its
-            own instructions and what was found on that company&apos;s site. You
-            read every one before it counts as ready.
+            For each company you kept that has an email address, Dialvo writes
+            one short, plain first email from your Knowledge, your instructions
+            below and what was found on that company&apos;s site. You read every
+            one before it counts as ready.
           </p>
           <div className="mt-3">
             <DraftWriter waiting={toWrite} disabled={!on} />
@@ -679,14 +889,72 @@ function EmailsView({
             {!on
               ? "Not switched on yet on Dialvo's side."
               : toWrite === 0
-                ? "No kept company with an email address is waiting for a draft. Keep some in Find first."
-                : `${Math.max(0, DAILY_DRAFT_CAP - usage.drafts)} of ${DAILY_DRAFT_CAP} drafts left today for this workspace.`}{" "}
-            <Link href="/app/agents" className={link}>
-              Edit the outbound agent&apos;s instructions
-            </Link>
+                ? "No kept company with an email address is waiting for a draft. Keep some in Review first."
+                : `${Math.max(0, DAILY_DRAFT_CAP - usage.drafts)} of ${DAILY_DRAFT_CAP} drafts left today for this workspace.`}
           </p>
         </div>
       </section>
+
+      {writer && (
+        <section
+          id="instructions"
+          aria-labelledby="instructions-title"
+          className={cn(panel, "mt-3 scroll-mt-28")}
+        >
+          <details className="group" open={!writer.instructions.trim()}>
+            <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 px-4 py-2 text-[13px] font-medium focus-visible:ring-2 focus-visible:ring-black/40 focus-visible:outline-none focus-visible:ring-inset [&::-webkit-details-marker]:hidden">
+              <span id="instructions-title">
+                How your emails should sound
+                <span className="ml-2 font-normal text-[#0B0B0C]/50">
+                  {writer.instructions.trim()
+                    ? "Your instructions are in use"
+                    : "No instructions yet"}
+                </span>
+              </span>
+              <ChevronDown
+                aria-hidden
+                className="size-4 shrink-0 text-[#0B0B0C]/40 transition-transform group-open:rotate-180"
+              />
+            </summary>
+            <ActionForm
+              action={updateEmailInstructions}
+              className="border-t border-black/[0.06] p-4"
+            >
+              <input type="hidden" name="agent" value={writer.id} />
+              <label htmlFor="writer-instructions" className={labelCls}>
+                Instructions for first emails
+              </label>
+              <textarea
+                id="writer-instructions"
+                name="instructions"
+                rows={4}
+                maxLength={20000}
+                disabled={!admin}
+                defaultValue={writer.instructions}
+                placeholder="For example: write to the owner or practice manager. Mention the free site review. Sign off as Sam from Northside Web. Never mention prices."
+                className={cn(field, "mt-1.5")}
+              />
+              <p className={cn(hint, "mt-1.5 max-w-[640px]")}>
+                In plain words: who you are writing to, what to offer, how to
+                sign off, what never to say. What you sell and your prices come
+                from Knowledge. These apply to emails written from now on, not
+                to drafts already written.
+              </p>
+              {admin ? (
+                <div className="mt-3 flex justify-end">
+                  <SubmitButton variant="secondary">
+                    Save instructions
+                  </SubmitButton>
+                </div>
+              ) : (
+                <p className={cn(hint, "mt-2")}>
+                  Only the workspace&apos;s owner and admins can change these.
+                </p>
+              )}
+            </ActionForm>
+          </details>
+        </section>
+      )}
 
       <section aria-labelledby="queue" className={cn(panel, "mt-3")}>
         <h2 id="queue" className={panelHead}>
@@ -711,8 +979,24 @@ function EmailsView({
           )}
         </h2>
         {waiting.length === 0 ? (
-          <Empty icon={Mail} title="No drafts waiting">
-            Drafts appear here as they are written.
+          <Empty
+            icon={Mail}
+            title="No first emails waiting"
+            action={
+              toWrite === 0 ? (
+                <Link
+                  href="/app/prospects#results"
+                  className={cn(btn.secondary)}
+                >
+                  <ArrowLeft aria-hidden className="size-3.5" />
+                  Back to Review
+                </Link>
+              ) : undefined
+            }
+          >
+            {toWrite === 0
+              ? "First emails are written for companies you keep in Review that have an email address. Each one waits here for your yes."
+              : "Press the button above. Each email appears here as it is written, and waits for your yes."}
           </Empty>
         ) : (
           <ul className="divide-y divide-black/[0.06]">
@@ -869,14 +1153,31 @@ async function Content({
   searchParams: PageProps<"/app/prospects">["searchParams"];
 }) {
   const params = await searchParams;
-  const view: View = VIEWS.find((v) => v.id === params.view)?.id ?? "find";
-  const { workspace, preview } = await getAppContext();
+  const view: View = VIEWS.find((v) => v === params.view) ?? "find";
+  const { workspace, preview, repo } = await getAppContext();
 
   const head = (
     <PageHead
       title="Find leads"
       note="Dialvo finds companies that fit who you sell to, reads their websites and drafts a first email for the ones you keep. You don't need to bring a list."
-    />
+    >
+      <Link
+        href={view === "never" ? "/app/prospects" : "/app/prospects?view=never"}
+        className={cn(btn.ghost, btn.small)}
+      >
+        {view === "never" ? (
+          <>
+            <ArrowLeft aria-hidden className="size-3.5" />
+            Back to Find leads
+          </>
+        ) : (
+          <>
+            <Ban aria-hidden className="size-3.5" />
+            Never-contact list
+          </>
+        )}
+      </Link>
+    </PageHead>
   );
   if (preview)
     return (
@@ -916,12 +1217,16 @@ async function Content({
     (r) => r.status === "searching" || r.status === "researching",
   );
 
-  const [prospects, drafts, kept, list] = await Promise.all([
-    view === "find" && search ? reads.prospects(search.id) : [],
-    view === "emails" ? reads.drafts() : [],
-    view === "emails" ? reads.keptWithEmail() : [],
-    view === "never" ? reads.suppressions() : [],
-  ]);
+  const [prospects, drafts, kept, list, agents, waitingEmails] =
+    await Promise.all([
+      // The steps across the top need the results on every view.
+      search ? reads.prospects(search.id) : [],
+      view === "emails" ? reads.drafts() : [],
+      view === "emails" ? reads.keptWithEmail() : [],
+      view === "never" ? reads.suppressions() : [],
+      view === "emails" ? repo.agents() : [],
+      repo.emailDraftCount(),
+    ]);
   const drafted = new Set(
     drafts
       // A failed draft is tried once more, so it still counts as to write.
@@ -929,6 +1234,9 @@ async function Content({
       .map((d) => d.prospect_id),
   );
   const toWrite = kept.filter((k) => !drafted.has(k.id)).length;
+  const found = prospects.filter((p) => p.research_status === "found");
+  const undecided = found.filter((p) => p.decision === "undecided").length;
+  const keptCount = found.filter((p) => p.decision === "kept").length;
   const writing = drafts.some((d) => d.status === "drafting");
 
   return (
@@ -939,28 +1247,40 @@ async function Content({
       )}
       {head}
       {!on && <NotOn />}
-      <nav
-        aria-label="Find leads"
-        className="mb-3 flex [scrollbar-width:none] gap-1 overflow-x-auto"
-      >
-        {VIEWS.map((v) => (
-          <Link
-            key={v.id}
-            href={
-              v.id === "find" ? "/app/prospects" : `/app/prospects?view=${v.id}`
-            }
-            aria-current={v.id === view ? "page" : undefined}
-            className={cn(
-              "flex h-8 shrink-0 items-center rounded-full px-3 text-[12.5px] font-medium",
-              v.id === view
-                ? "bg-[#0B0B0C] text-white"
-                : "text-[#0B0B0C]/60 hover:bg-black/[0.05]",
-            )}
-          >
-            {v.label}
-          </Link>
-        ))}
-      </nav>
+      <Flow
+        current={
+          view === "never"
+            ? 0
+            : view === "emails"
+              ? 4
+              : !search
+                ? 1
+                : found.length === 0 || activeRun
+                  ? 2
+                  : 3
+        }
+        done={[
+          Boolean(search),
+          found.length > 0,
+          keptCount > 0 && undecided === 0,
+          false,
+        ]}
+        notes={[
+          "",
+          activeRun
+            ? "Searching now"
+            : found.length > 0
+              ? `${found.length} found`
+              : "",
+          found.length > 0
+            ? undecided > 0
+              ? `${undecided} to decide`
+              : `${keptCount} kept`
+            : "",
+          waitingEmails > 0 ? `${waitingEmails} waiting` : "",
+        ]}
+        searchId={search?.id ?? null}
+      />
       {view === "find" && (
         <FindView
           searches={searches}
@@ -973,7 +1293,14 @@ async function Content({
         />
       )}
       {view === "emails" && (
-        <EmailsView drafts={drafts} toWrite={toWrite} usage={usage} on={on} />
+        <EmailsView
+          drafts={drafts}
+          toWrite={toWrite}
+          usage={usage}
+          on={on}
+          writer={agents.find((a) => a.role === "outbound")}
+          admin={workspace.role !== "member"}
+        />
       )}
       {view === "never" && (
         <NeverView list={list} admin={workspace.role !== "member"} />
