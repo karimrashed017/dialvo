@@ -23,6 +23,19 @@ const FILE_ENDING =
 const NOT_A_CONTACT =
   /^(no-?reply|do-?not-?reply|donotreply|mailer-daemon|postmaster|abuse|webmaster|hostmaster|privacy|dpo|gdpr|legal|unsubscribe|bounce|bounces|noreply-.*)$/i;
 
+// Mailboxes that are read, but by the wrong people: writing to a company's
+// recruiters, help desk, press office or accounts team about buying something
+// is at best ignored. A company whose only printed addresses are these is
+// treated as having no email address.
+const UNSUITABLE =
+  /^(hr|human-?resources|jobs?|careers?|recruit(ing|ment|ers?)?|talent|hiring|apply|applications?|resumes?|cv|support|help|help-?desk|customer-?(service|support|care|success)|service-?desk|tickets?|press|media|pr|newsroom|billing|accounts?|accounting|accounts-?(payable|receivable)|invoices?|payments?|finance|payroll|compliance|security|investors?|ir|feedback|complaints?|returns|refunds|orders?|unsubscribe)$/i;
+
+/** True for hr@, support@, press@, billing@ and the like. */
+export function isUnsuitableEmail(email: string): boolean {
+  const local = email.split("@")[0] ?? "";
+  return UNSUITABLE.test(local) || NOT_A_CONTACT.test(local);
+}
+
 // Addresses that come with a website template, not with the business.
 const PLACEHOLDER_LOCAL =
   /^(you|your|yourname|your-?email|name|email|e-?mail|user|username|someone|example|test|john\.?doe|jane\.?doe|firstname\.lastname|first\.last)$/i;
@@ -49,8 +62,47 @@ const unescape = (text: string) =>
     )
     .replace(/&amp;/g, "&");
 
+const TITLES = /^(dr|mr|mrs|ms|miss|mx|prof|sir|dds|dmd|md|phd|jr|sr)$/;
+
+/**
+ * What kind of mailbox an address is, for choosing between a company's
+ * addresses and for telling the reviewer which they are looking at:
+ *   person   it carries the name of the contact the site names (dana@,
+ *            dana.smith@, dsmith@ for "Dana Smith"). Never worked out the
+ *            other way round: the address has to be printed on the site.
+ *   general  the business's shared inbox (info@, hello@, sales@, office@).
+ *   other    anything else the site prints as a way to reach it.
+ */
+export type EmailRole = "person" | "general" | "other";
+
+export function emailRole(email: string, contactName: string): EmailRole {
+  const local = (email.split("@")[0] ?? "").toLowerCase();
+  if (GENERAL.test(local)) return "general";
+  const names = contactName
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[^a-z\s'-]/g, "")
+    .split(/[\s-]+/)
+    .map((part) => part.replace(/'/g, ""))
+    .filter((part) => part.length >= 2 && !TITLES.test(part));
+  if (names.length === 0) return "other";
+  const parts = local.split(/[._+-]+/).filter(Boolean);
+  const first = names[0];
+  const last = names[names.length - 1];
+  const named =
+    // dana@, smith@, dana.smith@, d.smith@
+    parts.some((part) => part.length >= 3 && names.includes(part)) ||
+    // danasmith@, dsmith@, danas@
+    (names.length > 1 &&
+      [`${first}${last}`, `${first[0]}${last}`, `${first}${last[0]}`].includes(
+        local,
+      ));
+  return named ? "person" : "other";
+}
+
 /**
  * Why an address a page prints may not be used, or null if it may.
+ *   unsuitable: a mailbox for something else (jobs, support, press, bills).
  *   not_theirs: on another company's domain (the web agency's in the footer,
  *     a supplier's), so not this business's contact.
  *   free_mail_unlinked: a free mailbox the page mentions but doesn't offer
@@ -66,6 +118,7 @@ export function emailProblem(
   | "not_an_address"
   | "placeholder"
   | "not_a_contact"
+  | "unsuitable"
   | "not_theirs"
   | "free_mail_unlinked" {
   const clean = normalizeEmail(email);
@@ -74,6 +127,7 @@ export function emailProblem(
   if (PLACEHOLDER_LOCAL.test(local) || PLACEHOLDER_DOMAIN.test(domain))
     return "placeholder";
   if (NOT_A_CONTACT.test(local)) return "not_a_contact";
+  if (UNSUITABLE.test(local)) return "unsuitable";
   if (isFreeMail(domain)) return linked ? null : "free_mail_unlinked";
   if (!emailBelongsToSite(domain, siteDomainName)) return "not_theirs";
   return null;

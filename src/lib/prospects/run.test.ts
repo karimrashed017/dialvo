@@ -69,6 +69,7 @@ function fakeStore(claim: Claim | null, drafts: DraftClaim | null = null) {
     recordSpend: vi.fn(async () => {}),
     startRun: vi.fn(),
     claim: vi.fn(async () => claim),
+    sells: vi.fn(async () => "Websites for dental clinics, from $900 a month."),
     addCandidates: vi.fn(async () => ({
       status: "searching" as const,
       added: 0,
@@ -206,6 +207,13 @@ describe("a search step", () => {
       { timeout: number; maxRetries: number },
     ];
     expect(params.model).toBe("claude-haiku-4-5");
+    // It is told whose customers it is looking for, from the workspace's
+    // own knowledge, and that no size means small and mid-sized.
+    expect(store.sells).toHaveBeenCalledWith("ws");
+    expect(params.messages[0].content).toContain(
+      "<we_sell>\nWebsites for dental clinics, from $900 a month.\n</we_sell>",
+    );
+    expect(params.messages[0].content).toContain("No size was given");
     expect(params.tools).toEqual([
       expect.objectContaining({
         type: WEB_SEARCH_TOOL,
@@ -343,6 +351,35 @@ describe("a search step", () => {
     expect(await advanceRun(ids, { store: fakeStore(null), client })).toEqual({
       status: "not_found",
     });
+  });
+});
+
+describe("a research step leaves out who isn't a customer", () => {
+  it("skips a competitor and a giant, and tells the model what the workspace sells", async () => {
+    const store = fakeStore(
+      researching([
+        { id: "p1", domain: "acme.example" },
+        { id: "p2", domain: "acme.example" },
+      ]),
+    );
+    const { client, create } = fakeClient(
+      says(report({ fit: "sells_similar", fit_reason: "Also builds sites." })),
+      says(report({ fit: "too_large", fit_reason: "A national group." })),
+    );
+    await advanceRun(ids, { store, client, fetchSource });
+    const params = create.mock
+      .calls[0][0] as Anthropic.MessageCreateParamsNonStreaming;
+    expect(params.messages[0].content).toContain(
+      "<we_sell>\nWebsites for dental clinics, from $900 a month.\n</we_sell>",
+    );
+    const saved = store.saveResearch.mock.calls.map(
+      (c) => (c as unknown[])[3] as { status: string; reason: string },
+    );
+    expect(saved.map((r) => r.status)).toEqual(["skipped", "skipped"]);
+    expect(saved.map((r) => r.reason).sort()).toEqual([
+      "competitor",
+      "too_large",
+    ]);
   });
 });
 

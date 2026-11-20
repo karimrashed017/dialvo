@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  DEFAULT_EXCLUSIONS,
   readCandidates,
   readDraft,
   readResearch,
@@ -134,9 +135,10 @@ describe("readResearch", () => {
       "DANA@ACME.EXAMPLE.evil.com",
     ]) {
       const result = readResearch(report({ email: invented }), pages, "acme");
-      // Falls back to an address that is on the page, never the invented one.
+      // Falls back to an address that is on the page (here the named
+      // contact's own, which the site prints), never the invented one.
       expect(result).toMatchObject({
-        email: "hello@acme.example",
+        email: "dana@acme.example",
         email_source_url: "https://acme.example/contact",
       });
     }
@@ -150,6 +152,67 @@ describe("readResearch", () => {
       email_source_url: "",
       email_kind: "",
     });
+  });
+
+  it("prefers the named contact's printed address to a shared inbox", () => {
+    // The model picked the general inbox; the site prints Dana's own.
+    expect(
+      readResearch(report({ email: "hello@acme.example" }), pages, "acme"),
+    ).toMatchObject({ email: "dana@acme.example", contact_name: "Dana Smith" });
+    // Nobody is named, so nobody's address is preferred: the pick stands.
+    expect(
+      readResearch(
+        report({ email: "hello@acme.example", contact_name: "" }),
+        pages,
+        "acme",
+      ),
+    ).toMatchObject({ email: "hello@acme.example" });
+    // A contact whose address isn't printed is never given one.
+    const other = readResearch(
+      report({ contact_name: "Our founder", email: "" }),
+      pages,
+      "acme",
+    );
+    expect(other).toMatchObject({ email: "hello@acme.example" });
+  });
+
+  it("never chooses a jobs, support or press mailbox, even when it is all there is", () => {
+    const only = (emails: string[]): SitePage[] => [
+      pages[0],
+      {
+        ...pages[1],
+        emails: emails.map((email) => ({
+          email,
+          kind: "business" as const,
+          linked: true,
+        })),
+      },
+    ];
+    for (const address of [
+      "hr@acme.example",
+      "careers@acme.example",
+      "support@acme.example",
+      "press@acme.example",
+      "billing@acme.example",
+    ]) {
+      // The model asks for it by name, and it is on the page: still no.
+      expect(
+        readResearch(report({ email: address }), only([address]), "acme"),
+      ).toMatchObject({
+        status: "found",
+        email: "",
+        email_source_url: "",
+        email_kind: "",
+      });
+    }
+    // With a usable address beside it, that one is taken instead.
+    expect(
+      readResearch(
+        report({ email: "hr@acme.example", contact_name: "" }),
+        only(["hr@acme.example", "info@acme.example"]),
+        "acme",
+      ),
+    ).toMatchObject({ email: "info@acme.example" });
   });
 
   it("drops a contact whose name isn't on the site, with their role", () => {
@@ -252,6 +315,48 @@ describe("readResearch", () => {
     ).toMatchObject({ reason: "not_a_match" });
   });
 
+  it("skips a company that sells what the workspace sells: a competitor is not a customer", () => {
+    expect(
+      readResearch(
+        // Even when the model also says it matches the description.
+        report({ fit: "sells_similar", fit_reason: "Sells AI sales agents." }),
+        pages,
+        "acme",
+      ),
+    ).toEqual({
+      status: "skipped",
+      reason: "competitor",
+      company_name: "Acme Anvils",
+    });
+  });
+
+  it("skips a company far larger than the search is for", () => {
+    expect(
+      readResearch(
+        report({ fit: "too_large", fit_reason: "Global listed group." }),
+        pages,
+        "acme",
+      ),
+    ).toEqual({
+      status: "skipped",
+      reason: "too_large",
+      company_name: "Acme Anvils",
+    });
+  });
+
+  it("lists a company only when the fit check passes", () => {
+    expect(
+      readResearch(report({ fit: "not_a_fit" }), pages, "acme"),
+    ).toMatchObject({ status: "skipped", reason: "not_a_match" });
+    expect(
+      readResearch(
+        report({ fit: "good", fit_reason: "A forge." }),
+        pages,
+        "acme",
+      ),
+    ).toMatchObject({ status: "found" });
+  });
+
   it("refuses an answer that isn't the agreed shape", () => {
     for (const raw of [
       "",
@@ -333,9 +438,46 @@ describe("readSuggestion", () => {
       description: "Dental clinics",
       location: "",
       company_size: "",
-      exclusions: "chains",
+      exclusions:
+        "chains, companies that sell the same kind of product as us, very large enterprises",
     });
     expect(readSuggestion(JSON.stringify({ description: "" }))).toBeNull();
     expect(readSuggestion("nope")).toBeNull();
+  });
+
+  it("always leaves out the workspace's own competitors, and giants unless it sells to them", () => {
+    const suggestion = (extra: Record<string, unknown>) =>
+      readSuggestion(
+        JSON.stringify({
+          name: "Clinics",
+          description: "Independent dental clinics",
+          location: "",
+          company_size: "",
+          exclusions: "",
+          ...extra,
+        }),
+      )!.exclusions;
+    expect(suggestion({})).toBe(
+      `${DEFAULT_EXCLUSIONS.competitors}, ${DEFAULT_EXCLUSIONS.giants}`,
+    );
+    // Said once is enough.
+    expect(
+      suggestion({
+        exclusions:
+          "Companies that sell the same kind of product as us, very large enterprises, NHS-only practices.",
+      }),
+    ).toBe(
+      "Companies that sell the same kind of product as us, very large enterprises, NHS-only practices",
+    );
+    expect(
+      suggestion({ exclusions: "our competitors; global companies" }),
+    ).toBe("our competitors, global companies");
+    // A business that sells to enterprises keeps them in.
+    expect(suggestion({ sells_to_enterprises: true })).toBe(
+      DEFAULT_EXCLUSIONS.competitors,
+    );
+    expect(suggestion({ sells_to_enterprises: "yes" })).toContain(
+      DEFAULT_EXCLUSIONS.giants,
+    );
   });
 });
