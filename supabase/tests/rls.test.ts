@@ -270,6 +270,29 @@ describe("signing up and creating a workspace", () => {
     expect(rows).toEqual([{ name: "Alice" }]);
   });
 
+  it("copies the login address onto the profile, and nobody can edit it", async () => {
+    const eve = await db.createUser("Eve@Mixed.Example", "Eve");
+    const email = async () =>
+      (await db.admin(`select email from profiles where id = $1`, [eve]))[0]
+        .email;
+    expect(await email()).toBe("eve@mixed.example");
+    await db.admin(`update auth.users set email = $2 where id = $1`, [
+      eve,
+      "eve@new.example",
+    ]);
+    expect(await email()).toBe("eve@new.example");
+    await expect(
+      db.user(eve)(
+        `update profiles set email = 'boss@a.example' where id = $1`,
+        [eve],
+      ),
+    ).rejects.toThrow(DENIED);
+    await db.admin(`delete from auth.users where id = $1`, [eve]);
+    expect(
+      await db.admin(`select 1 from profiles where id = $1`, [eve]),
+    ).toEqual([]);
+  });
+
   it("makes the creator the owner and sets the workspace up", async () => {
     expect(
       await db.admin(
