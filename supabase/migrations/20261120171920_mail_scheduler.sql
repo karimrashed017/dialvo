@@ -1,4 +1,4 @@
--- Slice 3b, part 2: the scheduler. Sending and reading replies must happen
+-- Slice 3b, part 5 of 5: the scheduler. Sending and reading replies must happen
 -- with nobody's browser open, so the database itself knocks on the app once
 -- a minute (pg_cron) with an HTTP call (pg_net):
 --
