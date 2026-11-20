@@ -313,10 +313,25 @@ export type FetchedPage = {
   truncated: boolean;
 };
 
-export async function fetchPage(
+export type PageSource = {
+  /** Where the page was finally read from, after redirects. */
+  url: string;
+  /** True for HTML, false for plain text. */
+  html: boolean;
+  /** The page as it was sent, decoded, cut at MAX_PAGE_BYTES. */
+  body: string;
+};
+
+/**
+ * One public page as it was sent, under all the rules at the top of this
+ * file. For callers that need more than the readable text (the lead finder
+ * reads a company's contact links from the markup); everyone else wants
+ * fetchPage.
+ */
+export async function fetchPageSource(
   raw: string,
   deps: PageDeps = DEFAULT_DEPS,
-): Promise<FetchedPage> {
+): Promise<PageSource> {
   let url = parsePageUrl(raw);
   const deadline = AbortSignal.timeout(PAGE_TIMEOUT_MS);
   for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
@@ -359,18 +374,28 @@ export async function fetchPage(
     const html = /^(text\/html|application\/xhtml\+xml)\b/.test(type);
     if (!html && !/^text\/plain\b/.test(type))
       throw new PageFetchError("not_text");
-
-    const decoded = decodeBody(response.body, type);
-    const page = html
-      ? readableText(decoded)
-      : { title: "", text: decoded.replace(/\r\n?/g, "\n").trim() };
-    if (page.text.length < 40) throw new PageFetchError("no_text");
     return {
       url: url.toString(),
-      title: page.title,
-      text: page.text.slice(0, MAX_PAGE_TEXT),
-      truncated: page.text.length > MAX_PAGE_TEXT,
+      html,
+      body: decodeBody(response.body, type),
     };
   }
   throw new PageFetchError("too_many_redirects");
+}
+
+export async function fetchPage(
+  raw: string,
+  deps: PageDeps = DEFAULT_DEPS,
+): Promise<FetchedPage> {
+  const source = await fetchPageSource(raw, deps);
+  const page = source.html
+    ? readableText(source.body)
+    : { title: "", text: source.body.replace(/\r\n?/g, "\n").trim() };
+  if (page.text.length < 40) throw new PageFetchError("no_text");
+  return {
+    url: source.url,
+    title: page.title,
+    text: page.text.slice(0, MAX_PAGE_TEXT),
+    truncated: page.text.length > MAX_PAGE_TEXT,
+  };
 }
