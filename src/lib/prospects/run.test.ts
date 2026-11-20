@@ -364,6 +364,8 @@ describe("a research step", () => {
       "https://acme.example/",
       "https://acme.example/about",
       "https://acme.example/contact",
+      // Asked first, through the same safe reader (there is none here).
+      "https://acme.example/robots.txt",
     ]);
     const params = create.mock
       .calls[0][0] as Anthropic.MessageCreateParamsNonStreaming;

@@ -8,6 +8,7 @@ import {
 import { PAGES_PER_COMPANY } from "./config";
 import { isCompanySite, sameSite, siteDomain } from "./domains";
 import { contactLinks, emailsOnPage, phonesOnPage } from "./extract";
+import { mayRead, type RobotsFetcher } from "./robots";
 import type { SitePage } from "./types";
 
 // Reads a company's own website: its home page, then its contact and about
@@ -16,7 +17,10 @@ import type { SitePage } from "./types";
 // hold (public https pages only, never a private address, also after a
 // redirect).
 
-export type SiteProblem = "no_website" | "unreadable";
+// Before any page, the host's robots.txt is consulted (robots.ts): a site
+// that asks not to be read by DialvoBot, or by every robot, isn't.
+
+export type SiteProblem = "no_website" | "unreadable" | "robots_disallowed";
 
 export type SiteRead =
   | { ok: true; domain: string; pages: SitePage[] }
@@ -40,10 +44,21 @@ function toPage(source: PageSource, domain: string): SitePage | null {
   };
 }
 
+/** robots.txt through the same safe reader. Not text: there is none. */
+export function robotsFromSource(fetchSource: FetchSource): RobotsFetcher {
+  return async (url) => {
+    const source = await fetchSource(url);
+    return source.html ? null : source.body;
+  };
+}
+
 export async function readSite(
   website: string,
   fetchSource: FetchSource = fetchPageSource,
+  fetchRobots: RobotsFetcher = robotsFromSource(fetchSource),
 ): Promise<SiteRead> {
+  if (!(await mayRead(website, fetchRobots)))
+    return { ok: false, problem: "robots_disallowed" };
   let home: PageSource;
   try {
     home = await fetchSource(website);
@@ -57,6 +72,9 @@ export async function readSite(
   const domain = siteDomain(home.url);
   if (!domain || !isCompanySite(domain))
     return { ok: false, problem: "no_website" };
+  // A redirect to another host: that host's rules apply too.
+  if (!(await mayRead(home.url, fetchRobots)))
+    return { ok: false, problem: "robots_disallowed" };
   const first = toPage(home, domain);
   if (!first) return { ok: false, problem: "unreadable" };
 
@@ -64,6 +82,7 @@ export async function readSite(
     contactLinks(home.body, home.url, PAGES_PER_COMPANY - 1).map(
       async (url) => {
         try {
+          if (!(await mayRead(url, fetchRobots))) return null;
           const source = await fetchSource(url);
           // A contact link that redirects off the site isn't the site.
           if (
