@@ -12,6 +12,10 @@ vi.mock("@/lib/supabase/capture", () => ({
 vi.mock("@/lib/supabase/env", () => ({ APP_CONFIGURED: true }));
 const runChatAgent = vi.fn(async () => ({ status: "sent" }));
 vi.mock("@/lib/agents/runtime", () => ({ runChatAgent }));
+const sendTeamAlerts = vi.fn(async () => ({ status: "none", sent: 0 }));
+vi.mock("@/lib/alerts/team", () => ({ sendTeamAlerts }));
+const widgetLocked = vi.fn(async () => false);
+vi.mock("@/lib/billing/widget", () => ({ widgetLocked }));
 const later: (() => Promise<void>)[] = [];
 vi.mock("next/server", () => ({
   after: (work: () => Promise<void>) => later.push(work),
@@ -49,6 +53,9 @@ async function poll(body: unknown, token = TOKEN) {
 beforeEach(() => {
   rpc.mockReset();
   runChatAgent.mockClear();
+  sendTeamAlerts.mockClear();
+  widgetLocked.mockReset();
+  widgetLocked.mockResolvedValue(false);
   later.length = 0;
   chatStartLimit.reset();
   chatPostLimit.reset();
@@ -56,6 +63,7 @@ beforeEach(() => {
   vi.unstubAllEnvs();
   vi.stubEnv("ANTHROPIC_API_KEY", "");
   vi.stubEnv("SUPABASE_SECRET_KEY", "");
+  vi.stubEnv("RESEND_API_KEY", "");
 });
 
 const started = {
@@ -105,6 +113,58 @@ describe("POST /api/chat/[token]/messages", () => {
       token: TOKEN,
       conversationId: CONVERSATION,
     });
+  });
+
+  it("when the trial has ended and billing is enforced, keeps the message and tells the visitor the team will reply", async () => {
+    vi.stubEnv("ANTHROPIC_API_KEY", "test-key");
+    vi.stubEnv("SUPABASE_SECRET_KEY", "test-secret");
+    widgetLocked.mockResolvedValue(true);
+    rpc.mockResolvedValue({ data: started, error: null });
+    const res = await send({ message: "Hello" });
+    expect(res.status).toBe(200);
+    // "saved" is what makes the widget say a team member will reply.
+    expect((await res.json()).agent).toBe("saved");
+    expect(rpc).toHaveBeenCalledWith("chat_start", expect.anything());
+    expect(widgetLocked).toHaveBeenCalledWith(TOKEN);
+    for (const work of later) await work();
+    expect(runChatAgent).not.toHaveBeenCalled();
+  });
+
+  it("emails the team after the agent's turn, when email is switched on", async () => {
+    vi.stubEnv("ANTHROPIC_API_KEY", "test-key");
+    vi.stubEnv("SUPABASE_SECRET_KEY", "test-secret");
+    vi.stubEnv("RESEND_API_KEY", "test-resend");
+    rpc.mockResolvedValue({ data: started, error: null });
+    await send({ message: "Hello" });
+    expect(sendTeamAlerts).not.toHaveBeenCalled();
+    await later[0]();
+    expect(runChatAgent.mock.invocationCallOrder[0]).toBeLessThan(
+      sendTeamAlerts.mock.invocationCallOrder[0],
+    );
+    expect(sendTeamAlerts).toHaveBeenCalledExactlyOnceWith({
+      token: TOKEN,
+      conversationId: CONVERSATION,
+    });
+  });
+
+  it("emails the team about a chat nobody answers, even with no agent on this server", async () => {
+    vi.stubEnv("SUPABASE_SECRET_KEY", "test-secret");
+    vi.stubEnv("RESEND_API_KEY", "test-resend");
+    rpc.mockResolvedValue({ data: started, error: null });
+    const res = await send({ message: "Hello" });
+    expect((await res.json()).agent).toBe("saved");
+    await later[0]();
+    expect(runChatAgent).not.toHaveBeenCalled();
+    expect(sendTeamAlerts).toHaveBeenCalledTimes(1);
+  });
+
+  it("sends no email without the Resend key", async () => {
+    vi.stubEnv("ANTHROPIC_API_KEY", "test-key");
+    vi.stubEnv("SUPABASE_SECRET_KEY", "test-secret");
+    rpc.mockResolvedValue({ data: started, error: null });
+    await send({ message: "Hello" });
+    await later[0]();
+    expect(sendTeamAlerts).not.toHaveBeenCalled();
   });
 
   it("continues a chat with the conversation and the key, and returns no key", async () => {

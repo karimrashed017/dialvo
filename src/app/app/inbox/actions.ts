@@ -4,6 +4,7 @@ import { refresh } from "next/cache";
 import { after } from "next/server";
 import { agentRuntimeStatus } from "@/lib/agents/config";
 import { runChatAgent } from "@/lib/agents/runtime";
+import { sendTeamAlerts } from "@/lib/alerts/team";
 import {
   ActionProblem,
   inWorkspace,
@@ -265,6 +266,8 @@ export async function handBackToAgent(form: FormData): Promise<ActionResult> {
     if (token && last.data?.[0]?.direction === "in" && agentRuntimeStatus().on)
       after(async () => {
         await runChatAgent({ token, conversationId: id });
+        // The agent may hand it straight back, or leave a draft: tell the team.
+        await sendTeamAlerts({ token, conversationId: id });
       });
     refresh();
     return { ok: true };

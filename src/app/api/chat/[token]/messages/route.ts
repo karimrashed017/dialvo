@@ -3,6 +3,9 @@ import { after } from "next/server";
 import { agentRuntimeStatus } from "@/lib/agents/config";
 import { redactCardNumbers } from "@/lib/agents/guard";
 import { runChatAgent } from "@/lib/agents/runtime";
+import { alertEmailStatus } from "@/lib/alerts/email";
+import { sendTeamAlerts } from "@/lib/alerts/team";
+import { widgetLocked } from "@/lib/billing/widget";
 import {
   CHAT_TOKEN,
   chatJson,
@@ -132,12 +135,21 @@ export async function POST(
 
   // "replying": this server will try to answer. "saved": nobody answers
   // automatically here; the widget tells the visitor the team will reply.
-  const agent = agentRuntimeStatus().on;
-  if (agent)
+  // That is also what happens once a trial has ended and billing is
+  // enforced (see src/lib/billing/trial.ts): the message is kept, the agent
+  // stays quiet.
+  const agent = agentRuntimeStatus().on && !(await widgetLocked(token));
+  const alerts = alertEmailStatus().on;
+  if (agent || alerts)
     after(async () => {
-      const turn = await runChatAgent({ token, conversationId });
-      if (turn.status === "failed")
-        console.error("[chat] the agent didn't answer:", turn.reason);
+      if (agent) {
+        const turn = await runChatAgent({ token, conversationId });
+        if (turn.status === "failed")
+          console.error("[chat] the agent didn't answer:", turn.reason);
+      }
+      // Tell the team by email about anything this message set off: a chat
+      // nobody is answering, a handoff, a qualified lead, a draft to approve.
+      if (alerts) await sendTeamAlerts({ token, conversationId });
     });
 
   return chatJson({
