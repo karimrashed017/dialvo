@@ -1,4 +1,6 @@
 import "server-only";
+import { speedToLeadStep } from "@/lib/plays/speed";
+import { createPlayStore, type PlayStore } from "@/lib/plays/store";
 import Anthropic from "@anthropic-ai/sdk";
 import type { SendDeps } from "@/lib/alerts/email";
 import { sendMailAlerts } from "./alerts";
@@ -68,6 +70,8 @@ export type MailDeps = {
   random?: () => number;
   /** For tests: how alert emails are sent. */
   alerts?: Partial<SendDeps>;
+  /** Speed to lead's database calls; null to leave it out (tests). */
+  plays?: PlayStore | null;
 };
 
 /** The real database, mail servers and model, or nulls without their keys. */
@@ -294,6 +298,8 @@ export type WriteStepResult = {
   read: number;
   followups: number;
   failed: number;
+  /** Speed-to-lead replies drafted. */
+  speed?: number;
 };
 
 export async function writeStep(
@@ -347,6 +353,19 @@ export async function writeStep(
     } catch (error) {
       console.error("[mail] write step failed:", (error as Error).message);
     }
+  }
+  // Speed to lead: new form and chat leads get their reply drafted (and,
+  // only when an owner chose it, approved) within a minute.
+  if (deps.plays !== null && within(started, now)) {
+    const speed = await speedToLeadStep({
+      store: deps.plays === undefined ? createPlayStore() : deps.plays,
+      client,
+      inTime: () => within(started, now),
+    }).catch((error) => {
+      console.error("[mail] speed to lead failed:", (error as Error).message);
+      return null;
+    });
+    if (speed) result.speed = speed.written;
   }
   // An interested reply queues an alert: send it now, not a minute later.
   await sendMailAlerts(store, deps.alerts);

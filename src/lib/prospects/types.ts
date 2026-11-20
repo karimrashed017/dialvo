@@ -19,6 +19,8 @@ export type ProspectSearch = Brief & {
   contact_titles: string[][];
   contact_query_for: string;
   contact_query_edited: boolean;
+  /** "campaign": a target-account, lookalike or signals list's own search. */
+  kind?: "search" | "campaign";
 };
 
 export type RunStatus =

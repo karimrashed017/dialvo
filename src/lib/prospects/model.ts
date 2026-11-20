@@ -337,7 +337,26 @@ const DRAFT_SCHEMA = {
 
 export async function draftFirstEmail(
   client: ModelClient,
-  input: { context: DraftContext; prospect: DraftProspect },
+  input: { context: DraftContext; prospect: DraftProspect; extra?: string },
+): Promise<
+  | { ok: true; subject: string; body: string; model: string; spend: Spend }
+  | { ok: false; reason: ModelFailure | DraftProblem; spend: Spend }
+> {
+  const user = draftUser(input.prospect);
+  return writeEmail(client, {
+    system: draftSystem(input.context),
+    user: input.extra ? `${user}\n${input.extra}` : user,
+  });
+}
+
+/**
+ * One email (a subject and a body) from a system prompt and a user message:
+ * the first email above, and the plays' emails (src/lib/plays/prompt.ts).
+ * The answer is checked by readDraft, exactly like a first email.
+ */
+export async function writeEmail(
+  client: ModelClient,
+  input: { system: Anthropic.TextBlockParam[]; user: string },
 ): Promise<
   | { ok: true; subject: string; body: string; model: string; spend: Spend }
   | { ok: false; reason: ModelFailure | DraftProblem; spend: Spend }
@@ -347,8 +366,8 @@ export async function draftFirstEmail(
     {
       model: PROSPECT_MODEL,
       max_tokens: DRAFT_MAX_TOKENS,
-      system: draftSystem(input.context),
-      messages: [{ role: "user", content: draftUser(input.prospect) }],
+      system: input.system,
+      messages: [{ role: "user", content: input.user }],
       output_config: json(DRAFT_SCHEMA),
     },
     MODEL_TIMEOUT_MS,

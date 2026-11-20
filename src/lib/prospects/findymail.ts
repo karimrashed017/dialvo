@@ -48,7 +48,7 @@ export type Failure = {
   /** For rate_limited: seconds to wait. */
   retryAfter?: number;
 };
-type Result<T> = { ok: true; value: T } | Failure;
+export type Result<T> = { ok: true; value: T } | Failure;
 
 export type Fetcher = (url: string, init: RequestInit) => Promise<Response>;
 
@@ -96,14 +96,14 @@ export function searchBody(config: ExportConfig) {
   };
 }
 
-export function createFindymailClient(
-  key: string | undefined = process.env.FINDYMAIL_API_KEY,
-  fetcher: Fetcher = fetch,
-): FindymailClient | null {
-  if (!key) return null;
-
-  async function call(
-    method: "GET" | "POST",
+/**
+ * One call to Findymail with the key: never throws for an HTTP or network
+ * problem, and logs only the method, path and status. Shared with the plays'
+ * endpoints (src/lib/plays/findymail.ts).
+ */
+export function findymailCaller(key: string, fetcher: Fetcher = fetch) {
+  return async function call(
+    method: "GET" | "POST" | "DELETE",
     path: string,
     body?: unknown,
   ): Promise<Result<unknown>> {
@@ -152,7 +152,16 @@ export function createFindymailClient(
     if (status === 422) return { ok: false, problem: "invalid" };
     if (status === 404) return { ok: false, problem: "not_found" };
     return { ok: false, problem: "unavailable" };
-  }
+  };
+}
+
+export function createFindymailClient(
+  key: string | undefined = process.env.FINDYMAIL_API_KEY,
+  fetcher: Fetcher = fetch,
+): FindymailClient | null {
+  if (!key) return null;
+
+  const call = findymailCaller(key, fetcher);
 
   const then = <T>(
     result: Result<unknown>,

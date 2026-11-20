@@ -19,6 +19,15 @@ import {
   type ModelClient,
 } from "./model";
 import { readSite, type FetchSource } from "./site";
+import {
+  advanceCampaignRun,
+  type CampaignDeps,
+} from "@/lib/plays/campaign-run";
+import { advancePlayDrafts } from "@/lib/plays/drafts";
+import { createPlaysFindymail } from "@/lib/plays/findymail";
+import { takeoutLines } from "@/lib/plays/prompt";
+import { createPlayStore, type PlayStore } from "@/lib/plays/store";
+import { readTakeout, type TakeoutInfo } from "@/lib/plays/takeout";
 import { createProspectStore, type ProspectStore } from "./store";
 import { NO_SPEND, type RunStatus } from "./types";
 
@@ -63,6 +72,15 @@ export type StepDeps = {
   fetchSource?: FetchSource;
   /** The contact database (Findymail), when its key is set. */
   contacts?: ContactDeps | null;
+  /** Target-account and lookalike runs (src/lib/plays/campaign-run.ts). */
+  campaigns?: CampaignDeps | null;
+  /** The plays' drafts (src/lib/plays), written after Find leads' own. */
+  plays?: PlayStore | null;
+  /** Which drafts are competitive takeout, and what was confirmed. */
+  takeout?: (
+    workspaceId: string,
+    draftIds: string[],
+  ) => Promise<Map<string, TakeoutInfo>>;
 };
 
 /** The real database and model, or nulls when their keys aren't set. */
@@ -73,7 +91,16 @@ export function defaultDeps(): StepDeps {
     store: createProspectStore(),
     client: new Anthropic(),
     contacts: defaultContactDeps(),
+    plays: createPlayStore(),
+    takeout: readTakeout,
+    campaigns: campaignDeps(),
   };
+}
+
+function campaignDeps(): CampaignDeps | null {
+  const store = createPlayStore();
+  const findymail = createPlaysFindymail();
+  return store && findymail ? { store, findymail } : null;
 }
 
 export type StepResult = {
@@ -90,6 +117,12 @@ export async function advanceRun(
   const { runId, workspaceId } = input;
   // A run that uses the contact database finds its companies there (see
   // contact-run.ts); from reading their sites on, it is like any other.
+  // A target-account or lookalike run looks its companies up first (see
+  // src/lib/plays/campaign-run.ts); then it is read like any other run.
+  if (deps.campaigns) {
+    const campaign = await advanceCampaignRun(input, deps.campaigns);
+    if (campaign) return campaign;
+  }
   if (deps.contacts) {
     const contact = await advanceContactRun(input, store, deps.contacts);
     if (contact) return contact;
@@ -233,18 +266,45 @@ export async function advanceDrafts(
     DRAFTS_PER_STEP,
   );
   if (!claim) return { status: "not_found", ...none };
-  if (claim.drafts.length === 0)
+  if (claim.drafts.length === 0) {
+    // Find leads' drafts are done for now: write the plays' next ones.
+    const plays = deps.plays
+      ? await advancePlayDrafts(input, { store: deps.plays, client })
+      : null;
+    if (
+      plays &&
+      plays.status !== "not_found" &&
+      (plays.written || plays.failed)
+    )
+      return { ...plays, remaining: plays.remaining + claim.remaining };
+    const remaining = claim.remaining + (plays?.remaining ?? 0);
     return {
-      status: claim.capped && claim.remaining > 0 ? "capped" : "ok",
+      status:
+        (claim.capped || plays?.status === "capped") && remaining > 0
+          ? "capped"
+          : "ok",
       ...none,
-      remaining: claim.remaining,
+      remaining,
     };
+  }
+  const takeout = deps.takeout
+    ? await deps
+        .takeout(
+          input.workspaceId,
+          claim.drafts.map((d) => d.draft_id),
+        )
+        .catch(() => new Map<string, TakeoutInfo>())
+    : new Map<string, TakeoutInfo>();
   const results = await Promise.all(
     claim.drafts.map(async ({ draft_id, prospect }) => {
       try {
+        const info = takeout.get(draft_id);
         const written = await draftFirstEmail(client, {
           context: claim.context,
           prospect,
+          extra: info
+            ? (takeoutLines(info.competitor, info.confirmed) ?? undefined)
+            : undefined,
         });
         await store.saveDraft(
           input.workspaceId,

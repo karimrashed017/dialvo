@@ -24,13 +24,17 @@ function rows<T>(result: {
 const PROSPECT_COLUMNS =
   "id, run_id, search_id, domain, company_name, website, research_status, skip_reason, summary, location, contact_name, contact_role, contact_source_url, email, email_source_url, email_kind, phone, phone_source_url, facts, pages, decision, lead_id, created_at, source, size_range, industries, country, match_score, contact_linkedin_url, email_verified";
 const DRAFT_COLUMNS =
-  "id, prospect_id, to_email, subject, body, status, discard_reason, edited, created_at, decided_at";
+  "id, prospect_id, lead_id, play, to_email, subject, body, status, discard_reason, edited, created_at, decided_at";
 
 export type DraftWithProspect = OutboundDraft & {
   prospect: Pick<
     Prospect,
     "id" | "company_name" | "website" | "contact_name" | "search_id"
   > | null;
+  /** A play's email to one of the workspace's own leads has a lead instead. */
+  lead_id?: string | null;
+  play?: string | null;
+  lead?: { id: string; name: string; company: string | null } | null;
 };
 
 export function prospectReads(supabase: Supabase, workspaceId: string) {
@@ -40,7 +44,7 @@ export function prospectReads(supabase: Supabase, workspaceId: string) {
       return rows<ProspectSearch>(
         await from("prospect_searches")
           .select(
-            "id, name, description, location, company_size, exclusions, created_at, updated_at, contact_query, contact_titles, contact_query_for, contact_query_edited",
+            "id, name, description, location, company_size, exclusions, created_at, updated_at, contact_query, contact_titles, contact_query_for, contact_query_edited, kind",
           )
           .eq("workspace_id", workspaceId)
           .order("created_at", { ascending: false })
@@ -85,7 +89,7 @@ export function prospectReads(supabase: Supabase, workspaceId: string) {
       return rows<DraftWithProspect>(
         await from("outbound_drafts")
           .select(
-            `${DRAFT_COLUMNS}, prospect:prospects(id, company_name, website, contact_name, search_id)`,
+            `${DRAFT_COLUMNS}, prospect:prospects(id, company_name, website, contact_name, search_id), lead:leads(id, name, company)`,
           )
           .eq("workspace_id", workspaceId)
           .order("created_at", { ascending: false })
