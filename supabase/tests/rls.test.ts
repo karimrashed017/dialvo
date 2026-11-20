@@ -59,6 +59,14 @@ async function seed(ws: string, owner: string, ids: Record<string, string>) {
   ids.form = await one(`select id from lead_forms where workspace_id = $1`, [
     ws,
   ]);
+  ids.widget = await one(
+    `insert into chat_widgets (workspace_id, name, created_by) values ($1, 'Website chat', $2) returning id`,
+    [ws, owner],
+  );
+  ids.draft = await one(
+    `insert into message_drafts (workspace_id, conversation_id, agent_id, body) values ($1, $2, $3, 'A draft reply') returning id`,
+    [ws, ids.conversation, ids.agent],
+  );
   ids.invitation = await one(
     `insert into invitations (workspace_id, email, invited_by) values ($1, $2, $3) returning id`,
     [ws, `invitee-${ws}@example.com`, owner],
@@ -181,6 +189,24 @@ const TABLES: {
       [B, alice],
     ],
     touch: "enabled = false",
+  },
+  {
+    table: "chat_widgets",
+    id: () => b.widget,
+    insert: () => [
+      `insert into chat_widgets (workspace_id, name, created_by) values ($1, 'Planted', $2)`,
+      [B, alice],
+    ],
+    touch: "enabled = false",
+  },
+  {
+    table: "message_drafts",
+    id: () => b.draft,
+    insert: () => [
+      `insert into message_drafts (workspace_id, conversation_id, body, status) values ($1, $2, 'Planted', 'discarded')`,
+      [B, b.conversation],
+    ],
+    touch: "status = 'approved'",
   },
   {
     table: "invitations",
@@ -834,12 +860,18 @@ describe("the anon role", () => {
     }
   });
 
-  it("cannot call anything but capture_lead", async () => {
+  it("cannot call anything but capture_lead and the visitor's side of the chat", async () => {
     for (const call of [
       `select create_workspace('x')`,
       `select * from my_invitations()`,
       `select accept_invitation(gen_random_uuid())`,
       `select private.is_workspace_member(gen_random_uuid())`,
+      `select private.chat_key_hash('x')`,
+      `select send_chat_reply(gen_random_uuid(), 'x')`,
+      `select approve_chat_draft(gen_random_uuid())`,
+      `select discard_chat_draft(gen_random_uuid())`,
+      `select chat_agent_context('x', gen_random_uuid())`,
+      `select chat_agent_commit('x', gen_random_uuid(), gen_random_uuid(), '{}'::jsonb)`,
     ])
       await expect(db.as({ role: "anon" }, call), call).rejects.toThrow(
         /permission denied/,
