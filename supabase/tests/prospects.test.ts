@@ -54,13 +54,13 @@ const claim = (
     o.lease ?? 90,
     o.steps ?? 60,
   ]);
-const addCandidates = (
+const addCandidates = async (
   run: string,
   ws: string,
   candidates: { domain: string; company_name?: string }[],
   o: { searches?: number; cost?: number; maxRounds?: number } = {},
-) =>
-  service<{ status: string; added: number } | null>(
+) => {
+  const result = await service<{ status: string; added: number } | null>(
     "prospect_run_add_candidates($1, $2, $3::jsonb, $4, 100, 50, $5, $6, 2)",
     [
       run,
@@ -71,6 +71,18 @@ const addCandidates = (
       o.maxRounds ?? 6,
     ],
   );
+  // The function keeps the listed order with clock_timestamp(), which has
+  // microseconds on a real server but only milliseconds on this in-memory
+  // one, so rows of one call can tie. Space them out here, in listed order.
+  await db.admin(
+    `update prospects p set created_at = p.created_at + x.n * interval '1 second'
+     from jsonb_array_elements($2::jsonb) with ordinality as x(c, n)
+     where p.run_id = $1 and p.domain = lower(x.c ->> 'domain')
+       and p.research_status = 'candidate'`,
+    [run, JSON.stringify(candidates)],
+  );
+  return result;
+};
 const saveResearch = (
   run: string,
   ws: string,

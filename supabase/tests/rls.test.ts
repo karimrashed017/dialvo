@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { migrationFiles, TestDb } from "./harness";
+import { MAIL_SECRET_TABLES, MAIL_TABLES } from "./mail-tables";
 import { OUTBOUND_TABLES } from "./outbound-tables";
 
 // The isolation rules, proved against the real migrations:
@@ -270,6 +271,7 @@ const ALL_TABLES = [
   "workspaces",
   "profiles",
   ...OUTBOUND_TABLES,
+  ...MAIL_TABLES,
 ];
 
 /** A write that must change nothing: refused outright, or zero rows. */
@@ -297,7 +299,9 @@ describe("the migrations", () => {
        join pg_namespace n on n.oid = c.relnamespace
        where n.nspname = 'public' and c.relkind = 'r'`,
     );
-    expect(rows.map((r) => r.relname).sort()).toEqual([...ALL_TABLES].sort());
+    expect(rows.map((r) => r.relname).sort()).toEqual(
+      [...ALL_TABLES, ...MAIL_SECRET_TABLES].sort(),
+    );
     for (const r of rows) expect(r.relrowsecurity, r.relname).toBe(true);
   });
 
