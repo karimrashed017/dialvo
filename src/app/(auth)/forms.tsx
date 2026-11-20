@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useActionState, useState } from "react";
 import { ArrowRight, Check, Eye, EyeOff } from "lucide-react";
-import { cn } from "@/lib/utils";
 import {
   continueWithGoogle,
   logIn,
