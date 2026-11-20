@@ -23,7 +23,13 @@ export type ChatTurn = {
 };
 
 export type ChatContext = {
-  workspace: { name: string; website: string | null };
+  workspace: {
+    name: string;
+    website: string | null;
+    /** The trial clock (see src/lib/billing/trial.ts). */
+    trial_ends_at?: string | null;
+    billing_status?: string | null;
+  };
   /** Null when the workspace has no switched-on inbound chat agent. */
   agent: AgentSettings | null;
   /** A person has this conversation: the agent stays silent. */
@@ -67,4 +73,33 @@ export interface ChatAgentStore {
     inReplyTo: string,
     result: AgentResult & { model: string },
   ): Promise<{ status: CommitStatus; handoff?: boolean } | null>;
+}
+
+/** What an agent's turn in a "Try your agent" chat concluded. */
+export type TestTurnMeta = {
+  outcome?: Outcome;
+  summary?: string;
+  handoff?: boolean;
+  stop_contact?: boolean;
+};
+
+/**
+ * The database for "Try your agent" (agent_test_begin, agent_test_commit).
+ * Faked in the unit tests.
+ */
+export interface TestChatStore {
+  /** Saves what the teammate typed; returns what the agent needs to answer. */
+  begin(input: {
+    workspaceId: string;
+    userId: string;
+    sessionId: string;
+    body: string;
+  }): Promise<ChatContext | null | "limited">;
+  commit(input: {
+    workspaceId: string;
+    userId: string;
+    sessionId: string;
+    inReplyTo: string;
+    result: AgentResult & { model: string };
+  }): Promise<{ status: "sent" | "silent" | "stale" } | null>;
 }

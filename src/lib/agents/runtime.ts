@@ -5,6 +5,7 @@ import {
   DAILY_REPLY_CAP,
   MODEL_TIMEOUT_MS,
 } from "./config";
+import { trialState } from "@/lib/billing/trial";
 import { asksToStop } from "./guard";
 import { generateReply, type ReplyFailure } from "./reply";
 import { createChatAgentStore } from "./store";
@@ -25,6 +26,8 @@ export type TurnStatus =
   | "no_conversation"
   /** The workspace's daily cap on agent replies is used up. */
   | "capped"
+  /** The trial is over and billing is enforced (BILLING_ENFORCED=1). */
+  | "trial_ended"
   | "failed";
 
 export type TurnResult = {
@@ -60,6 +63,8 @@ export async function runChatAgent(
     if (!context) return { status: "no_conversation" };
     if (!context.agent) return { status: "off" };
     if (context.paused) return { status: "paused" };
+    // Only ever true with BILLING_ENFORCED=1: see src/lib/billing/trial.ts.
+    if (trialState(context.workspace).locked) return { status: "trial_ended" };
     if (context.replies_today >= DAILY_REPLY_CAP) {
       console.warn("[agent] daily reply cap reached for a workspace");
       return { status: "capped" };
