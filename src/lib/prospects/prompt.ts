@@ -234,19 +234,31 @@ export function researchPrompt(input: {
 
 // --- 4. Write one first email ------------------------------------------------------
 
+/** With nothing specific to say, an email is kept this short. Wording only. */
+const EMAIL_SHORT_WORDS = 70;
+
 const DRAFT_RULES = `You write the first email from a business to a company it has never spoken to. A person on the team reads every draft and decides whether it is sent. Write something they would be comfortable putting their name to.
 
 ## What the email is
-Plain text, under ${EMAIL_TARGET_WORDS} words, in short paragraphs. It shows in one or two sentences that it was written for this company, says in one sentence what the business does that is relevant to them, and asks one clear, small thing (usually whether it would be worth a short conversation). Then it stops.
+Plain text, under ${EMAIL_TARGET_WORDS} words, in short paragraphs. Three moves, then it stops.
 
-The subject is short (under ${SUBJECT_MAX_CHARS} characters), plain and specific to them. No capital-letter words, no "Quick question", no "Re:".
+When the research has at least one <fact>:
+1. Open with one concrete observation about this company, taken from one <fact>. Pick the fact that has the most to do with what the business sells. State it plainly, the way you would mention it to a colleague ("You opened a second surgery in Headingley last year."). It must be something only this company's email could say.
+2. In one sentence, connect that observation to what the business does: why it is relevant to a company in exactly that situation. Say what the business does in plain words. Don't recite its price list or a list of services.
+3. End with one question that takes a few words to answer (for example who looks after this there, or whether it is something they are looking at this year). One question only, and not a request for a call or a meeting slot.
+
+When the research has no <fact> ("No specific facts were found on their site"), don't fake it. Don't dress up the "What they do" line, the company's name or its town as an observation. Write a shorter, plainer email instead, well under ${EMAIL_SHORT_WORDS} words: one sentence on what the business does for companies like theirs, and one low-effort question.
+
+The subject is short (under ${SUBJECT_MAX_CHARS} characters), plain and specific to them: when there is a fact, it points at that fact. No capital-letter words, no "Quick question", no "Re:".
 
 ## What must be true
-- Everything you say about the business comes from the Knowledge and the team's instructions below. Everything you say about the company you are writing to comes from the research about them. If you don't have a fact, don't write the sentence.
-- No invented facts, names, numbers, customers or events. Don't say "I saw", "I noticed" or "I came across" about anything that isn't in the research.
+- Everything you say about the business comes from the Knowledge and the team's instructions below. Everything you say about the company you are writing to comes from the research about them: the <fact> lines, and nothing else for the opening observation. If you don't have a fact, don't write the sentence.
+- An observation is a fact, not an opinion of it. No flattery and no verdicts: not "impressive", "great", "love what you're doing", "congratulations", and nothing that judges their website, their marketing or their business as good or bad.
+- No invented facts, names, numbers, customers or events. Don't say "I saw", "I noticed", "I came across", "I visited" or "I was looking at" about anything: the research was read from their website, so say what it says and no more. Never suggest you have been to their premises or used their service.
 - No claims about results: no percentages, multiples, "guaranteed", revenue or savings figures, or what other customers achieved, even if the Knowledge contains them.
-- No fake familiarity: don't pretend to know them, to have met, to be a customer or a fan, or to be following up on something. No flattery.
+- No fake familiarity: don't pretend to know them, to have met, to be a customer, a patient or a fan, or to be following up on something.
 - No pressure: no deadlines, no "last chance", no "just bumping this".
+- No filler openers: not "I hope this finds you well", not "My name is", not "I wanted to reach out".
 - Write to the named contact if there is one ("Hi Dana,"). Otherwise open with "Hello," and nothing else.
 - End with one short line that makes it easy to say no (for example that they can reply to say it isn't relevant and they won't hear again), then the sign-off you are given, exactly as given.
 - Plain text only: no HTML, no markdown, no links other than the business's own website if it helps, no images, no tracking of any kind, no placeholders like [Name].
@@ -315,7 +327,9 @@ export function draftUser(prospect: DraftProspect): string {
       : "Named contact: (none)",
     facts || "(No specific facts were found on their site.)",
     "</prospect>",
-    "Write the first email to this company.",
+    facts
+      ? "Write the first email to this company. Open with one of the facts above."
+      : "Write the first email to this company. There are no facts to open with, so keep it short and plain.",
   ]
     .filter(Boolean)
     .join("\n");
