@@ -12,6 +12,7 @@ import {
   playHref,
   PLAYS,
 } from "@/lib/content/catalog";
+import { APP_CONFIGURED } from "@/lib/supabase/env";
 import { cn } from "@/lib/utils";
 import { startHref } from "./links";
 import { useScrolled } from "./motion";
@@ -360,6 +361,18 @@ export function SiteNav() {
           </ul>
 
           <div className="flex items-center gap-2">
+            {/* Only once the app's database is connected. */}
+            {APP_CONFIGURED && (
+              <Link
+                href="/login"
+                className={cn(
+                  "hidden h-9 items-center rounded-full px-3 text-[14px] text-[#0B0B0C]/75 transition-colors hover:bg-black/[0.06] hover:text-[#0B0B0C] sm:inline-flex",
+                  ring,
+                )}
+              >
+                Log in
+              </Link>
+            )}
             <Link
               href="/#channels"
               className={cn(
@@ -481,6 +494,14 @@ export function SiteNav() {
             >
               See the product
             </Link>
+            {APP_CONFIGURED && (
+              <Link
+                href="/login"
+                className="mt-2 flex h-11 items-center justify-center rounded-xl text-[15px] text-[#0B0B0C]/75"
+              >
+                Log in
+              </Link>
+            )}
           </div>
         )}
       </nav>
