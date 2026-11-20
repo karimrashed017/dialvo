@@ -235,6 +235,16 @@ async function Content({ slug }: { slug: PlaySlug }) {
       {head}
       <div className="grid gap-3 lg:grid-cols-[1fr_320px]">
         <div className="min-w-0 space-y-3">
+          {!on && play.kinds.length > 0 && (
+            <p
+              role="status"
+              className="rounded-xl border border-black/15 bg-white px-4 py-2.5 text-[13px] leading-[1.5]"
+            >
+              Writing emails isn&apos;t switched on yet on Dialvo&apos;s side,
+              so nothing can be started or written here yet. The numbers below
+              are real.
+            </p>
+          )}
           {play.kinds.length > 0 && (
             <section aria-label="Numbers">
               <CountStrip counts={c} />
@@ -256,7 +266,7 @@ async function Content({ slug }: { slug: PlaySlug }) {
                       max={PLAY_DAYS_MAX}
                       required
                       defaultValue={PLAY_DEFAULT_DAYS[leadKind]}
-                      className={cn(input, "mt-1 max-w-[140px]")}
+                      className={cn(input, "mt-1 block max-w-[140px]")}
                     />
                   </label>
                 )}

@@ -1496,3 +1496,62 @@ Not tested, and why:
   on this machine.
 
 Test data left: none. The smoke test was rolled back.
+
+## Plays, sequences, analytics and the new Find leads tabs (21 Nov 2026)
+
+**Where things are.** Sidebar: Home, Plays, Find leads, Sequences, Inbox,
+Website chat, Calls, Leads, Analytics, Knowledge, Settings, and "All
+features" at the bottom (also linked from Settings). Find leads has tabs:
+Search, Target accounts (`/app/prospects/accounts`), Lookalike
+(`/app/prospects/lookalike`) and Signals (`/app/prospects/signals`). API
+keys are at `/app/settings/api`. The old redirects for `/app/sequences`,
+`/app/calls` and `/app/analytics` are gone.
+
+**How a play runs.** Plays on the workspace's own leads (reactivation,
+closed lost, nurture, onboarding, expansion, trial users) pick leads in the
+database (`play_start`, rules in the campaigns migration), events take an
+uploaded CSV (`event_import`), speed to lead picks new form and chat leads
+every minute in the mail scheduler's write job. Their emails are written by
+"Write emails" (the same `/api/prospects/drafts/advance` as Find leads,
+which now also writes play drafts) with the play's own prompt
+(`src/lib/plays/prompt.ts`: material in tags, no links but the website,
+booking link or event link, no result claims), wait in Find leads, Emails,
+and go out through the usual sending engine with its suppression, CRM skip,
+unsubscribe and sender rules. Onboarding, expansion, nurture and event
+emails start no follow-ups. Target accounts and lookalike are Find leads
+runs whose companies come from a list (`src/lib/plays/campaign-run.ts`).
+
+**Findymail, per action** (docs read 20 Nov 2026; estimates, reserved
+against `DAILY_CONTACT_CREDIT_CAP` before each call and given back when not
+spent): target account with a website 2 credits (`/api/search/employees`
+1 person + `/api/search/name` 1 when found), with only a name 3 (+
+`/api/search/company`); lookalike 1 per 10 companies (`/api/lookalike/search`);
+technology check 1 when detected, 0 when not (`/api/technologies`);
+keeping a signal 1 when an email is found (`/api/search/name`); each signal
+a monitor delivers 1 to 2, charged by Findymail whether or not it is pulled,
+so each monitor is capped at 100 lifetime matches.
+
+**Every new cap** is in `src/lib/plays/config.ts` with its cost note:
+50 leads per play start; repeat windows per play; 2,000 rows per event
+list; 200 target accounts; 3 lookalike seeds; 25 companies per run; 3
+signal monitors and 50 signals a day per workspace; 5 speed-to-lead leads
+per minute; 60 events a minute and 3 active keys per API key/workspace.
+Drafts and model spend reuse `DAILY_DRAFT_CAP` and `DAILY_SPEND_CAP_MICROS`.
+
+**The database** (applied to the live project 20 Nov 2026):
+`20261120183640_product_events`, `20261120184047_campaigns`,
+`20261120184225_campaign_sending`, `20261120185428_signals`,
+`20261120223945_plays`. The signals scheduler (`dialvo-signal-steps`, every
+15 minutes) calls `POST /api/prospects/signals/step` only when a monitor is
+due. Isolation and behaviour tests: `supabase/tests/plays.test.ts`.
+
+**What was tested.** `npm run check` (vitest, including PGlite tests of
+every new table and function, and unit tests with Findymail, the model and
+fetch faked) and `npm run build`. `scripts/e2e-plays.mjs` signed in as an
+existing test account against a local production build and opened every new
+page at 1440 and 390 px; screenshots were read by eye. **Not tested:** any
+real Findymail or model call, starting a play, writing or sending a play's
+email, the API key and events endpoint against the live database, and the
+signal scheduler: this machine has no `SUPABASE_SECRET_KEY`,
+`ANTHROPIC_API_KEY` or `FINDYMAIL_API_KEY`, so those buttons show "not
+switched on" here. Test data left: none.

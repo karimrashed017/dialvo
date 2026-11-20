@@ -102,9 +102,7 @@ async function Content() {
       .maybeSingle(),
     supabase
       .from("outbound_emails")
-      .select(
-        "thread_id, draft:outbound_drafts(play), prospect:prospects(search_id), thread:mail_threads(status, followups_sent, next_followup_at)",
-      )
+      .select("thread_id, draft_id, prospect_id")
       .eq("workspace_id", workspace.id)
       .eq("kind", "first")
       .eq("status", "sent")
@@ -117,6 +115,59 @@ async function Content() {
       .limit(200),
   ]);
   if (emails.error) throw new Error(emails.error.message);
+  // The email's draft, prospect and thread, read separately (outbound_emails
+  // has no foreign key to drafts to join on), as the signed-in person.
+  const first = (emails.data ?? []) as {
+    thread_id: string | null;
+    draft_id: string | null;
+    prospect_id: string | null;
+  }[];
+  const ids = (key: "thread_id" | "draft_id" | "prospect_id") => [
+    ...new Set(first.map((e) => e[key]).filter((v): v is string => !!v)),
+  ];
+  const [drafts, prospects, threads] = await Promise.all([
+    supabase
+      .from("outbound_drafts")
+      .select("id, play")
+      .eq("workspace_id", workspace.id)
+      .in("id", ids("draft_id").slice(0, 2000)),
+    supabase
+      .from("prospects")
+      .select("id, search_id")
+      .eq("workspace_id", workspace.id)
+      .in("id", ids("prospect_id").slice(0, 2000)),
+    supabase
+      .from("mail_threads")
+      .select("id, status, followups_sent, next_followup_at")
+      .eq("workspace_id", workspace.id)
+      .in("id", ids("thread_id").slice(0, 2000)),
+  ]);
+  for (const r of [drafts, prospects, threads])
+    if (r.error) throw new Error(r.error.message);
+  const draftPlay = new Map(
+    ((drafts.data ?? []) as { id: string; play: string | null }[]).map((d) => [
+      d.id,
+      d.play,
+    ]),
+  );
+  const prospectSearch = new Map(
+    ((prospects.data ?? []) as { id: string; search_id: string | null }[]).map(
+      (p) => [p.id, p.search_id],
+    ),
+  );
+  const threadById = new Map(
+    (
+      (threads.data ?? []) as (NonNullable<Row["thread"]> & { id: string })[]
+    ).map((t) => [t.id, t]),
+  );
+  const rowsOf: Row[] = first.map((e) => ({
+    thread_id: e.thread_id,
+    draft: e.draft_id ? { play: draftPlay.get(e.draft_id) ?? null } : null,
+    prospect: e.prospect_id
+      ? { search_id: prospectSearch.get(e.prospect_id) ?? null }
+      : null,
+    thread: e.thread_id ? (threadById.get(e.thread_id) ?? null) : null,
+  }));
   const count = settings.followups_enabled
     ? ((extra.data?.followup_count as number | undefined) ?? 2)
     : 0;
@@ -143,7 +194,7 @@ async function Content() {
       next: string | null;
     }
   >();
-  for (const r of (emails.data ?? []) as unknown as Row[]) {
+  for (const r of rowsOf) {
     const play = r.draft?.play ?? null;
     const search = r.prospect?.search_id ?? null;
     const key =

@@ -360,3 +360,23 @@ Where the app differs on purpose: Dialvo never edits a contact or company
 that was already in the CRM (it only adds notes, meetings and deals to it),
 and keeps nothing about the CRM's people but a one-way fingerprint of each
 email address and domain.
+
+## 15. Every play and platform feature in the app (21 Nov 2026)
+
+Every item of the site's Use cases and Platform menus now has a place in the
+app: **Plays** (`/app/plays`, each at `/app/plays/<slug>`) and **All
+features** (`/app/features`, grouped exactly like the Platform menu). Each
+carries one status, kept in `src/lib/plays/catalog.ts`, and the site's play
+and platform pages show the same status in one line ("Available in the app"
+or "Being built"). Details and what was tested: `docs/app-setup.md`, "Plays".
+
+| Status      | Plays                                                                                                                                                                      | Platform features                                                                                                                                                                        |
+| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Live        | Speed to lead, outbound lead generation, lead reactivation, closed lost, event registration, event follow-up, event no-show, customer expansion, PLG conversion            | Company and lead database, live web search, lead qualification, smart replies, analytics, deep research, AI personalisation, knowledge base, inbound lead qualification, CRM integration |
+| Partly live | Automated meeting scheduling (email replies only), customer onboarding (check-in emails only), lead nurture (email only), competitive takeout (needs the contact database) | Multi-channel sequences and sequence builder (email, up to two follow-ups), multilingual outreach, deliverability, playbooks, intelligent lead routing, API (product events only)        |
+| Being built | Retargeting website visitors (no visitor-identification provider)                                                                                                          | Website visitor tracking, consented outbound calling, call deliverability, AI phone agent (no phone provider), Slack integration, review-site intent                                     |
+
+Where the app differs on purpose: every play's email waits for a person's
+approval (speed to lead may send on its own only if an owner chooses it),
+plays to customers need their email consent or an earlier conversation,
+and nothing on a "being built" page shows data.
