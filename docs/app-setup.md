@@ -67,6 +67,9 @@ already applied, under the same versions as the file names:
 9. `20261120150000_find_leads_and_first_emails.sql` (slice 3a, Find leads:
    see the section at the end of this page.)
 
+10. `20261120230000_crm_sync.sql` and `20261120230100_crm_scheduler.sql`
+    (CRM sync: see "CRM sync" at the end of this page.)
+
 For another project: `npx supabase link --project-ref <ref>` then
 `npx supabase db push`, or paste each file into the SQL editor in that order.
 Never edit a migration that has been applied; add a new one. `npm test` runs
@@ -980,3 +983,214 @@ addresses and labels and checked for syntax, but not run. A workspace with
 nothing in it at all was not available: the brand-new Home, and the empty
 Leads and Knowledge pages, were looked at by forcing the lists empty
 locally. Safari and real phones were not tried.
+
+## CRM sync: HubSpot and Pipedrive (20 Nov 2026)
+
+**What it is.** Settings, CRM (`/app/settings/crm`, linked from Settings).
+An owner or admin connects one CRM per workspace by pasting a token. From
+then on Dialvo:
+
+- **Pushes** (queued, in the background): a new lead with an email address,
+  and a lead that is qualified, becomes a contact matched by email (an
+  existing contact is never changed, only linked) with its company matched
+  by domain on HubSpot, or by exact name on Pipedrive, and the two linked.
+  The CRM ids are kept per lead in `crm_lead_links`. A website chat that
+  gets an outcome (or ends without one), every email sent and every reply
+  received (out-of-office replies left out; read from `messages`, so it
+  works as soon as the sending branch writes there) become notes. A meeting
+  becomes a HubSpot meeting or a Pipedrive "meeting" activity, updated when
+  it changes. Do not contact or unsubscribed sets HubSpot's "unsubscribed
+  from all email" (if the key may) or Pipedrive's marketing status (only
+  with its Campaigns add-on); otherwise a note says it. Optionally, a deal
+  in a chosen pipeline and stage when a lead is qualified or a meeting is
+  booked (off by default). The full map is on the page ("What goes where",
+  from `src/lib/crm/mapping.ts`).
+- **Pulls** for protection: on connect and then every day, every contact
+  email and company domain in the CRM, stored only as a SHA-256 of the
+  lower-cased value (`crm_known_contacts`), with a flag for customers and
+  open deals (HubSpot lifecycle stage Opportunity, Customer or Evangelist;
+  Pipedrive open or won deals). Pipedrive has no company domain field, so
+  the domain of each work address and each organization's website are used.
+  Free mailboxes (gmail.com and the like) are never stored as a company.
+- **Skips** anyone known to the CRM: by default any contact, and any
+  address at a company the CRM has; with "Only customers and anyone with a
+  deal under way", only the flagged ones. Contacts and companies Dialvo
+  itself created in the CRM don't count, so Dialvo's own leads aren't
+  blocked by the import.
+
+**The one place the skip lives.** `private.outbound_is_suppressed()` (the
+never-contact check that Find leads, first-email drafting, approving and the
+sending branch's send steps all call) is replaced in
+`20261120230000_crm_sync.sql` with the same body plus
+`or private.crm_is_known(...)`. Other code can call
+`private.crm_is_known(workspace, email, domain)` in SQL, or
+`isKnownToCrm(workspaceId, { email, domain })` from `src/lib/crm/known.ts`
+on the server. A CRM-known draft is discarded with the reason "suppressed",
+the same as a never-contact entry.
+
+**Connecting.**
+
+- HubSpot: a **service key** (HubSpot, Development, Keys, Service keys;
+  Super Admin or Developer tools access). HubSpot stopped allowing new
+  legacy private apps on 26 Oct 2026; an existing private app's access token
+  works the same way. Scopes: `crm.objects.contacts.read`,
+  `crm.objects.contacts.write`, `crm.objects.companies.read`,
+  `crm.objects.companies.write`; optional `crm.objects.deals.read` and
+  `.write` (deals) and `communication_preferences.read_write` (opt-outs).
+  Dialvo asks HubSpot for the key's scopes (and names any missing one), then
+  reads one contact and one company to be sure.
+- Pipedrive: the personal API token (Personal preferences, API), sent in the
+  `x-api-token` header, never in an address. The company domain is optional:
+  without it Dialvo asks Pipedrive (`/api/v1/users/me`).
+- The token is checked with the CRM first, then stored in **Supabase Vault**
+  only (`crm_token:<workspace id>`) by `crm_connect` and read by
+  `crm_credentials`, both secret-key only. It is never returned to the
+  browser, logged, or put in a message (CRM error text is cleaned and any
+  copy of the token replaced). Disconnect deletes it, stops the queue and
+  forgets the imported list; what is already in the CRM stays there.
+- It needs `SUPABASE_SECRET_KEY` on the server; without it the page says
+  "CRM sync isn't switched on yet on Dialvo's side" and nothing can be
+  connected. No new environment variable.
+
+**How the work runs without the app open.** The same mechanism as the
+sending branch's mail steps: pg_cron runs `private.crm_cron_tick()` every
+minute (job `dialvo-crm-steps`), which calls the app with pg_net only when
+there is something to do: `POST /api/crm/step?job=push` when a job is due,
+`?job=pull` when an import is queued or a step died. The call carries the
+random token in Vault (`dialvo_cron_token`, shared with the mail
+scheduler), checked by `crm_cron_token_ok()` (secret key only). The address
+is the Vault entry `dialvo_app_url`. An import whose last run finished more
+than 24 hours ago is queued again by the tick (a failed one after an hour).
+"Sync now" on the page runs a push step for that workspace at once.
+
+Each step is short and safe to repeat: jobs are claimed with a 120-second
+lease (`crm_jobs_claim`, `for update skip locked`); a step that dies leaves
+the lease to run out. Each Dialvo event has one job (`source_key` is unique
+per workspace), so a note is never queued twice; notes, meetings, deals and
+opt-out notes carry a marker word, and a retry looks for it in the CRM
+before writing. 429s: a wait of up to 5 seconds is waited out (twice at
+most); a longer one puts the job, and the rest of that workspace's batch,
+back with the CRM's own delay (`Retry-After`, Pipedrive's
+`x-ratelimit-reset`, HubSpot's interval header). Server errors and timeouts
+retry with backoff (30 s doubling, up to 6 hours, plus jitter); after 6
+tries a job shows under "Couldn't be written" with the reason and a Retry
+button. A refused token puts the connection in "Needs a new token" and
+holds the queue until it is connected again.
+
+**Limits** (all in `src/lib/crm/config.ts`; changing any is a cost and
+rate-limit decision): 20 jobs a step, 6 tries, 120 ms between requests
+(250 ms between searches), 15 s per request, 45 s per step; imports read 10
+pages a step (1,000 HubSpot records or 5,000 Pipedrive records) and stop at
+**50,000** contacts and companies ("capped"; what was read stays on the
+list). For scale: HubSpot allows 100 requests per 10 s on Free and Starter,
+search 5 a second; Pipedrive 20 per 2 s on Lite, search 10 per 2 s, and a
+daily token budget (a list costs 20, a search 40).
+
+**API versions used.** HubSpot: `/crm/v3/objects/...`, the v4 default
+association call, `/crm/v3/pipelines/deals` and
+`/communication-preferences/v4/...`. HubSpot now also offers date-versioned
+paths (`/crm/objects/2026-03/...`) and ends support for its v4 paths on
+30 Mar 2027, so the association call must move before then. Pipedrive:
+v2 for persons, organizations, activities, deals, pipelines and stages; v1
+for notes, `users/me` and a person's activities.
+
+**Migrations.** `20261120230000_crm_sync.sql` (four tables:
+`crm_connections`, `crm_sync_jobs`, `crm_lead_links`, `crm_known_contacts`;
+the triggers on `leads`, `conversations`, `messages` and `meetings` that
+queue jobs, only for a workspace with an active connection; the functions)
+and `20261120230100_crm_scheduler.sql` (the token check, the tick and the
+cron job; installs pg_cron and pg_net if they aren't). Applied to
+`qpvdafpdjxvlqecpjrim` on 20 Nov, after the sending branch's mail
+migrations, and recorded under the file names' versions. Additive except
+the one replaced function above. They add three intended entries to the
+security advisor's list (`crm_disconnect`, `crm_retry_jobs`,
+`crm_pull_now`, callable by signed-in people; each checks the caller is an
+owner or admin of the workspace); everything else is secret-key only.
+
+**Manual checklist** (needs a real HubSpot or Pipedrive account and
+`SUPABASE_SECRET_KEY` in production; **none of this has been done: no real
+CRM has ever been connected**):
+
+- [ ] Connect HubSpot with a service key missing `crm.objects.companies.write`:
+      the message names it. Add it, connect: "Connected to HubSpot account N".
+- [ ] Within two minutes the page shows the import counting, then "N emails
+      and company domains". Compare N with the CRM's contact and company count.
+- [ ] Add a lead with an email in Dialvo: it appears as a contact with its
+      company within a minute or two. Add one whose email is already a
+      contact: the contact is unchanged, the lead gets linked.
+- [ ] Finish a test chat with a qualified outcome: one note on the contact.
+      Press Sync now twice: still one note.
+- [ ] Run Find leads for a description matching a company in the CRM: it
+      doesn't come back. Switch to "Only customers and anyone with a deal under
+      way" and check the difference.
+- [ ] Mark a lead do not contact: unsubscribed in HubSpot (or a note).
+- [ ] Switch deals on with a pipeline and stage, qualify a lead: one deal.
+- [ ] Revoke the key in HubSpot: the page says "Needs a new token"; connect a
+      new one and what was waiting is written.
+- [ ] Disconnect: the token is gone (no `crm_token:` entry in Vault), Find
+      leads no longer skips CRM contacts.
+- [ ] The same with Pipedrive, with and without the company domain typed.
+
+**What was tested for CRM sync on 20 Nov 2026, and what wasn't**
+
+Tested:
+
+- **Unit tests** (`npm test`, 556 in all; 89 for this feature: 55 in
+  `src/lib/crm` and the step route, 34 on the database), with `fetch` replaced by a pretend
+  CRM that records every request: connecting and verifying both CRMs
+  (missing scopes named, a refused token, Pipedrive's domain found from the
+  token), upsert by email and by domain or name, the association and its
+  type ids, a note written once and found again by its marker on a retry, a
+  meeting created then updated, deals in the chosen pipeline and stage,
+  opt-outs and their note fallback, 429 waits and `Retry-After`, backoff,
+  a refused token stopping the workspace, the import's paging, flags and
+  junk filtering, and the token never in a URL, a message, a stored error
+  or a log line.
+- **The migrations on an in-memory Postgres** (34 tests): one workspace
+  can't read or change another's connection, queue, links or list; members
+  can't change settings; nobody signed in can write the queue, links or
+  list or call the server's functions; the token is only in Vault and only
+  the secret key reads it; each trigger queues each event once; the lease,
+  retries, the attempt limit, Retry, the refused-token state; hashes only;
+  the skip rule both ways, Dialvo's own records not counting, and a Find
+  leads run leaving out a CRM company; the import's capped and complete
+  endings; the scheduler's due-work check and token; disconnecting. Also
+  every migration on all branches applied together (main, sending,
+  contact-data and these two).
+- **The real project**: both migrations applied; then, in one block that
+  was rolled back (nothing stayed), as the database owner: connect a test
+  workspace with a made-up token, the token in Vault and readable by
+  `crm_credentials`, a new lead queued, claimed, finished and linked, an
+  import saved, `crm_is_known` and the never-contact check true for the
+  imported address and domain and false for the workspace's own lead and
+  for another workspace. Checked afterwards: no CRM rows, no Vault entry,
+  no test lead. Both cron jobs active, the shared Vault token reused.
+- **In a browser, against the real project** (a production build running
+  locally with the publishable key only, as the first test account): the
+  Settings link, the CRM page's "not switched on" state, the HubSpot and
+  Pipedrive instructions, the connect button disabled, the token a password
+  field, no sideways scroll at 390 px; through the database's API as that
+  person: the four tables readable and empty, the token, the queue and
+  connecting refused, another workspace's CRM not disconnectable, the list
+  not writable. `/api/crm/step` answers 401 without the scheduler's token.
+
+Not tested, and why:
+
+- **Any real CRM.** No HubSpot or Pipedrive account was available. Every
+  request shape comes from the CRMs' documentation (read 20 Nov 2026), not
+  from a live answer. In particular unconfirmed: that HubSpot's token-info
+  endpoint answers for service keys (if not, Dialvo checks by reading and
+  can't tell in advance whether the key may create deals or unsubscribe);
+  the exact shape of Pipedrive's `users/me`, v2 list and search answers;
+  whether Pipedrive's v2 organization list returns `website`; how fast
+  HubSpot's search sees a just-created note (the marker check relies on it).
+- **The connected page in a browser** (status, counts, errors and Retry,
+  settings, the pipeline list, the mapping table): it needs a connection,
+  and making one on a test workspace would leave the scheduler calling the
+  site every minute and need rows deleted to undo.
+- **The scheduler calling the app**: `/api/crm/step` isn't deployed (nothing
+  was pushed to `main`), and with no connection the tick makes no call.
+- The server running a step end to end: there is no `SUPABASE_SECRET_KEY`
+  on this machine.
+
+Test data left: none. The smoke test was rolled back.

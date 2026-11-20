@@ -282,7 +282,7 @@ row of section 2 and part of section 3; the rest is still to build.
 | Audit trail                                              | **Partly.** Every message, draft decision, handoff and outcome is on the lead's timeline and the Today feed                                                                                                  |
 | Books a meeting, live transfer, reminders                | Not built (no calendar yet): the agent passes the chat to the team instead of promising a booking                                                                                                            |
 | Voice, email, social, SMS and WhatsApp agents; sequences | Not built. Replies on those channels are stored and marked "Saved, not delivered"                                                                                                                            |
-| Lead scoring, routing, CRM write-back, Slack alerts      | Not built                                                                                                                                                                                                    |
+| Lead scoring, routing, CRM write-back, Slack alerts      | CRM write-back **built for HubSpot and Pipedrive** (section 14). Scoring, routing and Slack not built                                                                                                        |
 
 Where the app differs on purpose: the chat widget carries no agent name or
 photo. Replies are labelled "Assistant" or "Team member", and the widget
@@ -311,3 +311,23 @@ contact is shown only when the company's own site presents that person as
 the one to talk to; private individuals' pages are skipped; and a company
 with no published address is still listed, marked "No email found", rather
 than given a guessed one.
+
+## 14. What CRM sync adds (20 Nov 2026)
+
+The benchmark lists two-way CRM sync with four CRMs. Dialvo now connects
+**HubSpot or Pipedrive**, one per workspace, by pasting a token (no
+marketplace app or OAuth sign-in yet). The details and what was tested are
+in `docs/app-setup.md`, "CRM sync".
+
+| Benchmark capability (our words)                     | In the app                                                                                                                                                                                                        |
+| ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Outcomes and notes written back to the CRM           | **Built, not yet tried against a real CRM.** New and qualified leads as contacts with their company; chat outcomes, emails sent and replies as notes; meetings; optionally a deal; queued, retried, never doubled |
+| Automatic opt-outs written to the CRM                | **Built.** HubSpot's unsubscribe-from-all-email where the key may, Pipedrive's marketing status where Campaigns exists, otherwise a note                                                                          |
+| Agents work from the CRM ("never re-contact")        | **Built.** The CRM's contact emails and company domains are imported daily as fingerprints; Find leads, drafting and sending skip anyone in the CRM (or only customers and open deals, a setting)                 |
+| Triggers from CRM events; read and write permissions | Not built. Dialvo doesn't react to changes made in the CRM, and doesn't read anything else from it                                                                                                                |
+| Salesforce and Zoho                                  | Not built                                                                                                                                                                                                         |
+
+Where the app differs on purpose: Dialvo never edits a contact or company
+that was already in the CRM (it only adds notes, meetings and deals to it),
+and keeps nothing about the CRM's people but a one-way fingerprint of each
+email address and domain.
