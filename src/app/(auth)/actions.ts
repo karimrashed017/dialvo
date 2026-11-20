@@ -8,7 +8,7 @@ import { cleanText, normalizeEmail } from "@/lib/leads/fields";
 import { APP_CONFIGURED } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 
-// Sign-up, log-in, magic link and password reset. Each answers with a
+// Sign-up, log-in, Google and password reset. Each answers with a
 // message for the form; a successful log-in redirects instead.
 
 export type AuthState = {
@@ -98,53 +98,6 @@ export async function logIn(_: AuthState, form: FormData): Promise<AuthState> {
     return { ok: false, email, message: TRY_LATER };
   }
   redirect(safeNextPath(String(form.get("next") ?? "")));
-}
-
-export async function sendMagicLink(
-  _: AuthState,
-  form: FormData,
-): Promise<AuthState> {
-  if (!APP_CONFIGURED) return NOT_READY;
-  const email = normalizeEmail(form.get("email"));
-  if (!email)
-    return {
-      ok: false,
-      field: "email",
-      message: "Enter your email address.",
-      email: cleanText(form.get("email"), 254),
-    };
-  const supabase = await createClient();
-  const next = safeNextPath(String(form.get("next") ?? ""));
-  const { error } = await supabase.auth.signInWithOtp({
-    email,
-    options: {
-      // A link logs in an existing account; it never creates one.
-      shouldCreateUser: false,
-      emailRedirectTo: confirmUrl(await requestOrigin(), next),
-    },
-  });
-  if (error?.status === 429)
-    return {
-      ok: false,
-      email,
-      message: "Too many emails requested. Wait a minute and try again.",
-    };
-  if (
-    error &&
-    error.code !== "otp_disabled" &&
-    error.code !== "user_not_found" &&
-    error.status !== 400 &&
-    error.status !== 422
-  ) {
-    console.error("[auth] magic link:", error.code, error.message);
-    return { ok: false, email, message: TRY_LATER };
-  }
-  // The same answer whether or not the address has an account.
-  return {
-    ok: true,
-    email,
-    message: `If ${email} has a Dialvo account, a log-in link is on its way. It works once, for an hour.`,
-  };
 }
 
 export async function signUp(_: AuthState, form: FormData): Promise<AuthState> {

@@ -198,7 +198,6 @@ Sign-up and log-in
       must not say the address is taken).
 - [ ] `/logout` (user menu), then `/login` with a wrong password: "That email
       and password don't match." With the right one: lands in the app.
-- [ ] `/login`, "Email me a link": the email arrives and its link logs in.
 - [ ] `/forgot-password`: the email arrives; the link lands on
       `/reset-password`; a new password works, the old one doesn't.
 - [ ] Logged out, open `/app/leads?status=new`: redirected to `/login`, and
@@ -324,7 +323,7 @@ self-promotion, no plan change, and anon refused everywhere.
 
 Not tested, and why:
 
-- **Sign-up, email confirmation, the magic link and password reset end to
+- **Sign-up, email confirmation and password reset end to
   end.** Supabase's built-in sender hit its rate limit, so no auth email
   could be sent. The two test accounts were created directly in the
   database instead. The forms, their error messages and `/auth/confirm` are

@@ -9,7 +9,6 @@ import {
   continueWithGoogle,
   logIn,
   requestPasswordReset,
-  sendMagicLink,
   setNewPassword,
   signUp,
   type AuthState,
@@ -148,57 +147,17 @@ export function LoginForm({ google = false }: { google?: boolean }) {
   const params = useSearchParams();
   const next = params.get("next") ?? "";
   const linkError = LINK_ERRORS[params.get("error") ?? ""];
-  const [mode, setMode] = useState<"password" | "link">("password");
-  const [password, passwordAction, passwordPending] = useActionState(
-    logIn,
-    start,
-  );
-  const [magic, magicAction, magicPending] = useActionState(
-    sendMagicLink,
-    start,
-  );
-  const state = mode === "password" ? password : magic;
-
-  if (mode === "link" && magic.ok && magic.message)
-    return <Sent message={magic.message} />;
+  const [state, action, pending] = useActionState(logIn, start);
 
   return (
     <>
       <GoogleFirst next={next} show={google} />
-      <div
-        role="tablist"
-        aria-label="How to log in"
-        className="mb-5 grid grid-cols-2 rounded-full bg-black/[0.05] p-1 text-[13.5px] font-medium"
-      >
-        {(
-          [
-            ["password", "Password"],
-            ["link", "Email me a link"],
-          ] as const
-        ).map(([id, text]) => (
-          <button
-            key={id}
-            type="button"
-            role="tab"
-            aria-selected={mode === id}
-            onClick={() => setMode(id)}
-            className={cn(
-              "h-9 rounded-full transition",
-              mode === id
-                ? "bg-white shadow-[0_1px_2px_rgba(0,0,0,0.12)]"
-                : "text-[#0B0B0C]/55 hover:text-[#0B0B0C]",
-            )}
-          >
-            {text}
-          </button>
-        ))}
-      </div>
       {linkError && !state.message && (
         <p role="alert" className="mb-4 text-[14px] text-[#B42318]">
           {linkError}
         </p>
       )}
-      <form action={mode === "password" ? passwordAction : magicAction}>
+      <form action={action}>
         <input type="hidden" name="next" value={next} />
         <label className={label}>
           Email
@@ -213,32 +172,23 @@ export function LoginForm({ google = false }: { google?: boolean }) {
             className={field}
           />
         </label>
-        {mode === "password" && (
-          <label className={`${label} mt-4`}>
-            <span className="flex items-baseline justify-between">
-              Password
-              <Link
-                href="/forgot-password"
-                className="text-[12.5px] font-normal text-[#0B0B0C]/55 hover:text-[#0B0B0C]"
-              >
-                Forgot it?
-              </Link>
-            </span>
-            <PasswordInput
-              autoComplete="current-password"
-              aria-invalid={state.field === "password"}
-            />
-          </label>
-        )}
-        {mode === "link" && (
-          <p className="mt-3 text-[13px] leading-[1.5] text-[#0B0B0C]/55">
-            We&apos;ll email a link that logs you in. No password needed.
-          </p>
-        )}
+        <label className={`${label} mt-4`}>
+          <span className="flex items-baseline justify-between">
+            Password
+            <Link
+              href="/forgot-password"
+              className="text-[12.5px] font-normal text-[#0B0B0C]/55 hover:text-[#0B0B0C]"
+            >
+              Forgot it?
+            </Link>
+          </span>
+          <PasswordInput
+            autoComplete="current-password"
+            aria-invalid={state.field === "password"}
+          />
+        </label>
         <Problem state={state} />
-        <Submit pending={passwordPending || magicPending}>
-          {mode === "password" ? "Log in" : "Email me a link"}
-        </Submit>
+        <Submit pending={pending}>Log in</Submit>
       </form>
     </>
   );
