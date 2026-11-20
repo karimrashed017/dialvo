@@ -7,7 +7,7 @@ import { muted, serif } from "./theme";
 /** The pricing section: on the home page's last stretch, and /pricing. */
 export function PricingSection({
   as = "h2",
-  title = "Free until it books your first meeting.",
+  title = "Free for 7 days.",
 }: {
   as?: "h1" | "h2";
   title?: string;
@@ -28,10 +28,9 @@ export function PricingSection({
         />
         <Rise delay={0.2}>
           <p className={`mt-5 text-[17px] leading-[1.55] ${muted}`}>
-            You pay nothing until an agent books your first meeting (the trial
-            covers up to {TRIAL.calls} AI calls, with no card needed to start).
-            Then ${PLANS.starter.price}, ${PLANS.pro.price} or $
-            {PLANS.scale.price} a month. No contract, cancel anytime.
+            Try Dialvo free for {TRIAL.days} days. Then ${PLANS.starter.price},
+            ${PLANS.pro.price} or ${PLANS.scale.price} a month. No contract,
+            cancel anytime.
           </p>
         </Rise>
       </div>

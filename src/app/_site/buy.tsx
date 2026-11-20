@@ -50,7 +50,7 @@ export function StickyBuy() {
             Dialvo · from ${PLANS.starter.price} a month
           </p>
           <p className="truncate text-[12.5px] text-[#0B0B0C]/55">
-            Free until your first booked meeting
+            Free for 7 days
           </p>
         </div>
         <a

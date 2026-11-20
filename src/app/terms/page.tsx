@@ -23,9 +23,8 @@ export default function Terms() {
       </p>
       <h2>Free trial and plans</h2>
       <p>
-        The free trial lasts until your first booked meeting, for up to{" "}
-        {TRIAL.calls} AI calls, and needs no card to start. After that, plans
-        are ${PLANS.starter.price} (Starter), ${PLANS.pro.price} (Pro) or $
+        The free trial lasts {TRIAL.days} days. After that, plans are $
+        {PLANS.starter.price} (Starter), ${PLANS.pro.price} (Pro) or $
         {PLANS.scale.price} (Scale) a month, billed monthly, with no contract.
         You can cancel anytime.
       </p>

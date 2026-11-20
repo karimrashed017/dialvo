@@ -15,8 +15,8 @@ export const DESCRIPTION =
 /** Where every "Start free" button leads: creating an account. */
 export const START_HREF = "/signup";
 
-/** The free trial: it ends at the first booked meeting. */
-export const TRIAL = { calls: 300 } as const;
+/** The free trial: a plain 7 days (founder, 20 Nov 2026). */
+export const TRIAL = { days: 7 } as const;
 
 export const PLANS = {
   starter: {

@@ -17,7 +17,7 @@ export const viewport = siteViewport;
 
 export const metadata: Metadata = pageMetadata({
   title: "Pricing · Dialvo, inbound and outbound sales run by AI agents",
-  description: `Dialvo is free until it books your first meeting. Then Starter at $${PLANS.starter.price} a month (voice, email and SMS agents for inbound leads), Pro at $${PLANS.pro.price} a month (inbound, outbound, closing and expansion on every channel, with human dialer seats and CRM sync) or Scale at $${PLANS.scale.price} a month (several workspaces and much higher limits). Cancel anytime.`,
+  description: `Dialvo is free for ${TRIAL.days} days. Then Starter at $${PLANS.starter.price} a month (voice, email and SMS agents for inbound leads), Pro at $${PLANS.pro.price} a month (inbound, outbound, closing and expansion on every channel, with human dialer seats and CRM sync) or Scale at $${PLANS.scale.price} a month (several workspaces and much higher limits). Cancel anytime.`,
   path: "/pricing",
 });
 
@@ -185,11 +185,11 @@ export default function Pricing() {
               </table>
             </Rise>
             <p className="mt-6 max-w-[760px] text-[13.5px] leading-[1.55] text-[#0B0B0C]/55">
-              The free trial covers up to {TRIAL.calls} AI calls and ends at
-              your first booked meeting. Add-ons on any plan: extra AI calls,
-              lead credits, sending inboxes and dialer seats. Need more than
-              Scale? Email us and we&apos;ll put a plan together. Channels are
-              switched on in stages: ask us what&apos;s ready for your use case.
+              The free trial lasts {TRIAL.days} days. Add-ons on any plan: extra
+              AI calls, lead credits, sending inboxes and dialer seats. Need
+              more than Scale? Email us and we&apos;ll put a plan together.
+              Channels are switched on in stages: ask us what&apos;s ready for
+              your use case.
             </p>
           </div>
         </section>

@@ -56,10 +56,10 @@ export const FAQS: Record<string, Faq[]> = {
   "Plans and trial": [
     {
       q: "How does the free trial work?",
-      a: `It's free until an agent books your first meeting. The trial covers up to ${TRIAL.calls} AI calls and needs no card to start.`,
+      a: `You get Dialvo free for ${TRIAL.days} days. Cancel before the trial ends and you pay nothing.`,
     },
     {
-      q: "What happens after the first booked meeting?",
+      q: "What happens after the trial?",
       a: `You pick a plan: Starter at $${PLANS.starter.price} a month (the voice agent for inbound leads, the email agent and SMS follow-up, with ${fmt(PLANS.starter.calls)} AI calls), Pro at $${PLANS.pro.price} a month (every channel, outbound, the AI closer for simple sales, human dialer seats, CRM sync and premium voices, with ${fmt(PLANS.pro.calls)} AI calls) or Scale at $${PLANS.scale.price} a month (${PLANS.scale.workspaces} workspaces for separate clients or brands, with ${fmt(PLANS.scale.calls)} AI calls). If you'd rather not, you can stop there and pay nothing.`,
     },
     {

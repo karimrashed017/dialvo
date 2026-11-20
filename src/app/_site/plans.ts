@@ -19,7 +19,7 @@ export type Plan = {
   featured?: boolean;
 };
 
-const NOTE = "Free until your first booked meeting. Cancel anytime.";
+const NOTE = "7-day free trial. Cancel anytime.";
 
 export const PLAN_CARDS: Plan[] = [
   {

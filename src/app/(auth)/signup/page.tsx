@@ -20,8 +20,8 @@ export default async function Signup() {
       title="Create your account"
       intro="Set up your workspace in a couple of minutes."
       points={[
-        "Free until an agent books your first meeting",
-        "No card needed to start",
+        "Free for 7 days",
+        "Live on your site in minutes",
         "Agents stay off until you switch them on",
       ]}
       footer={

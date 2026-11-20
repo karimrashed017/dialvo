@@ -74,7 +74,7 @@ export function Hero() {
             />
           </div>
           <p className="mt-5 text-[14.5px] text-[#0B0B0C]/75">
-            Free until it books your first meeting.
+            Free for 7 days.
           </p>
           <a
             href="/pricing"

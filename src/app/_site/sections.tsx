@@ -690,8 +690,8 @@ export function FinalCall() {
         />
         <Rise delay={0.3}>
           <p className="mx-auto mt-6 max-w-[520px] text-[17px] leading-[1.55] text-[#0B0B0C]/75 sm:text-[18px]">
-            Create your account in a couple of minutes. It costs nothing until
-            Dialvo books your first meeting.
+            Create your account in a couple of minutes and try Dialvo free for 7
+            days.
           </p>
         </Rise>
         <Rise
