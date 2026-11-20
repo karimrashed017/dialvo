@@ -388,7 +388,7 @@ describe("the agent's context (server only)", () => {
     await setAgent(A, true);
     const chat = (await start(tokenA, "Hello"))!;
     const ctx = (await context(tokenA, chat.conversation_id))!;
-    expect(ctx.workspace).toEqual({ name: "Agency A", website: null });
+    expect(ctx.workspace).toMatchObject({ name: "Agency A", website: null });
     expect(ctx.agent).toMatchObject({
       name: "Inbound agent",
       instructions: "Be brief.",

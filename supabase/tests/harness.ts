@@ -55,17 +55,26 @@ export type Role = "anon" | "authenticated" | "service_role";
 export class TestDb {
   private constructor(readonly pg: PGlite) {}
 
-  static async create(): Promise<TestDb> {
+  /**
+   * Every migration applied, or with `before`, only the ones that sort
+   * before that file name: for setting a scene as it was, then applying the
+   * rest with migrate() to prove what a migration does to existing rows.
+   */
+  static async create(options: { before?: string } = {}): Promise<TestDb> {
     const pg = new PGlite();
     await pg.exec(SUPABASE_SETUP);
-    for (const file of migrationFiles()) {
-      try {
-        await pg.exec(readFileSync(MIGRATIONS + file, "utf8"));
-      } catch (error) {
-        throw new Error(`${file}: ${(error as Error).message}`);
-      }
+    const db = new TestDb(pg);
+    for (const file of migrationFiles())
+      if (!options.before || file < options.before) await db.migrate(file);
+    return db;
+  }
+
+  async migrate(file: string) {
+    try {
+      await this.pg.exec(readFileSync(MIGRATIONS + file, "utf8"));
+    } catch (error) {
+      throw new Error(`${file}: ${(error as Error).message}`);
     }
-    return new TestDb(pg);
   }
 
   /** As the database owner: no RLS. For setting a scene and checking it. */

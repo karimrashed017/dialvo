@@ -67,6 +67,14 @@ async function seed(ws: string, owner: string, ids: Record<string, string>) {
     `insert into message_drafts (workspace_id, conversation_id, agent_id, body) values ($1, $2, $3, 'A draft reply') returning id`,
     [ws, ids.conversation, ids.agent],
   );
+  ids.testMessage = await one(
+    `insert into agent_test_messages (workspace_id, user_id, session_id, author, body) values ($1, $2, gen_random_uuid(), 'user', 'A private test question') returning id`,
+    [ws, owner],
+  );
+  ids.alert = await one(
+    `insert into team_alerts (workspace_id, conversation_id, kind, summary) values ($1, $2, 'needs_human', 'A private summary') returning id`,
+    [ws, ids.conversation],
+  );
   ids.invitation = await one(
     `insert into invitations (workspace_id, email, invited_by) values ($1, $2, $3) returning id`,
     [ws, `invitee-${ws}@example.com`, owner],
@@ -207,6 +215,34 @@ const TABLES: {
       [B, b.conversation],
     ],
     touch: "status = 'approved'",
+  },
+  {
+    // One row per workspace, made with it: "inserting" means taking it over.
+    table: "workspace_setup",
+    id: () => "",
+    insert: () => [
+      `insert into workspace_setup (workspace_id) values ($1) on conflict (workspace_id) do update set dismissed_at = now()`,
+      [B],
+    ],
+    touch: "dismissed_at = now()",
+  },
+  {
+    table: "agent_test_messages",
+    id: () => b.testMessage,
+    insert: () => [
+      `insert into agent_test_messages (workspace_id, user_id, session_id, author, body) values ($1, $2, gen_random_uuid(), 'agent', 'Planted')`,
+      [B, bob],
+    ],
+    touch: "body = 'changed'",
+  },
+  {
+    table: "team_alerts",
+    id: () => b.alert,
+    insert: () => [
+      `insert into team_alerts (workspace_id, conversation_id, kind) values ($1, $2, 'qualified')`,
+      [B, b.conversation],
+    ],
+    touch: "status = 'sent'",
   },
   {
     table: "invitations",
