@@ -313,10 +313,55 @@ export type FetchedPage = {
   truncated: boolean;
 };
 
+/** A link found on a page: where it goes and the words on it. */
+export type PageLink = { url: string; text: string };
+
+/** The most links kept from one page. */
+const MAX_LINKS = 400;
+
+/**
+ * The https links on a page, made absolute. Read from the whole page, menus
+ * and footer included, because that is where a site lists its main pages.
+ */
+export function pageLinks(html: string, base: string): PageLink[] {
+  const found = new Map<string, string>();
+  const anchor =
+    /<a\b[^>]*?\bhref\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))[^>]*>([\s\S]*?)<\/a\s*>/gi;
+  for (const match of html.matchAll(anchor)) {
+    if (found.size >= MAX_LINKS) break;
+    const href = decodeEntities(match[1] ?? match[2] ?? match[3] ?? "").trim();
+    if (!href || /^(#|mailto:|tel:|javascript:|data:)/i.test(href)) continue;
+    let url: URL;
+    try {
+      url = new URL(href, base);
+    } catch {
+      continue;
+    }
+    if (url.protocol !== "https:") continue;
+    url.hash = "";
+    const key = url.toString();
+    if (found.has(key)) continue;
+    const text = decodeEntities(match[4].replace(/<[^>]*>/g, " "))
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 120);
+    found.set(key, text);
+  }
+  return [...found].map(([url, text]) => ({ url, text }));
+}
+
 export async function fetchPage(
   raw: string,
   deps: PageDeps = DEFAULT_DEPS,
 ): Promise<FetchedPage> {
+  return (await fetchPageWithLinks(raw, deps)).page;
+}
+
+/** Like fetchPage, and also returns the links the page carries. */
+export async function fetchPageWithLinks(
+  raw: string,
+  deps: PageDeps = DEFAULT_DEPS,
+): Promise<{ page: FetchedPage; links: PageLink[] }> {
   let url = parsePageUrl(raw);
   const deadline = AbortSignal.timeout(PAGE_TIMEOUT_MS);
   for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
@@ -366,10 +411,13 @@ export async function fetchPage(
       : { title: "", text: decoded.replace(/\r\n?/g, "\n").trim() };
     if (page.text.length < 40) throw new PageFetchError("no_text");
     return {
-      url: url.toString(),
-      title: page.title,
-      text: page.text.slice(0, MAX_PAGE_TEXT),
-      truncated: page.text.length > MAX_PAGE_TEXT,
+      page: {
+        url: url.toString(),
+        title: page.title,
+        text: page.text.slice(0, MAX_PAGE_TEXT),
+        truncated: page.text.length > MAX_PAGE_TEXT,
+      },
+      links: html ? pageLinks(decoded, url.toString()) : [],
     };
   }
   throw new PageFetchError("too_many_redirects");
