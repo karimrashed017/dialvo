@@ -638,11 +638,11 @@ export function Compliance() {
       <Rise delay={0.15}>
         <Shield />
       </Rise>
-      <div className="mx-auto mt-14 grid max-w-[1180px] gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mx-auto mt-14 grid max-w-[1180px] gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {RULES.map((s, i) => (
           <Rise
             key={s.title}
-            delay={(i % 4) * 0.08}
+            delay={(i % 3) * 0.08}
             className="group rounded-[22px] border border-black/[0.08] bg-white/80 p-6 shadow-[0_12px_32px_-18px_rgba(60,45,30,0.18)] backdrop-blur-md transition-colors duration-300 hover:border-black/15 hover:bg-white"
           >
             <span className="grid size-10 place-items-center rounded-xl border border-black/12 bg-black/[0.05] transition-transform duration-300 group-hover:scale-105">
@@ -654,18 +654,6 @@ export function Compliance() {
             </p>
           </Rise>
         ))}
-        {/* The last two cells: what Dialvo doesn't claim. */}
-        <Rise
-          delay={0.16}
-          className="flex items-center rounded-[22px] border border-dashed border-black/20 p-6 sm:col-span-2"
-        >
-          <p className="text-[13.5px] leading-[1.55] text-[#0B0B0C]/60">
-            Dialvo holds no certifications yet and doesn&apos;t claim any. The
-            rules for calls, texts and email differ by country and state, and
-            who you contact is up to you. If in doubt, check with a lawyer where
-            you sell.
-          </p>
-        </Rise>
       </div>
     </section>
   );

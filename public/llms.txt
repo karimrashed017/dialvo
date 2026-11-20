@@ -98,8 +98,7 @@ You can listen to every call, read every message, require approval before anythi
 
 ## Trust and compliance
 
-AI voice agents call people who asked to hear from you or opted in; Dialvo's AI does not cold call. Calls are recorded and transcribed, and the person is told. Opt-outs and Do Not Call lists are honoured automatically, and every email has an unsubscribe link. SMS and WhatsApp go only to people who agreed. Payments go through a secure link; card numbers are never asked for or read out over a call. Dialvo does not claim any certifications.
-
+AI voice agents call people who asked to hear from you or opted in; Dialvo's AI does not cold call. Calls are recorded and transcribed, and the person is told. Opt-outs and Do Not Call lists are honoured automatically, and every email has an unsubscribe link. SMS and WhatsApp go only to people who agreed. Payments go through a secure link; card numbers are never asked for or read out over a call.
 ## Pricing
 
 - Free trial: free until Dialvo books your first meeting, up to 300 AI calls, card required.

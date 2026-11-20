@@ -50,7 +50,7 @@ export const FAQS: Record<string, Faq[]> = {
     },
     {
       q: "Is it legal where I sell?",
-      a: "The rules for calls, texts and email differ by country and state, and you're responsible for who you ask Dialvo to contact. Dialvo's defaults are built around consent, recording notice and opt-outs, but it holds no certifications and isn't legal advice. If you're unsure, check with a lawyer where you sell.",
+      a: "The rules for calls, texts and email differ by country and state, and you're responsible for who you ask Dialvo to contact. Dialvo's defaults are built around consent, recording notice and opt-outs, but they aren't legal advice. If you're unsure, check with a lawyer where you sell.",
     },
   ],
   "Plans and trial": [

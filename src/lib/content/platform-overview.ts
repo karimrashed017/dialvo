@@ -83,9 +83,5 @@ export const PLATFORM_PAGE = {
       q: "Is everything available today?",
       a: "Not all of it yet. The website chat agent is live today, and the other channels and integrations are being switched on in stages. Write to us and we'll tell you plainly what's ready.",
     },
-    {
-      q: "Does Dialvo hold any security certifications?",
-      a: "Not yet, and it doesn't claim any. Ask us anything about how data is handled and we'll answer plainly.",
-    },
   ] satisfies Faq[],
 };
