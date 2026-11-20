@@ -163,6 +163,10 @@ export type ResearchResult =
 export type SkipReason =
   | "not_a_business"
   | "not_a_match"
+  /** Sells the same kind of thing as the workspace: a rival, not a buyer. */
+  | "competitor"
+  /** Far bigger than the kind of company the search is for. */
+  | "too_large"
   | "no_website"
   /** The site's robots.txt asks DialvoBot (or every robot) not to read it. */
   | "robots_disallowed"

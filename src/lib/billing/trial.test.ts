@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { billingEnforced, trialBanner, trialState } from "./trial";
+import { billingEnforced, planLine, trialBanner, trialState } from "./trial";
 
 const NOW = new Date("2026-11-20T12:00:00Z");
 const inDays = (d: number) =>
@@ -108,5 +108,28 @@ describe("trialBanner", () => {
 
   it("shows nothing once a plan is active", () => {
     expect(banner(-10, true, "active")).toBeNull();
+  });
+});
+
+describe("planLine", () => {
+  const line = (d: number, billing_status = "trialing") =>
+    planLine(
+      trialState({ trial_ends_at: inDays(d), billing_status }, NOW, false),
+      "Starter",
+    );
+
+  it("says a trial is a trial, not a plan", () => {
+    expect(line(6)).toBe("Free trial · 6 days left");
+    expect(line(0.5)).toBe("Free trial · 1 day left");
+  });
+
+  it("names the plan only once it is paid for", () => {
+    expect(line(3, "active")).toBe("Starter plan");
+    expect(line(-20, "active")).toBe("Starter plan");
+  });
+
+  it("says when the trial is over", () => {
+    expect(line(-1)).toBe("Free trial ended");
+    expect(line(3, "canceled")).toBe("Free trial ended");
   });
 });

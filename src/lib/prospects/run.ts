@@ -112,6 +112,9 @@ export async function advanceRun(
     if (claim.usage.cost_micros >= DAILY_SPEND_CAP_MICROS)
       return await end("stopped", "daily_limit");
 
+    // Whose customers this is a search for: so rivals can be told from buyers.
+    const sells = await store.sells(workspaceId).catch(() => "");
+
     if (claim.status === "searching") {
       const searchesLeft = DAILY_SEARCH_CAP - claim.usage.searches;
       if (searchesLeft <= 0) {
@@ -128,6 +131,7 @@ export async function advanceRun(
       }
       const found = await findCompanies(client, {
         brief: claim.run.brief,
+        sells,
         known: claim.known,
         wanted: claim.run.target_count - claim.run.found,
         searches: Math.min(SEARCHES_PER_ROUND, searchesLeft),
@@ -177,6 +181,7 @@ export async function advanceRun(
         }
         const read = await researchCompany(client, {
           brief: claim.run.brief,
+          sells,
           pages: site.pages,
           fallbackName: company.company_name,
         });

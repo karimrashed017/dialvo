@@ -105,7 +105,7 @@ export function Importer() {
   if (result?.ok)
     return (
       <section className={cn(panel, "items-center px-6 py-10 text-center")}>
-        <span className="grid size-11 place-items-center rounded-full bg-[#1F3BFF] text-white">
+        <span className="grid size-11 place-items-center rounded-full bg-[#0B0B0C] text-white">
           <Check aria-hidden className="size-5" />
         </span>
         <h2 role="status" className="mt-4 text-[17px] font-medium">
@@ -154,7 +154,7 @@ export function Importer() {
         <div className="p-4">
           <label
             className={cn(
-              "flex cursor-pointer flex-col items-center rounded-xl border border-dashed border-black/20 px-4 py-7 text-center focus-within:ring-2 focus-within:ring-[#1F3BFF]/30 hover:bg-black/[0.02]",
+              "flex cursor-pointer flex-col items-center rounded-xl border border-dashed border-black/20 px-4 py-7 text-center focus-within:ring-2 focus-within:ring-black/20 hover:bg-black/[0.02]",
             )}
           >
             <FileUp aria-hidden className="size-5 text-[#0B0B0C]/50" />

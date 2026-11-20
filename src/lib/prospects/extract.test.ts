@@ -3,7 +3,9 @@ import { isCompanySite, siteDomain } from "./domains";
 import {
   contactLinks,
   emailProblem,
+  emailRole,
   emailsOnPage,
+  isUnsuitableEmail,
   phonesOnPage,
 } from "./extract";
 
@@ -56,12 +58,40 @@ describe("emailsOnPage: only addresses the page itself prints", () => {
     const html = page(`
       <p>Write to Dana at dana.smith@acme.com.</p>
       <a href="mailto:hello@acme.com?subject=Hi">Email us</a>
-      <footer>Accounts: accounts@mail.acme.com</footer>`);
+      <footer>Studio: studio@mail.acme.com</footer>`);
     expect(emailsOnPage(html, "acme.com")).toEqual([
       { email: "hello@acme.com", kind: "business", linked: true },
-      { email: "accounts@mail.acme.com", kind: "business", linked: false },
+      { email: "studio@mail.acme.com", kind: "business", linked: false },
       { email: "dana.smith@acme.com", kind: "business", linked: false },
     ]);
+  });
+
+  it("never offers a mailbox meant for something else: jobs, support, press, bills", () => {
+    const html = page(`
+      <a href="mailto:hr@acme.com">Work with us</a>
+      <a href="mailto:careers@acme.com">Careers</a>
+      <a href="mailto:jobs@acme.com">Jobs</a>
+      <a href="mailto:support@acme.com">Support</a>
+      <a href="mailto:help@acme.com">Help</a>
+      <a href="mailto:press@acme.com">Press</a>
+      <a href="mailto:billing@acme.com">Billing</a>
+      <a href="mailto:accounts@acme.com">Accounts</a>
+      <a href="mailto:legal@acme.com">Legal</a>
+      <a href="mailto:abuse@acme.com">Abuse</a>`);
+    // That is all the site prints, so the company has no usable address.
+    expect(emailsOnPage(html, "acme.com")).toEqual([]);
+    expect(emailProblem("hr@acme.com", "acme.com", true)).toBe("unsuitable");
+    expect(emailProblem("support@acme.com", "acme.com", true)).toBe(
+      "unsuitable",
+    );
+    for (const address of [
+      "hr@acme.com",
+      "Careers@acme.com",
+      "noreply@acme.com",
+    ])
+      expect(isUnsuitableEmail(address)).toBe(true);
+    for (const address of ["info@acme.com", "dana@acme.com", "sales@acme.com"])
+      expect(isUnsuitableEmail(address)).toBe(false);
   });
 
   it("never builds an address: a name and a domain on the page are not an email", () => {
@@ -136,5 +166,36 @@ describe("contactLinks", () => {
       "https://www.acme.com/contact",
       "https://acme.com/about-us/",
     ]);
+  });
+});
+
+describe("emailRole: whose mailbox an address is", () => {
+  it("knows the shared inboxes", () => {
+    for (const address of [
+      "info@acme.com",
+      "hello@acme.com",
+      "contact@acme.com",
+      "sales@acme.com",
+      "office@acme.com",
+    ])
+      expect(emailRole(address, "Dana Smith")).toBe("general");
+  });
+
+  it("calls an address a person's only when it carries the named contact's name", () => {
+    for (const address of [
+      "dana@acme.com",
+      "dana.smith@acme.com",
+      "d.smith@acme.com",
+      "dsmith@acme.com",
+      "danasmith@acme.com",
+      "smith@acme.com",
+    ])
+      expect(emailRole(address, "Dr. Dana Smith")).toBe("person");
+    // Somebody else's, or nobody is named: not claimed as the contact's.
+    expect(emailRole("bob@acme.com", "Dana Smith")).toBe("other");
+    expect(emailRole("dana@acme.com", "")).toBe("other");
+    expect(emailRole("frontdesk@acme.com", "Dana Smith")).toBe("other");
+    // A title is not a name.
+    expect(emailRole("dr@acme.com", "Dr. Dana Smith")).toBe("other");
   });
 });

@@ -15,7 +15,7 @@ import {
 import { cleanText } from "@/lib/leads/fields";
 import { createLimiter } from "@/lib/leads/rate-limit";
 
-// The "Get started" checklist's own actions. Creating the chat and
+// The setup steps' own actions (Home, and Knowledge's first-time state). Creating the chat and
 // switching the agent on reuse the Settings and Agents actions.
 
 /** Reading a whole site: 3 a minute per person. */
@@ -45,7 +45,11 @@ export async function readWebsite(form: FormData): Promise<ActionResult> {
       }),
     );
     refresh();
-    return { ok: true };
+    return {
+      ok: true,
+      message:
+        "Reading your website. Its pages appear in Knowledge within half a minute.",
+    };
   });
 }
 

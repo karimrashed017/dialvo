@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import {
-  Activity,
+  ArrowRight,
   BellOff,
   CalendarCheck,
   Check,
@@ -12,33 +12,33 @@ import {
   MessageSquareDashed,
   NotebookPen,
   PenLine,
+  Telescope,
   UserPlus,
   type LucideIcon,
 } from "lucide-react";
 import { agentRuntimeStatus } from "@/lib/agents/config";
+import { CHECKLIST_STEPS, checklistState } from "@/lib/app/checklist";
 import { getAppContext } from "@/lib/app/context";
-import { ago, dateTime } from "@/lib/app/time";
 import {
-  CHANNEL_LABEL,
-  STATUS_LABEL,
-  type FeedEvent,
-  type LeadStatus,
-  type TodayData,
-} from "@/lib/app/types";
+  chatJob,
+  findJob,
+  greeting,
+  needsRows,
+  weekFacts,
+  type HomeAction,
+} from "@/lib/app/home";
+import { ago } from "@/lib/app/time";
+import { CHANNEL_LABEL, type FeedEvent } from "@/lib/app/types";
 import { requestOrigin } from "@/lib/auth/origin";
+import { prospectRuntimeStatus } from "@/lib/prospects/config";
 import { cn } from "@/lib/utils";
-import { Checklist } from "./_ui/checklist";
-import {
-  ChannelTile,
-  Empty,
-  Initial,
-  leadLabel,
-  PageSkeleton,
-  panel,
-  panelHead,
-} from "./_ui/kit";
+import { ChatSteps } from "./_ui/checklist";
+import { ActionForm, SubmitButton } from "./_ui/form";
+import { btn, ChannelTile, leadLabel, panel } from "./_ui/kit";
+import { LiveRefresh } from "./_ui/live";
+import { dismissChecklist } from "./setup-actions";
 
-export const metadata: Metadata = { title: "Today" };
+export const metadata: Metadata = { title: "Home" };
 
 const EVENT_ICON: Record<string, LucideIcon> = {
   chat_started: MessageCircle,
@@ -56,294 +56,335 @@ const EVENT_ICON: Record<string, LucideIcon> = {
   consent_changed: PenLine,
 };
 
-function Tiles({ today }: { today: TodayData }) {
-  const tiles = [
-    {
-      label: "Conversations",
-      value: today.conversationsToday,
-      note:
-        today.conversationsToday === 0
-          ? "none active today"
-          : `across ${today.channelsToday} ${today.channelsToday === 1 ? "channel" : "channels"} today`,
-      href: "/app/inbox?queue=all",
-    },
-    {
-      label: "Leads qualified",
-      value: today.qualifiedToday,
-      note: "moved to Qualified today",
-      href: "/app/leads?status=qualified",
-    },
-    {
-      label: "Meetings booked",
-      value: today.meetingsBookedToday,
-      note: "booked today",
-      href: "/app/leads?status=meeting_booked",
-    },
-    {
-      label: "Waiting for you",
-      value: today.waitingForYou,
-      note:
-        today.draftsWaiting > 0
-          ? `${today.draftsWaiting} ${today.draftsWaiting === 1 ? "draft" : "drafts"} to approve`
-          : "conversations to answer",
-      href: "/app/inbox",
-      alert: today.waitingForYou > 0,
-    },
-  ];
+function ActionLink({
+  action,
+  primary,
+}: {
+  action: HomeAction;
+  primary: boolean;
+}) {
   return (
-    <dl className="grid grid-cols-2 gap-2 lg:grid-cols-4 lg:gap-3">
-      {tiles.map((t) => (
-        <Link
-          key={t.label}
-          href={t.href}
-          className="rounded-2xl border border-black/[0.07] bg-white px-4 py-3 transition-colors hover:border-black/20 focus-visible:ring-2 focus-visible:ring-black/40 focus-visible:outline-none"
+    <Link href={action.href} className={primary ? btn.primary : btn.secondary}>
+      {action.label}
+      <ArrowRight aria-hidden className="size-3.5" />
+    </Link>
+  );
+}
+
+/** One of the two jobs Dialvo does: where it stands, and the next step. */
+function JobCard({
+  id,
+  icon: Icon,
+  title,
+  status,
+  children,
+  ...rest
+}: {
+  id: string;
+  icon: LucideIcon;
+  title: string;
+  /** Its real state right now, in a sentence. */
+  status: string;
+  children: React.ReactNode;
+} & React.HTMLAttributes<HTMLElement>) {
+  return (
+    <section
+      aria-labelledby={`${id}-title`}
+      data-job={id}
+      className={cn(panel, "p-5 sm:p-6")}
+      {...rest}
+    >
+      <div className="flex items-center gap-3">
+        <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-[#0B0B0C] text-white">
+          <Icon aria-hidden className="size-[17px]" />
+        </span>
+        <h2
+          id={`${id}-title`}
+          className="text-[17px] font-medium tracking-[-0.01em]"
         >
-          <dt className="flex items-center gap-1.5 text-[11.5px] text-[#0B0B0C]/55">
-            {t.label}
-            {t.alert && <span className="size-1.5 rounded-full bg-[#1F3BFF]" />}
-          </dt>
-          <dd className="mt-1 text-[26px] leading-none font-medium tracking-[-0.02em] tabular-nums">
-            {t.value}
-          </dd>
-          <dd className="mt-1.5 truncate text-[11px] text-[#0B0B0C]/40">
-            {t.note}
-          </dd>
-        </Link>
-      ))}
-    </dl>
+          {title}
+        </h2>
+      </div>
+      <p
+        data-job-status
+        className="mt-3.5 text-[14px] leading-[1.5] text-[#0B0B0C]/75"
+      >
+        {status}
+      </p>
+      {children}
+    </section>
   );
 }
 
 function Feed({ events }: { events: FeedEvent[] }) {
   return (
-    <section className={cn(panel, "lg:min-h-[300px]")}>
-      <h2 className={panelHead}>Activity</h2>
-      {events.length === 0 ? (
-        <Empty icon={Activity} title="Nothing has happened yet">
-          New leads, replies, status changes and notes show up here as they
-          happen.
-        </Empty>
-      ) : (
-        <ul className="px-2 py-1.5">
-          {events.map((e) => {
-            const body = (
-              <>
-                <ChannelTile channel={e.channel} icon={EVENT_ICON[e.kind]} />
-                <span className="min-w-0 flex-1">
-                  <span className="line-clamp-2 text-[12.5px] leading-[1.35] font-medium">
-                    {e.summary}
-                  </span>
-                  <span className="block truncate text-[11.5px] text-[#0B0B0C]/50">
-                    {[
-                      e.channel && CHANNEL_LABEL[e.channel],
-                      e.lead && leadLabel(e.lead),
-                    ]
-                      .filter(Boolean)
-                      .join(" · ") || "Workspace"}
-                  </span>
-                </span>
-                <span className="shrink-0 pt-0.5 text-[11px] text-[#0B0B0C]/40 tabular-nums">
-                  {ago(e.created_at)}
-                </span>
-              </>
-            );
-            const row = "flex items-start gap-3 rounded-xl px-2 py-[9px]";
-            return (
-              <li key={e.id}>
-                {e.lead ? (
-                  <Link
-                    href={`/app/leads/${e.lead.id}`}
-                    className={cn(row, "hover:bg-black/[0.035]")}
-                  >
-                    {body}
-                  </Link>
-                ) : (
-                  <div className={row}>{body}</div>
-                )}
-              </li>
-            );
-          })}
-        </ul>
-      )}
-    </section>
-  );
-}
-
-const STAGES: LeadStatus[] = ["new", "engaged", "qualified", "meeting_booked"];
-
-function Pipeline({ today, timezone }: { today: TodayData; timezone: string }) {
-  const max = Math.max(1, ...STAGES.map((s) => today.pipeline[s]));
-  return (
-    <section className={panel}>
-      <h2 className={panelHead}>
-        Pipeline
-        <span className="text-[11.5px] font-normal text-[#0B0B0C]/50">
-          All leads
-        </span>
+    <section aria-labelledby="recent-title">
+      <h2
+        id="recent-title"
+        className="px-1 text-[12px] font-medium text-[#0B0B0C]/50"
+      >
+        Recent activity
       </h2>
-      <ul className="space-y-2.5 px-4 pt-4">
-        {STAGES.map((s, i) => (
-          <li key={s}>
-            <Link href={`/app/leads?status=${s}`} className="group block">
-              <span className="flex justify-between text-[12px]">
-                <span className="text-[#0B0B0C]/65 group-hover:text-[#0B0B0C]">
-                  {STATUS_LABEL[s]}
+      <ul className={cn(panel, "mt-2 px-2 py-1.5")}>
+        {events.map((e) => {
+          const body = (
+            <>
+              <ChannelTile channel={e.channel} icon={EVENT_ICON[e.kind]} />
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-[12.5px] leading-[1.4] font-medium">
+                  {/* A found company's research follows its first sentence;
+                      the lead's own page has it in full. */}
+                  {e.kind === "lead_created"
+                    ? e.summary.split(". What they do:")[0]
+                    : e.summary}
                 </span>
-                <span className="tabular-nums">{today.pipeline[s]}</span>
-              </span>
-              <span className="mt-1 block h-1.5 rounded-full bg-black/[0.06]">
-                <span
-                  className="block h-full rounded-full bg-[#0B0B0C]"
-                  style={{
-                    width: `${(today.pipeline[s] / max) * 100}%`,
-                    opacity: 0.35 + i * 0.2,
-                  }}
-                />
-              </span>
-            </Link>
-          </li>
-        ))}
-      </ul>
-      <p className="px-4 pt-3 text-[11.5px] text-[#0B0B0C]/45">
-        {today.pipeline.won} won · {today.pipeline.lost} lost ·{" "}
-        {today.pipeline.unsubscribed} unsubscribed
-      </p>
-      <p className="px-4 pt-5 text-[11px] tracking-wide text-[#0B0B0C]/45 uppercase">
-        Upcoming meetings
-      </p>
-      {today.upcoming.length === 0 ? (
-        <p className="px-4 pt-2 pb-4 text-[12.5px] leading-[1.5] text-[#0B0B0C]/50">
-          None booked. Meetings your agents and your team book will be listed
-          here.
-        </p>
-      ) : (
-        <ul className="space-y-1.5 px-3 pt-2 pb-3">
-          {today.upcoming.map((m) => (
-            <li key={m.id}>
-              <Link
-                href={`/app/leads/${m.lead_id}`}
-                className="flex items-center gap-2.5 rounded-xl bg-black/[0.035] px-2.5 py-2 hover:bg-black/[0.06]"
-              >
-                <Initial
-                  name={m.lead ? leadLabel(m.lead) : "?"}
-                  className="size-6 text-[10.5px]"
-                />
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[12px] font-medium">
-                    {m.lead ? leadLabel(m.lead) : m.title || "Meeting"}
-                  </span>
-                  <span className="block truncate text-[11px] text-[#0B0B0C]/50">
-                    {dateTime(m.starts_at, timezone)}
-                    {m.channel && ` · booked by ${CHANNEL_LABEL[m.channel]}`}
-                  </span>
+                <span className="block truncate text-[11.5px] text-[#0B0B0C]/50">
+                  {[
+                    e.channel && CHANNEL_LABEL[e.channel],
+                    e.lead && leadLabel(e.lead),
+                  ]
+                    .filter(Boolean)
+                    .join(" · ") || "Workspace"}
                 </span>
-              </Link>
+              </span>
+              <span className="shrink-0 pt-0.5 text-[11px] text-[#0B0B0C]/40 tabular-nums">
+                {ago(e.created_at)}
+              </span>
+            </>
+          );
+          const row = "flex items-start gap-3 rounded-xl px-2 py-2";
+          return (
+            <li key={e.id}>
+              {e.lead ? (
+                <Link
+                  href={`/app/leads/${e.lead.id}`}
+                  className={cn(row, "hover:bg-black/[0.035]")}
+                >
+                  {body}
+                </Link>
+              ) : (
+                <div className={row}>{body}</div>
+              )}
             </li>
-          ))}
-        </ul>
-      )}
+          );
+        })}
+      </ul>
     </section>
   );
 }
 
-async function Today() {
+async function Home() {
   const { workspace, repo, user } = await getAppContext();
-  const [today, waiting, setup, knowledge, widgets, agents, origin] =
-    await Promise.all([
-      repo.today(),
-      repo.conversations("waiting"),
-      repo.setup(),
-      repo.knowledge(),
-      repo.chatWidgets(),
-      repo.agents(),
-      requestOrigin(),
-    ]);
-  const date = new Date().toLocaleDateString("en-US", {
-    timeZone: workspace.timezone,
-    weekday: "long",
-    month: "long",
-    day: "numeric",
+  const [home, setup, knowledge, widgets, agents, origin] = await Promise.all([
+    repo.home(),
+    repo.setup(),
+    repo.knowledge(),
+    repo.chatWidgets(),
+    repo.agents(),
+    requestOrigin(),
+  ]);
+  const admin = workspace.role !== "member";
+  const state = checklistState({
+    setup,
+    knowledge,
+    widgets,
+    agents,
+    foundLeads: home.find.found > 0,
   });
+  const needs = needsRows(home.needs);
+  const find = findJob(home.find);
+  let seenOn: string | null = null;
+  try {
+    if (state.widget?.last_seen_at && state.widget.last_seen_origin)
+      seenOn = new URL(state.widget.last_seen_origin).host;
+  } catch {
+    seenOn = state.widget?.last_seen_origin ?? null;
+  }
+  const chat = chatJob({
+    hasWidget: state.widget !== null,
+    seenOn,
+    agentOn: state.done.on,
+    mode: state.inbound?.approval_mode ?? "approve_first",
+    chatsThisWeek: home.week.chats,
+    waiting: home.needs.chatDrafts + home.needs.chatsWaiting,
+  });
+  const week = weekFacts(home.week);
+  // While the chat isn't answering yet, its card walks through the steps.
+  const chatSetup = !state.dismissed && !state.chatDone;
+  const findOn = prospectRuntimeStatus().on;
+  const first = user.name.trim().split(/\s+/)[0];
+  // One black button per screen region: the rows above take it when there
+  // is something to approve.
+  const calm = needs.length === 0;
+
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-baseline justify-between gap-2 px-1">
-        <h1 className="text-[19px] font-medium tracking-[-0.01em]">
-          Today
-          {user.name && (
-            <span className="font-normal text-[#0B0B0C]/45">
-              {" "}
-              · {user.name.split(" ")[0]}
-            </span>
-          )}
-        </h1>
-        <p className="text-[12px] text-[#0B0B0C]/45">
-          {date} · {workspace.timezone.replace(/_/g, " ")}
+    <div className="mx-auto flex max-w-[1080px] flex-col gap-4 sm:gap-5">
+      {state.reading && <LiveRefresh every={3000} />}
+      <h1 className="px-1 pt-1 text-[22px] leading-[1.25] font-medium tracking-[-0.015em] sm:text-[24px]">
+        {greeting(new Date(), workspace.timezone)}
+        {first && `, ${first}`}.
+      </h1>
+
+      {calm ? (
+        <p
+          data-needs="none"
+          className="-mt-2 flex items-center gap-2 px-1 text-[14px] text-[#0B0B0C]/60 sm:-mt-3"
+        >
+          <Check aria-hidden className="size-4 shrink-0" />
+          Nothing needs your yes right now.
         </p>
-      </div>
-      <Tiles today={today} />
-      <Checklist
-        setup={setup}
-        knowledge={knowledge}
-        widgets={widgets}
-        agents={agents}
-        website={workspace.website}
-        origin={origin}
-        runtime={agentRuntimeStatus().on}
-        admin={workspace.role !== "member"}
-      />
-      <div className="grid items-start gap-3 lg:grid-cols-[1.2fr_1fr_0.85fr]">
-        <Feed events={today.feed} />
-        <section className={cn(panel, "lg:min-h-[300px]")}>
-          <h2 className={panelHead}>
-            Waiting for you
-            <Link
-              href="/app/inbox"
-              className="text-[11.5px] font-normal text-[#0B0B0C]/50 hover:text-[#0B0B0C]"
-            >
-              Open inbox
-            </Link>
+      ) : (
+        <section
+          aria-labelledby="needs-title"
+          data-needs="some"
+          className={cn(panel, "overflow-hidden border-[#0B0B0C]/25")}
+        >
+          <h2
+            id="needs-title"
+            className="px-5 pt-4 text-[13px] font-medium text-[#0B0B0C]/55 sm:px-6"
+          >
+            Needs your yes
           </h2>
-          {waiting.length === 0 ? (
-            <Empty icon={Check} title="You're all caught up">
-              Conversations that need a person, like a new form enquiry or a
-              handoff from an agent, queue up here.
-            </Empty>
-          ) : (
-            <ul className="px-2 py-1.5">
-              {waiting.slice(0, 6).map((c) => (
-                <li key={c.id}>
-                  <Link
-                    href={`/app/inbox?c=${c.id}`}
-                    className="flex items-start gap-3 rounded-xl px-2 py-[9px] hover:bg-black/[0.035]"
-                  >
-                    <ChannelTile channel={c.channel} />
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-[12.5px] leading-[1.35] font-medium">
-                        {leadLabel(c.lead)}
-                      </span>
-                      <span className="block truncate text-[11.5px] text-[#0B0B0C]/50">
-                        {c.preview ?? `New ${CHANNEL_LABEL[c.channel]} enquiry`}
-                      </span>
-                    </span>
-                    <span className="shrink-0 pt-0.5 text-[11px] text-[#0B0B0C]/40 tabular-nums">
-                      {ago(c.last_message_at)}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
+          <ul className="px-5 pb-2 sm:px-6">
+            {needs.map((row) => (
+              <li
+                key={row.id}
+                data-need={row.id}
+                className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-t border-black/[0.06] py-3 first:border-0"
+              >
+                <p className="min-w-0 flex-1 basis-[240px]">
+                  <span className="block text-[15px] leading-[1.35] font-medium">
+                    {row.text}
+                  </span>
+                  <span className="mt-0.5 block text-[12.5px] leading-[1.45] text-[#0B0B0C]/55">
+                    {row.note}
+                  </span>
+                </p>
+                <ActionLink action={row.action} primary />
+              </li>
+            ))}
+          </ul>
         </section>
-        <Pipeline today={today} timezone={workspace.timezone} />
+      )}
+
+      <div
+        id={state.hidden ? undefined : "get-started"}
+        className="grid items-start gap-3 sm:gap-4 lg:grid-cols-2"
+      >
+        <JobCard
+          id="find"
+          icon={Telescope}
+          title="Find new customers"
+          status={find.status}
+          data-step="find"
+          data-done={state.done.find ? "true" : "false"}
+        >
+          {home.find.approved > 0 && (
+            <p className="mt-1.5 text-[12.5px] leading-[1.45] text-[#0B0B0C]/55">
+              Approved emails are stored as ready to send. Nothing is sent from
+              Dialvo yet.
+            </p>
+          )}
+          <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2">
+            <ActionLink action={find.action} primary={calm} />
+          </div>
+          {!findOn && (
+            <p className="mt-3 text-[12.5px] leading-[1.45] text-[#0B0B0C]/55">
+              Finding leads isn&apos;t switched on yet on Dialvo&apos;s side.
+              You can describe who you sell to now, and searching starts once it
+              is.
+            </p>
+          )}
+        </JobCard>
+
+        <JobCard
+          id="chat"
+          icon={MessageCircle}
+          title="Answer website visitors"
+          status={chat.status}
+        >
+          {chatSetup ? (
+            <div className="mt-3 border-t border-black/[0.06]">
+              <ChatSteps
+                state={state}
+                knowledge={knowledge}
+                website={workspace.website}
+                origin={origin}
+                runtime={agentRuntimeStatus().on}
+                admin={admin}
+              />
+            </div>
+          ) : (
+            <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2">
+              <ActionLink action={chat.action} primary={false} />
+            </div>
+          )}
+        </JobCard>
+
+        {!state.hidden && (
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-1 text-[12.5px] text-[#0B0B0C]/50 lg:col-span-2">
+            <span data-setup-count className="tabular-nums">
+              Getting set up: {state.count} of {CHECKLIST_STEPS} steps done
+            </span>
+            <ActionForm action={dismissChecklist} quiet>
+              <SubmitButton
+                variant="ghost"
+                small
+                pendingText="…"
+                className="-ml-2 h-7 px-2 text-[#0B0B0C]/55"
+              >
+                Hide the setup steps
+              </SubmitButton>
+            </ActionForm>
+          </div>
+        )}
       </div>
+
+      {week.length > 0 && (
+        <dl
+          aria-label="In the last 7 days"
+          data-week
+          className="flex flex-wrap items-baseline gap-x-6 gap-y-2 px-1 pt-1"
+        >
+          <span className="w-full text-[12px] font-medium text-[#0B0B0C]/50 sm:w-auto">
+            In the last 7 days
+          </span>
+          {week.map((fact) => (
+            <div key={fact.id} className="flex items-baseline gap-1.5">
+              <dd className="text-[19px] leading-none font-medium tracking-[-0.01em] tabular-nums">
+                {fact.value}
+              </dd>
+              <dt className="text-[12.5px] text-[#0B0B0C]/60">{fact.label}</dt>
+            </div>
+          ))}
+        </dl>
+      )}
+
+      {home.feed.length > 0 && <Feed events={home.feed} />}
     </div>
   );
 }
 
-export default function TodayPage() {
+function HomeSkeleton() {
   return (
-    <Suspense fallback={<PageSkeleton />}>
-      <Today />
+    <div
+      aria-busy
+      className="mx-auto flex max-w-[1080px] animate-pulse flex-col gap-4"
+    >
+      <div className="h-8 w-56 rounded-lg bg-black/[0.06]" />
+      <div className="grid gap-3 lg:grid-cols-2">
+        <div className="h-[190px] rounded-2xl bg-black/[0.045]" />
+        <div className="h-[190px] rounded-2xl bg-black/[0.045]" />
+      </div>
+      <span className="sr-only">Loading</span>
+    </div>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <Suspense fallback={<HomeSkeleton />}>
+      <Home />
     </Suspense>
   );
 }

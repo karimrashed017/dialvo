@@ -16,8 +16,8 @@ import {
 import { cn } from "@/lib/utils";
 
 // The app's few building blocks, in the look of the example dashboard on the
-// home page: white panels with a hairline on paper, ink text, 12-13px type,
-// and the logo's blue only for what is live or needs attention.
+// home page: white panels with a hairline on paper, ink text, 12-13px type.
+// Black and white only: what needs attention is marked in ink, not colour.
 
 export const panel =
   "flex min-w-0 flex-col rounded-2xl border border-black/[0.07] bg-white";
@@ -46,7 +46,7 @@ export const btn = {
 };
 
 export const input =
-  "w-full rounded-xl border border-black/15 bg-white px-3 py-2 text-[14px] text-[#0B0B0C] outline-none placeholder:text-[#0B0B0C]/35 focus:border-[#1F3BFF] focus:ring-2 focus:ring-[#1F3BFF]/20 disabled:bg-black/[0.03] disabled:text-[#0B0B0C]/50";
+  "w-full rounded-xl border border-black/15 bg-white px-3 py-2 text-[14px] text-[#0B0B0C] outline-none placeholder:text-[#0B0B0C]/35 focus:border-[#0B0B0C]/60 focus:ring-2 focus:ring-black/10 disabled:bg-black/[0.03] disabled:text-[#0B0B0C]/50";
 export const labelCls = "block text-[12.5px] font-medium text-[#0B0B0C]/75";
 export const hint = "text-[12px] leading-[1.45] text-[#0B0B0C]/50";
 export const mutedText = "text-[#0B0B0C]/55";
@@ -128,7 +128,9 @@ export function Badge({
         "inline-flex h-[22px] shrink-0 items-center gap-1 rounded-full px-2 text-[11.5px] font-medium whitespace-nowrap",
         tone === "plain" && "bg-black/[0.055] text-[#0B0B0C]/75",
         tone === "ink" && "bg-[#0B0B0C] text-white",
-        tone === "blue" && "bg-[#1F3BFF]/[0.09] text-[#1F3BFF]",
+        // "blue" is a name from before the app went black and white: it marks
+        // what is new or waiting, now in ink.
+        tone === "blue" && "border border-[#0B0B0C]/55 bg-white text-[#0B0B0C]",
         tone === "warn" && "bg-[#B42318]/[0.08] text-[#B42318]",
         tone === "outline" && "border border-black/15 text-[#0B0B0C]/60",
         className,

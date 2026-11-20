@@ -40,7 +40,7 @@ const WHY: Record<string, string> = {
   not_configured:
     "The agent isn't switched on yet on Dialvo's side, so it can't answer here yet.",
   unavailable:
-    "This workspace has no inbound agent on the Chat channel. Set one up on the Agents page.",
+    "This workspace has no agent for the website chat, so there is nothing to try yet.",
   limited: "That's a lot of test messages. Wait a minute and try again.",
   capped:
     "Your agent has reached today's limit of replies. It starts again tomorrow.",

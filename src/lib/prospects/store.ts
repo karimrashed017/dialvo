@@ -14,7 +14,7 @@ import {
   RESEARCH_PER_STEP,
   STEP_LEASE_SECONDS,
 } from "./config";
-import type { DraftContext, DraftProspect } from "./prompt";
+import { sellsLine, type DraftContext, type DraftProspect } from "./prompt";
 import type {
   Brief,
   Candidate,
@@ -75,6 +75,8 @@ export interface ProspectStore {
     userId: string,
   ): Promise<StartResult>;
   claim(runId: string, workspaceId: string): Promise<Claim | null>;
+  /** What the workspace sells, in a line, from its own Knowledge. */
+  sells(workspaceId: string): Promise<string>;
   addCandidates(
     runId: string,
     workspaceId: string,
@@ -146,6 +148,28 @@ export function createProspectStore(): ProspectStore | null {
         p_max_attempts: MAX_RESEARCH_ATTEMPTS,
         p_max_steps: MAX_STEPS_PER_RUN,
       }),
+    async sells(workspaceId) {
+      // The secret key bypasses row-level security, so the query names the
+      // workspace itself. A read that fails only costs the search its hint.
+      const { data, error } = await supabase
+        .from("knowledge_items")
+        .select("title, content, source_url, kind")
+        .eq("workspace_id", workspaceId)
+        .eq("status", "ready")
+        .order("created_at")
+        .limit(20);
+      if (error) return "";
+      return sellsLine(
+        (
+          (data ?? []) as {
+            title: string;
+            content: string;
+            source_url: string | null;
+            kind: string;
+          }[]
+        ).filter((k) => k.kind === "text" || k.source_url),
+      );
+    },
     addCandidates: (runId, workspaceId, candidates, spend) =>
       rpc("prospect_run_add_candidates", {
         p_run_id: runId,

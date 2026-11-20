@@ -9,12 +9,12 @@ import {
   createChatWidget,
   deleteChatWidget,
   updateChatWidget,
-} from "./actions";
-import { ChatPreview } from "./chat-preview";
-import { CopyButton } from "./copy";
-import { chatSnippet, widgetUrl } from "./snippet";
+} from "../settings/actions";
+import { ChatPreview } from "../settings/chat-preview";
+import { CopyButton } from "../settings/copy";
+import { chatSnippet, widgetUrl } from "../settings/snippet";
 
-/** Settings: the website chat, its embed code and a live preview. */
+/** Website chat: the chat button's embed code, install check and preview. */
 export function ChatSection({
   widgets,
   origin,
@@ -31,34 +31,31 @@ export function ChatSection({
   runtime: boolean;
 }) {
   return (
-    <section id="chat" className={cn(panel, "scroll-mt-28 lg:col-span-2")}>
-      <h2 className={panelHead}>
-        Website chat
-        <span className="text-[11.5px] font-normal text-[#0B0B0C]/50">
-          A chat button for your site: every chat becomes a lead and a
-          conversation in your Inbox
-        </span>
+    <section id="chat" className={cn(panel, "scroll-mt-28")}>
+      {/* #install is where Home's "Put the chat on your site" lands. */}
+      <h2 id="install" className={cn(panelHead, "scroll-mt-28")}>
+        On your website
       </h2>
       <p className="border-b border-black/[0.06] px-4 py-2.5 text-[12.5px] leading-[1.45] text-[#0B0B0C]/70">
         {!agentOn ? (
           <>
-            Your inbound agent is off, so visitors are told a team member will
-            reply and their messages wait in the Inbox.{" "}
-            <Link href="/app/agents" className="underline">
+            Your agent is off, so visitors are told a team member will reply and
+            their messages wait in the Inbox.{" "}
+            <Link href="#agent" className="underline">
               Switch the agent on
             </Link>{" "}
             to have it answer.
           </>
         ) : !runtime ? (
           <>
-            Your inbound agent is switched on, but the agent isn&apos;t switched
-            on yet on Dialvo&apos;s side. Until it is, visitors are told a team
-            member will reply and their messages wait in the Inbox.
+            Your agent is switched on, but the agent isn&apos;t switched on yet
+            on Dialvo&apos;s side. Until it is, visitors are told a team member
+            will reply and their messages wait in the Inbox.
           </>
         ) : (
           <>
-            Your inbound agent answers these chats from your Knowledge. You can
-            take any conversation over in the Inbox.
+            Your agent answers these chats from your Knowledge. You can take any
+            conversation over in the Inbox.
           </>
         )}
       </p>

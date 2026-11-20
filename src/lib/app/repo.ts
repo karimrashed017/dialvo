@@ -1,7 +1,6 @@
 import "server-only";
 import { isUuid } from "@/lib/leads/fields";
 import type { Supabase } from "@/lib/supabase/server";
-import { startOfDayInTz } from "./time";
 import {
   LEAD_STATUSES,
   type ActivityEvent,
@@ -12,19 +11,17 @@ import {
   type ConversationListItem,
   type ConversationThread,
   type FeedEvent,
+  type HomeData,
   type Invitation,
   type KnowledgeItem,
   type Lead,
   type LeadDetail,
   type LeadForm,
-  type LeadRef,
-  type LeadStatus,
   type Meeting,
   type Member,
   type Message,
   type MessageDraft,
   type TestMessage,
-  type TodayData,
   type Workspace,
   type WorkspaceSetup,
 } from "./types";
@@ -37,8 +34,10 @@ import {
 export type InboxQueue = "waiting" | "open" | "mine" | "closed" | "all";
 
 export interface Repo {
-  today(): Promise<TodayData>;
+  home(): Promise<HomeData>;
+  /** For the nav: chats waiting, and first emails waiting for a yes. */
   waitingCount(): Promise<number>;
+  emailDraftCount(): Promise<number>;
   leads(filter: { q?: string; status?: string }): Promise<Lead[]>;
   lead(id: string): Promise<LeadDetail | null>;
   conversations(queue: InboxQueue): Promise<ConversationListItem[]>;
@@ -65,6 +64,8 @@ const MESSAGE_COLUMNS =
   "id, conversation_id, direction, author, author_user_id, body, delivery_status, sent_at";
 const MEETING_COLUMNS =
   "id, lead_id, title, starts_at, ends_at, booked_by, channel, status, created_at";
+/** How far back Home's "this week" looks. */
+const WEEK_MS = 7 * 86_400_000;
 const EVENT_COLUMNS =
   "id, lead_id, kind, summary, channel, actor_id, created_at";
 
@@ -148,84 +149,150 @@ export function createRepo(
   return {
     waitingCount,
 
-    async today() {
-      const start = startOfDayInTz(
-        new Date(),
-        workspace.timezone,
-      ).toISOString();
-      const now = new Date().toISOString();
+    async emailDraftCount() {
+      return count(
+        await from("outbound_drafts")
+          .select("id", { count: "exact", head: true })
+          .eq("workspace_id", ws)
+          .eq("status", "draft"),
+      );
+    },
+
+    async home() {
+      const week = new Date(Date.now() - WEEK_MS).toISOString();
       const head = { count: "exact", head: true } as const;
       const [
-        todays,
-        qualified,
-        booked,
-        waiting,
+        searches,
+        running,
+        found,
+        undecided,
+        foundThisWeek,
+        kept,
         drafts,
-        upcoming,
+        chatDrafts,
+        waiting,
+        chats,
+        replies,
+        qualified,
         feed,
-        agents,
-        ...byStatus
       ] = await Promise.all([
-        from("conversations")
-          .select("channel", { count: "exact" })
+        from("prospect_searches").select("id", head).eq("workspace_id", ws),
+        from("prospect_runs")
+          .select("id", head)
           .eq("workspace_id", ws)
-          .gte("last_message_at", start)
+          .in("status", ["searching", "researching"]),
+        from("prospects")
+          .select("id", head)
+          .eq("workspace_id", ws)
+          .eq("research_status", "found"),
+        from("prospects")
+          .select("id", head)
+          .eq("workspace_id", ws)
+          .eq("research_status", "found")
+          .eq("decision", "undecided"),
+        from("prospects")
+          .select("id", head)
+          .eq("workspace_id", ws)
+          .eq("research_status", "found")
+          .gte("created_at", week),
+        from("prospects")
+          .select("id")
+          .eq("workspace_id", ws)
+          .eq("research_status", "found")
+          .eq("decision", "kept")
+          .not("email", "is", null)
+          .limit(1000),
+        from("outbound_drafts")
+          .select("prospect_id, status, decided_at")
+          .eq("workspace_id", ws)
+          .order("created_at", { ascending: false })
+          .limit(1000),
+        from("message_drafts")
+          .select("conversation_id")
+          .eq("workspace_id", ws)
+          .eq("status", "pending")
+          .limit(1000),
+        from("conversations")
+          .select("id")
+          .eq("workspace_id", ws)
+          .eq("status", "waiting_for_you")
+          .limit(1000),
+        from("conversations")
+          .select("id", head)
+          .eq("workspace_id", ws)
+          .not("widget_id", "is", null)
+          .gte("created_at", week),
+        from("messages")
+          .select(
+            "conversation_id, conversation:conversations!inner(widget_id)",
+          )
+          .eq("workspace_id", ws)
+          .eq("direction", "out")
+          .not("conversation.widget_id", "is", null)
+          .gte("sent_at", week)
           .limit(1000),
         from("activity_events")
           .select("id", head)
           .eq("workspace_id", ws)
           .eq("kind", "lead_status_changed")
           .eq("metadata->>to", "qualified")
-          .gte("created_at", start),
-        from("meetings")
-          .select("id", head)
-          .eq("workspace_id", ws)
-          .gte("created_at", start),
-        waitingCount(),
-        from("message_drafts")
-          .select("id", head)
-          .eq("workspace_id", ws)
-          .eq("status", "pending"),
-        from("meetings")
-          .select(`${MEETING_COLUMNS}, lead:leads(id, name, company)`)
-          .eq("workspace_id", ws)
-          .eq("status", "scheduled")
-          .gte("starts_at", now)
-          .order("starts_at")
-          .limit(4),
+          .gte("created_at", week),
         from("activity_events")
           .select(`${EVENT_COLUMNS}, lead:leads(id, name, company)`)
           .eq("workspace_id", ws)
           .order("created_at", { ascending: false })
-          .limit(12),
-        from("agents")
-          .select("role")
-          .eq("workspace_id", ws)
-          .eq("enabled", true),
-        ...LEAD_STATUSES.map((status) =>
-          from("leads")
-            .select("id", head)
-            .eq("workspace_id", ws)
-            .eq("status", status),
-        ),
+          .limit(6),
       ]);
-      const channels = rows<{ channel: string }>(todays);
-      const pipeline = Object.fromEntries(
-        LEAD_STATUSES.map((status, i) => [status, count(byStatus[i])]),
-      ) as Record<LeadStatus, number>;
+      const draftRows = rows<{
+        prospect_id: string;
+        status: string;
+        decided_at: string | null;
+      }>(drafts);
+      // A failed draft is tried once more, so it still counts as to write.
+      const written = new Set(
+        draftRows
+          .filter((d) => d.status !== "failed")
+          .map((d) => d.prospect_id),
+      );
+      const emailDrafts = draftRows.filter((d) => d.status === "draft").length;
+      const approved = draftRows.filter((d) => d.status === "approved");
+      const withDraft = new Set(
+        rows<{ conversation_id: string }>(chatDrafts).map(
+          (d) => d.conversation_id,
+        ),
+      );
       return {
-        conversationsToday: count(todays),
-        channelsToday: new Set(channels.map((c) => c.channel)).size,
-        qualifiedToday: count(qualified),
-        meetingsBookedToday: count(booked),
-        waitingForYou: waiting,
-        draftsWaiting: count(drafts),
-        pipeline,
-        upcoming: rows<Meeting & { lead: LeadRef | null }>(upcoming),
+        needs: {
+          emailDrafts,
+          chatDrafts: withDraft.size,
+          chatsWaiting: rows<{ id: string }>(waiting).filter(
+            (c) => !withDraft.has(c.id),
+          ).length,
+        },
+        find: {
+          searches: count(searches),
+          running: count(running) > 0,
+          found: count(found),
+          undecided: count(undecided),
+          toWrite: rows<{ id: string }>(kept).filter((k) => !written.has(k.id))
+            .length,
+          drafted: emailDrafts + approved.length,
+          approved: approved.length,
+        },
+        week: {
+          companiesFound: count(foundThisWeek),
+          emailsApproved: approved.filter(
+            (d) => d.decided_at !== null && d.decided_at >= week,
+          ).length,
+          chats: count(chats),
+          chatsAnswered: new Set(
+            rows<{ conversation_id: string }>(replies).map(
+              (m) => m.conversation_id,
+            ),
+          ).size,
+          leadsQualified: count(qualified),
+        },
         feed: rows<FeedEvent>(feed),
-        agentsOn: [
-          ...new Set(rows<{ role: Agent["role"] }>(agents).map((a) => a.role)),
-        ],
       };
     },
 
