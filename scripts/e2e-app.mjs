@@ -2,7 +2,7 @@
 //
 // It drives a browser through the app as two people in two workspaces:
 // log in, onboarding, add a lead, import a CSV, the public capture endpoint,
-// inbox reply, knowledge, agents, settings, log out; then it checks, in the
+// inbox reply, knowledge, the chat agent's settings, settings, log out; then it checks, in the
 // app and straight against the database's API with each person's own token,
 // that the second person can't see or change anything of the first's.
 //
@@ -137,12 +137,17 @@ if (p1.url().endsWith("/onboarding")) {
   );
   await p1.goto(`${BASE}/app`);
 }
-await p1.waitForSelector("text=Waiting for you");
+await p1.waitForSelector("[data-needs]");
 ok(
-  "today: zero state has zeros, not sample numbers",
-  (await p1.locator("dd.text-\\[26px\\]").allTextContents()).every(
-    (t) => t.trim() === "0",
-  ),
+  "home: a new workspace has no numbers at all, sample or zero, and one first step",
+  (await p1.locator('[data-needs="none"]').count()) === 1 &&
+    (await p1.locator("[data-week]").count()) === 0 &&
+    (await p1.locator('[data-job="find"] a').innerText()).includes(
+      "Find my first leads",
+    ) &&
+    !/\d/.test(
+      await p1.locator('[data-job="find"] [data-job-status]').innerText(),
+    ),
 );
 await shot(p1, "app-today-empty-desktop");
 
@@ -310,12 +315,14 @@ ok("capture: honeypot returns ok", r.status === 200);
 
 // today now has data
 await p1.goto(`${BASE}/app`);
-await p1.waitForSelector("text=Waiting for you");
-const tiles = await p1.locator("dd.text-\\[26px\\]").allTextContents();
+await p1.waitForSelector("[data-needs]");
+const waitingRow = await p1.locator('[data-need="conversations"]').innerText();
+const week = await p1.locator("[data-week]").innerText();
 ok(
-  "today: tiles computed from rows (2 conversations, 1 qualified, 0 meetings, 2 waiting)",
-  tiles.join(",") === "2,1,0,2",
-  tiles.join(","),
+  "home: what needs a yes and this week's numbers are computed from rows (2 waiting, 1 qualified)",
+  /^2 conversations waiting for a person/.test(waitingRow) &&
+    /1\s+lead qualified/.test(week),
+  `${waitingRow} / ${week}`.replace(/\n+/g, " | "),
 );
 await shot(p1, "app-today-real-desktop");
 
@@ -408,17 +415,24 @@ ok(
 await shot(p1, "app-knowledge-real-desktop");
 
 // agents
+// The agent's settings live under Website chat now; /app/agents sends you there.
 await p1.goto(`${BASE}/app/agents`);
-await p1.waitForSelector("text=Inbound agent");
-const inbound = p1.locator("section", { hasText: "Inbound agent" }).first();
+await p1.waitForURL(/\/app\/chat$/);
+await p1.waitForSelector("#agent");
+const inbound = p1.locator("#agent");
 await inbound
   .locator('textarea[name="instructions"]')
   .fill("Ask how many chairs the clinic has.");
-await inbound.locator("button:has-text('Save settings')").click();
+await inbound.locator("button:has-text('Save')").click();
 await inbound.locator("text=Saved.").waitFor();
 await inbound.locator("button:has-text('Switch on')").click();
-await inbound.locator("text=Switched on, but not live yet").waitFor();
-ok("agents: instructions saved, switched on, labelled not live", true);
+await inbound.locator("button:has-text('Switch off')").waitFor();
+ok(
+  "website chat: instructions saved, agent switched on, and the page says honestly whether it is live",
+  /Switched on, but the agent isn.t switched on yet on Dialvo.s side|Live on your website chat/.test(
+    await inbound.locator("[data-agent-state]").innerText(),
+  ),
+);
 await shot(p1, "app-agents-real-desktop");
 
 // settings: invite user 2, second workspace refused on Starter

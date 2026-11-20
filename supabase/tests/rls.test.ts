@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { migrationFiles, TestDb } from "./harness";
 import { MAIL_SECRET_TABLES, MAIL_TABLES } from "./mail-tables";
+import { CONTACT_TABLES } from "./contact-tables";
 import { OUTBOUND_TABLES } from "./outbound-tables";
 
 // The isolation rules, proved against the real migrations:
@@ -272,6 +273,7 @@ const ALL_TABLES = [
   "profiles",
   ...OUTBOUND_TABLES,
   ...MAIL_TABLES,
+  ...CONTACT_TABLES,
 ];
 
 /** A write that must change nothing: refused outright, or zero rows. */

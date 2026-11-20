@@ -141,8 +141,16 @@ const SUGGEST_SCHEMA = {
     location: text,
     company_size: text,
     exclusions: text,
+    sells_to_enterprises: { type: "boolean" },
   },
-  required: ["name", "description", "location", "company_size", "exclusions"],
+  required: [
+    "name",
+    "description",
+    "location",
+    "company_size",
+    "exclusions",
+    "sells_to_enterprises",
+  ],
   additionalProperties: false,
 };
 
@@ -190,7 +198,13 @@ export async function suggestIdealCustomer(
  */
 export async function findCompanies(
   client: ModelClient,
-  input: { brief: Brief; known: string[]; wanted: number; searches?: number },
+  input: {
+    brief: Brief;
+    sells?: string;
+    known: string[];
+    wanted: number;
+    searches?: number;
+  },
 ): Promise<{ ok: true; candidates: Candidate[]; spend: Spend } | Failed> {
   const prompt = searchPrompt(input);
   const result = await call(
@@ -238,6 +252,11 @@ const RESEARCH_SCHEMA = {
       type: "string",
       enum: ["business", "individual", "not_a_company", "unclear"],
     },
+    fit: {
+      type: "string",
+      enum: ["good", "sells_similar", "too_large", "not_a_fit"],
+    },
+    fit_reason: text,
     matches: { type: "boolean" },
     company_name: text,
     summary: text,
@@ -258,6 +277,8 @@ const RESEARCH_SCHEMA = {
   },
   required: [
     "kind",
+    "fit",
+    "fit_reason",
     "matches",
     "company_name",
     "summary",
@@ -273,7 +294,12 @@ const RESEARCH_SCHEMA = {
 
 export async function researchCompany(
   client: ModelClient,
-  input: { brief: Brief; pages: SitePage[]; fallbackName: string },
+  input: {
+    brief: Brief;
+    sells?: string;
+    pages: SitePage[];
+    fallbackName: string;
+  },
 ): Promise<{ ok: true; result: ResearchResult; spend: Spend } | Failed> {
   const prompt = researchPrompt(input);
   const response = await call(

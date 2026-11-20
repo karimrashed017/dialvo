@@ -127,12 +127,14 @@ const { ctx: c1, page: p1 } = await signIn(USER_1);
 const t1 = await jwt(c1);
 
 const nav = await p1.$$eval('aside nav[aria-label="App"] a', (links) =>
-  links.map((a) => a.textContent.trim()),
+  // The label only: Find leads and Inbox may carry a count after it.
+  links.map((a) => a.childNodes[1]?.textContent?.trim() ?? ""),
 );
 ok(
-  'nav: "Find leads" sits right under Today',
-  nav[0] === "Today" && nav[1] === "Find leads",
-  nav.slice(0, 3).join(" | "),
+  "nav: the seven sections, in the order of the jobs Dialvo does",
+  nav.join(" | ") ===
+    "Home | Find leads | Website chat | Inbox | Leads | Knowledge | Settings",
+  nav.join(" | "),
 );
 
 await p1.click('aside a[href="/app/prospects"]');
@@ -144,7 +146,15 @@ ok(
 );
 ok(
   "no keys: the Find leads button is there and can't be pressed",
-  await p1.locator("button:has-text('Find leads')").isDisabled(),
+  await p1.locator("button[data-find]").isDisabled(),
+);
+ok(
+  "flow: the four steps are shown as one line, the emails step last",
+  (await p1.locator("nav[aria-label='Steps'] a").count()) === 4 &&
+    (await p1
+      .locator("nav[aria-label='Steps'] a")
+      .last()
+      .getAttribute("href")) === "/app/prospects?view=emails",
 );
 ok(
   "no keys: no suggestion is offered, and none is asked for",
@@ -178,7 +188,16 @@ await p1.locator("form:has(#ps-description) button[type=submit]").click();
 await p1.waitForURL(/search=[0-9a-f-]{36}/, { timeout: 20000 });
 const made = new URL(p1.url()).searchParams.get("search");
 await p1.reload();
-await p1.waitForSelector("#ps-description");
+// A saved description shows as a sentence; Edit opens the form.
+await p1.waitForSelector("section:has(#who) summary");
+ok(
+  "search: a saved description is shown as text, with the form behind Edit",
+  (await p1.locator("section:has(#who) summary").innerText()).includes(
+    "Independent dental clinics that take private patients.",
+  ) && !(await p1.locator("#ps-description").isVisible()),
+);
+await p1.click("section:has(#who) summary");
+await p1.waitForSelector("#ps-description", { state: "visible" });
 ok(
   "search: saved, and still there after a reload",
   (await p1.inputValue("#ps-description")).startsWith("Independent dental") &&
@@ -199,7 +218,7 @@ ok(
 );
 ok(
   "search: with a saved search and no keys, Find leads still can't be pressed",
-  await p1.locator("button:has-text('Find leads')").isDisabled(),
+  await p1.locator("button[data-find]").isDisabled(),
 );
 
 // The step endpoints.
@@ -326,6 +345,28 @@ ok(
       .count()) === 1,
 );
 ok(
+  "review: the facts sit behind 'Why this company', closed until asked for",
+  !(await row("bright")
+    .locator("text=Example fact: they opened a second surgery in 2024.")
+    .isVisible()) &&
+    (await row("bright").locator("summary").innerText()).includes(
+      "Why this company",
+    ),
+);
+await row("bright").locator("summary").click();
+ok(
+  "review: opening it shows the facts and where the address was found",
+  await row("bright")
+    .locator("text=Example fact: they opened a second surgery in 2024.")
+    .isVisible(),
+);
+ok(
+  "review: the kind of mailbox is named (a shared inbox here, not a person's)",
+  (await row("bright").locator("[data-email-kind]").innerText()) ===
+    "General inbox",
+  await row("bright").locator("[data-email-kind]").innerText(),
+);
+ok(
   "review: has email / no email found are marked, and a company without one is still shown",
   (await row("bright").textContent()).includes("Has email") &&
     (await row("nomail").textContent()).includes("No email found") &&
@@ -424,13 +465,28 @@ await p1
   .locator(`section:has(#queue) li[data-draft$="@${dom("bright")}"]`)
   .waitFor();
 ok("emails: an approved email can be moved back to waiting", true);
-p1.once("dialog", (d) => d.accept());
-await p1.click("button:has-text('Approve all 2')");
-await p1.locator("text=2 approved and ready to send.").waitFor();
-await p1
-  .locator(`section:has(#ready) li[data-draft$="@${dom("oak")}"]`)
-  .waitFor();
-ok("emails: bulk approve approves everything waiting, after asking", true);
+// "Approve all" approves every draft waiting in the workspace. That is only
+// pressed when this run's two are the only ones: in a workspace that also
+// holds real drafts, each of the two is approved on its own instead.
+if (await p1.locator("button:has-text('Approve all 2')").count()) {
+  p1.once("dialog", (d) => d.accept());
+  await p1.click("button:has-text('Approve all 2')");
+  await p1.locator("text=2 approved and ready to send.").waitFor();
+  await p1
+    .locator(`section:has(#ready) li[data-draft$="@${dom("oak")}"]`)
+    .waitFor();
+  ok("emails: bulk approve approves everything waiting, after asking", true);
+} else {
+  for (const name of ["bright", "oak"]) {
+    await card(name).locator("button:has-text('Approve')").click();
+    await p1
+      .locator(`section:has(#ready) li[data-draft$="@${dom(name)}"]`)
+      .waitFor();
+  }
+  console.log(
+    "SKIPPED bulk approve: other drafts are waiting in this workspace, and they are not this script's to approve",
+  );
+}
 await shot(p1, "4-emails");
 await card("oak").locator("button:has-text('Discard')").click();
 await card("oak").waitFor({ state: "detached" });

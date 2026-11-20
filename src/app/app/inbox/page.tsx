@@ -85,12 +85,12 @@ function ChatStatus({
         {thread.agent_paused
           ? "A person has this chat. The agent is paused here until you hand it back."
           : !agent
-            ? "The inbound agent is off, so nobody answers automatically. Your reply appears in the visitor's chat."
+            ? "Your agent is off, so nobody answers automatically. Your reply appears in the visitor's chat."
             : !runtime
               ? "The agent isn't switched on yet on Dialvo's side, so nobody answers automatically. Your reply appears in the visitor's chat."
               : agent.approval_mode === "auto"
-                ? "The inbound agent is answering this chat on its own."
-                : "The inbound agent writes drafts for this chat. Nothing is sent until you approve it."}
+                ? "Your agent is answering this chat on its own."
+                : "Your agent writes drafts for this chat. Nothing is sent until you approve it."}
         {thread.outcome_summary && (
           <span className="mt-0.5 block text-[#0B0B0C]/55">
             Agent&apos;s note: {thread.outcome_summary}
@@ -114,7 +114,7 @@ function Draft({ thread }: { thread: ConversationThread }) {
   const draft = thread.draft;
   if (!draft) return null;
   return (
-    <div className="border-t border-black/[0.06] bg-[#1F3BFF]/[0.04] p-3">
+    <div className="border-t border-black/[0.06] bg-black/[0.03] p-3">
       <p className="mb-1.5 flex items-center gap-2 text-[12px] font-medium text-[#0B0B0C]/70">
         <Badge tone="blue">Draft</Badge>
         The agent wrote this reply. The visitor hasn&apos;t seen it.
@@ -373,12 +373,15 @@ async function InboxContent({
     QUEUES.find((q) => q.id === params.queue)?.id ?? ("waiting" as const);
   const selected = typeof params.c === "string" ? params.c : "";
   const { repo, workspace, preview } = await getAppContext();
-  const [list, thread, members, agents] = await Promise.all([
+  const [list, thread, members, agents, widgets] = await Promise.all([
     repo.conversations(queue),
     selected ? repo.conversation(selected) : null,
     repo.members(),
     repo.agents(),
+    repo.chatWidgets(),
   ]);
+  // Until the chat has loaded on a site, nothing can arrive here by itself.
+  const installed = widgets.some((w) => w.last_seen_at);
   const chatAgent = agents.find(
     (a) => a.enabled && a.role === "inbound" && a.channel === "chat",
   );
@@ -397,7 +400,7 @@ async function InboxContent({
       {!preview && <LiveRefresh />}
       <PageHead
         title="Inbox"
-        note="Every conversation on every channel. Your agents' handoffs and new enquiries wait for you here."
+        note="Every conversation with a visitor or a lead. Chats that need a person, and replies your agent drafted for your approval, wait for you here."
       />
       <nav
         aria-label="Queues"
@@ -437,10 +440,19 @@ async function InboxContent({
                   ? "Nothing is waiting for you"
                   : "No conversations here"
               }
+              action={
+                installed ? undefined : (
+                  <Link href="/app/chat#install" className={btn.primary}>
+                    Put the chat on your site
+                  </Link>
+                )
+              }
             >
-              {queue === "waiting"
-                ? "New chats, form enquiries, drafts to approve and handoffs from your agents queue up here."
-                : "Conversations start when a visitor writes in your website chat or fills in your form."}
+              {!installed
+                ? "Conversations show up here when a visitor writes in your website chat. The chat isn't on your website yet: it takes one line of code."
+                : queue === "waiting"
+                  ? "New chats, replies your agent drafted for your approval and chats it hands to a person queue up here."
+                  : "Conversations start when a visitor writes in your website chat or fills in your form."}
             </Empty>
           ) : (
             <ul className="overflow-y-auto p-1.5">
@@ -465,7 +477,7 @@ async function InboxContent({
                         {c.status === "waiting_for_you" && (
                           <span
                             aria-label="Waiting for you"
-                            className="size-1.5 shrink-0 rounded-full bg-[#1F3BFF]"
+                            className="size-1.5 shrink-0 rounded-full bg-[#0B0B0C]"
                           />
                         )}
                         {c.has_draft && <Badge tone="blue">Draft</Badge>}

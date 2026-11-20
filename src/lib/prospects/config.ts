@@ -112,6 +112,55 @@ export const PRICE_CACHE_READ_MICROS_PER_TOKEN = 0.1;
 /** $10 per 1,000 web searches. */
 export const PRICE_SEARCH_MICROS = 10_000;
 
+// --- The contact database (Findymail) --------------------------------------------
+// Used instead of the web search when FINDYMAIL_API_KEY is set. Its credits
+// are bought by Dialvo and shared by every workspace, so these caps are what
+// stop one workspace from using up the account. Credits are estimated from
+// Findymail's published costs (docs, 20 Nov 2026): in "targeted" mode, 1 per
+// company, +1 per contact found, +1 per email found. Phones are never asked
+// for (they cost 10 each).
+
+/** Companies (each with one contact) one run asks the database for. */
+export const CONTACT_COMPANIES_PER_RUN = MAX_COMPANIES_PER_RUN;
+
+/** Estimated credits per company returned: company + contact + email. */
+export const CONTACT_CREDITS_PER_COMPANY = 3;
+
+/**
+ * Findymail credits a workspace may use in a day (UTC), estimated. Checked
+ * and reserved in the database before the search that spends them. 100
+ * covers one full run of 25 companies (75) a day.
+ */
+export const DAILY_CONTACT_CREDIT_CAP = 100;
+
+/** Seconds between two "is the export ready?" questions. */
+export const CONTACT_POLL_SECONDS = 5;
+
+/** Questions asked before a run gives up waiting (about 15 minutes). */
+export const CONTACT_MAX_POLLS = 180;
+
+/** Results read per page of the export (Findymail allows up to 500). */
+export const CONTACT_PAGE_SIZE = 100;
+
+/** One request to Findymail. */
+export const CONTACT_TIMEOUT_MS = 15_000;
+
+/** Domains sent to the workspace's exclusion list in one step, at most. */
+export const CONTACT_EXCLUSIONS_PER_SYNC = 2_000;
+
+/** Writing the Intellimatch query and job titles from a saved search. */
+export const CONTACT_QUERY_MAX_TOKENS = 600;
+
+/**
+ * Whether runs use the contact database. Without the key, runs search the
+ * web as before and nothing else changes.
+ */
+export function contactDatabaseStatus(
+  env: Record<string, string | undefined> = process.env,
+): { on: boolean } {
+  return { on: Boolean(env.FINDYMAIL_API_KEY) };
+}
+
 /**
  * Whether this server can find leads at all: it needs the Anthropic key for
  * the model and the web search, and the Supabase secret key to run and count

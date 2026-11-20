@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { PageFetchError, type PageSource } from "@/lib/knowledge/fetch-page";
 import {
   DAILY_SEARCH_CAP,
@@ -12,9 +12,13 @@ import {
   WEB_SEARCH_TOOL,
 } from "./config";
 import { findCompanies, spendOf, type ModelClient } from "./model";
+import { clearRobotsCache } from "./robots";
 import { advanceDrafts, advanceRun, defaultDeps } from "./run";
 import type { Claim, DraftClaim, ProspectStore } from "./store";
 import type { Usage } from "./types";
+
+// Each test reads robots.txt afresh: the cache is per process.
+beforeEach(() => clearRobotsCache());
 
 // The run's steps with the model, the network and the database all faked.
 
@@ -69,6 +73,7 @@ function fakeStore(claim: Claim | null, drafts: DraftClaim | null = null) {
     recordSpend: vi.fn(async () => {}),
     startRun: vi.fn(),
     claim: vi.fn(async () => claim),
+    sells: vi.fn(async () => "Websites for dental clinics, from $900 a month."),
     addCandidates: vi.fn(async () => ({
       status: "searching" as const,
       added: 0,
@@ -206,6 +211,13 @@ describe("a search step", () => {
       { timeout: number; maxRetries: number },
     ];
     expect(params.model).toBe("claude-haiku-4-5");
+    // It is told whose customers it is looking for, from the workspace's
+    // own knowledge, and that no size means small and mid-sized.
+    expect(store.sells).toHaveBeenCalledWith("ws");
+    expect(params.messages[0].content).toContain(
+      "<we_sell>\nWebsites for dental clinics, from $900 a month.\n</we_sell>",
+    );
+    expect(params.messages[0].content).toContain("No size was given");
     expect(params.tools).toEqual([
       expect.objectContaining({
         type: WEB_SEARCH_TOOL,
@@ -346,6 +358,35 @@ describe("a search step", () => {
   });
 });
 
+describe("a research step leaves out who isn't a customer", () => {
+  it("skips a competitor and a giant, and tells the model what the workspace sells", async () => {
+    const store = fakeStore(
+      researching([
+        { id: "p1", domain: "acme.example" },
+        { id: "p2", domain: "acme.example" },
+      ]),
+    );
+    const { client, create } = fakeClient(
+      says(report({ fit: "sells_similar", fit_reason: "Also builds sites." })),
+      says(report({ fit: "too_large", fit_reason: "A national group." })),
+    );
+    await advanceRun(ids, { store, client, fetchSource });
+    const params = create.mock
+      .calls[0][0] as Anthropic.MessageCreateParamsNonStreaming;
+    expect(params.messages[0].content).toContain(
+      "<we_sell>\nWebsites for dental clinics, from $900 a month.\n</we_sell>",
+    );
+    const saved = store.saveResearch.mock.calls.map(
+      (c) => (c as unknown[])[3] as { status: string; reason: string },
+    );
+    expect(saved.map((r) => r.status)).toEqual(["skipped", "skipped"]);
+    expect(saved.map((r) => r.reason).sort()).toEqual([
+      "competitor",
+      "too_large",
+    ]);
+  });
+});
+
 describe("a research step", () => {
   it("reads the company's own pages, shows them to the model as data, and stores only what they back up", async () => {
     fetchSource.mockClear();
@@ -364,6 +405,8 @@ describe("a research step", () => {
       "https://acme.example/",
       "https://acme.example/about",
       "https://acme.example/contact",
+      // Asked first, through the same safe reader (there is none here).
+      "https://acme.example/robots.txt",
     ]);
     const params = create.mock
       .calls[0][0] as Anthropic.MessageCreateParamsNonStreaming;

@@ -22,7 +22,7 @@ function rows<T>(result: {
 }
 
 const PROSPECT_COLUMNS =
-  "id, run_id, search_id, domain, company_name, website, research_status, skip_reason, summary, location, contact_name, contact_role, contact_source_url, email, email_source_url, email_kind, phone, phone_source_url, facts, pages, decision, lead_id, created_at";
+  "id, run_id, search_id, domain, company_name, website, research_status, skip_reason, summary, location, contact_name, contact_role, contact_source_url, email, email_source_url, email_kind, phone, phone_source_url, facts, pages, decision, lead_id, created_at, source, size_range, industries, country, match_score, contact_linkedin_url, email_verified";
 const DRAFT_COLUMNS =
   "id, prospect_id, to_email, subject, body, status, discard_reason, edited, created_at, decided_at";
 
@@ -40,7 +40,7 @@ export function prospectReads(supabase: Supabase, workspaceId: string) {
       return rows<ProspectSearch>(
         await from("prospect_searches")
           .select(
-            "id, name, description, location, company_size, exclusions, created_at, updated_at",
+            "id, name, description, location, company_size, exclusions, created_at, updated_at, contact_query, contact_titles, contact_query_for, contact_query_edited",
           )
           .eq("workspace_id", workspaceId)
           .order("created_at", { ascending: false })
@@ -52,7 +52,7 @@ export function prospectReads(supabase: Supabase, workspaceId: string) {
       return rows<ProspectRun>(
         await from("prospect_runs")
           .select(
-            "id, search_id, status, stop_reason, target_count, search_rounds, searches_used, cost_micros, created_at, finished_at",
+            "id, search_id, status, stop_reason, target_count, search_rounds, searches_used, cost_micros, created_at, finished_at, source, contact_phase",
           )
           .eq("workspace_id", workspaceId)
           .order("created_at", { ascending: false })

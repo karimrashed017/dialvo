@@ -154,7 +154,7 @@ const t1 = await jwt(c1);
 ok("teammate: signed in and in a workspace", p1.url().endsWith("/app"));
 
 // Settings: create the chat, read the embed code.
-await p1.goto(`${BASE}/app/settings#chat`);
+await p1.goto(`${BASE}/app/chat`);
 await p1.waitForSelector("#chat");
 if (await p1.locator("#chat button:has-text('Create the chat')").count()) {
   await p1.click("#chat button:has-text('Create the chat')");
@@ -164,16 +164,15 @@ if (await p1.locator("#chat button:has-text('Create the chat')").count()) {
 const snippet = (await p1.textContent("#chat pre")).trim();
 const TOKEN = /widget\.js\?id=([0-9a-f]{64})/.exec(snippet)?.[1];
 ok(
-  "settings: the embed code is one script tag with the widget's id",
+  "website chat: the embed code is one script tag with the widget's id",
   TOKEN &&
     snippet === `<script src="${BASE}/widget.js?id=${TOKEN}" async></script>`,
   snippet.slice(0, 60),
 );
 const pageText = await p1.textContent("#chat");
 ok(
-  "settings: says the inbound agent is off and chats wait in the Inbox",
-  /inbound agent is off/.test(pageText) ||
-    /isn.t switched on yet/.test(pageText),
+  "website chat: says the agent is off and chats wait in the Inbox",
+  /Your agent is off/.test(pageText) || /isn.t switched on yet/.test(pageText),
 );
 // The widget row may be switched off from an earlier, interrupted run.
 if (await p1.locator("#chat button:has-text('Switch on')").count()) {
@@ -196,15 +195,15 @@ ok(
 );
 
 // Agents: the inbound agent starts off; the page says what that means.
-await p1.goto(`${BASE}/app/agents`);
-await p1.waitForSelector("text=Inbound agent");
-const inbound = p1.locator("section", { hasText: "Inbound agent" }).first();
+await p1.goto(`${BASE}/app/chat`);
+await p1.waitForSelector("#agent");
+const inbound = p1.locator("#agent");
 if (await inbound.locator("button:has-text('Switch off')").count()) {
   await inbound.locator("button:has-text('Switch off')").click();
   await inbound.locator("button:has-text('Switch on')").waitFor();
 }
 ok(
-  "agents: off by default, and says chats wait in the Inbox meanwhile",
+  "website chat: the agent is off by default, and says chats wait in the Inbox meanwhile",
   /While it is off, chats wait for you in the Inbox/.test(
     await inbound.textContent(),
   ),
@@ -360,32 +359,29 @@ ok(
 
 // ------------------------------------------------- the agent's replies
 // Switch the inbound agent on, with qualifying questions, asking first.
-await p1.goto(`${BASE}/app/agents`);
-const agent = p1.locator("section", { hasText: "Inbound agent" }).first();
+await p1.goto(`${BASE}/app/chat`);
+await p1.waitForSelector("#agent");
+const agent = p1.locator("#agent");
 await agent.locator("button:has-text('Switch on')").click();
 await agent.locator("button:has-text('Switch off')").waitFor();
 await agent
   .locator('textarea[name="qualifying_questions"]')
   .fill("How many locations do you have?\nWhen do you want to start?");
 await agent.locator('input[value="approve_first"]').check();
-await agent.locator("button:has-text('Save settings')").click();
+await agent.locator("button:has-text('Save')").click();
 await agent.locator("text=Saved.").waitFor();
 await p1.reload();
 ok(
-  "agents: qualifying questions are saved",
+  "website chat: qualifying questions are saved",
   (await p1
-    .locator("section", { hasText: "Inbound agent" })
-    .first()
+    .locator("#agent")
     .locator('textarea[name="qualifying_questions"]')
     .inputValue()) ===
     "How many locations do you have?\nWhen do you want to start?",
 );
-const agentNote = await p1
-  .locator("section", { hasText: "Inbound agent" })
-  .first()
-  .textContent();
+const agentNote = await p1.locator("#agent").textContent();
 ok(
-  "agents: on this server (no agent keys) the page says the agent isn't switched on yet",
+  "website chat: on this server (no agent keys) the page says the agent isn't switched on yet",
   SECRET
     ? true
     : /isn.t switched on yet on Dialvo.s side/.test(agentNote) &&
@@ -536,10 +532,11 @@ ok(
 );
 
 // 4. "Send on its own".
-await p1.goto(`${BASE}/app/agents`);
-const agent2 = p1.locator("section", { hasText: "Inbound agent" }).first();
+await p1.goto(`${BASE}/app/chat`);
+await p1.waitForSelector("#agent");
+const agent2 = p1.locator("#agent");
 await agent2.locator('input[value="auto"]').check();
-await agent2.locator("button:has-text('Save settings')").click();
+await agent2.locator("button:has-text('Save')").click();
 await agent2.locator("text=Saved.").waitFor();
 await say("Great, thanks.");
 await until("saved", async () =>
@@ -565,7 +562,7 @@ ok(
   ).body.length === 0,
 );
 
-// The outcome, on the lead, the conversation and Today.
+// The outcome, on the lead, the conversation and Home.
 await p1.goto(`${BASE}/app/inbox?queue=all&c=${CONVERSATION}`);
 await p1.waitForSelector(`text=${auto}`);
 const threadText = await p1.textContent("body");
@@ -577,15 +574,13 @@ ok(
 );
 await shot(p1, "chat-inbox-qualified");
 await p1.goto(`${BASE}/app`);
-await p1.waitForSelector("text=Activity");
-const today = await p1.textContent("main");
+await p1.waitForSelector("text=Recent activity");
+const today = (await p1.textContent("main")).replace(/\s+/g, " ");
 ok(
-  "today: counts the qualified lead and lists the chat, the draft and the qualification",
-  /Leads qualified\s*[1-9]/.test(today.replace(/\s+/g, " ")) &&
-    /New chat on/.test(today) &&
-    /Qualified in the website chat/.test(today) &&
-    /draft reply/.test(today),
-  today.replace(/\s+/g, " ").slice(0, 120),
+  "home: counts the qualified lead this week, and recent activity lists the qualification",
+  /[1-9]\d*\s*leads? qualified/.test(today) &&
+    /Qualified in the website chat/.test(today),
+  today.slice(0, 160),
 );
 await shot(p1, "chat-today");
 
@@ -797,7 +792,7 @@ ok(
 );
 
 // --------------------------------------------- switching the chat off
-await p1.goto(`${BASE}/app/settings#chat`);
+await p1.goto(`${BASE}/app/chat`);
 await p1.click("#chat button:has-text('Switch off')");
 await p1.waitForSelector("#chat button:has-text('Switch on')");
 const off = await visitorCtx.newPage();
@@ -812,10 +807,11 @@ await p1.click("#chat button:has-text('Switch on')");
 await p1.waitForSelector("#chat button:has-text('Switch off')");
 
 // Leave the agent as a new workspace has it: off, asking first.
-await p1.goto(`${BASE}/app/agents`);
-const agent3 = p1.locator("section", { hasText: "Inbound agent" }).first();
+await p1.goto(`${BASE}/app/chat`);
+await p1.waitForSelector("#agent");
+const agent3 = p1.locator("#agent");
 await agent3.locator('input[value="approve_first"]').check();
-await agent3.locator("button:has-text('Save settings')").click();
+await agent3.locator("button:has-text('Save')").click();
 await agent3.locator("text=Saved.").waitFor();
 await agent3.locator("button:has-text('Switch off')").click();
 await agent3.locator("button:has-text('Switch on')").waitFor();

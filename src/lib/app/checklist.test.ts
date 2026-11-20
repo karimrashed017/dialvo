@@ -52,15 +52,17 @@ const state = (over: Partial<Parameters<typeof checklistState>[0]> = {}) =>
   );
 
 describe("the Get started checklist", () => {
-  it("starts a new workspace with its first note counted and three steps to do", () => {
+  it("starts a new workspace with its first note counted and four steps to do", () => {
     const s = state();
     expect(s.done).toEqual({
       teach: true,
       try: false,
       install: false,
       on: false,
+      find: false,
     });
     expect(s.count).toBe(1);
+    expect(s.chatDone).toBe(false);
     expect(s.hidden).toBe(false);
   });
 
@@ -80,6 +82,7 @@ describe("the Get started checklist", () => {
       }).done.install,
     ).toBe(true);
     expect(state({ agents: [agent(true)] }).done.on).toBe(true);
+    expect(state({ foundLeads: true }).done.find).toBe(true);
     // Another agent being on isn't the inbound chat agent being on.
     expect(
       state({
@@ -136,8 +139,23 @@ describe("the Get started checklist", () => {
       ],
       agents: [agent(true)],
     });
+    // The website chat is answering, but no leads have been found yet.
     expect(all.count).toBe(4);
-    expect(all.hidden).toBe(true);
+    expect(all.chatDone).toBe(true);
+    expect(all.hidden).toBe(false);
+    const withLeads = state({
+      setup: setup({ tried_agent_at: ago(1000) }),
+      widgets: [
+        widget({
+          last_seen_at: ago(1000),
+          last_seen_origin: "https://example.com",
+        }),
+      ],
+      agents: [agent(true)],
+      foundLeads: true,
+    });
+    expect(withLeads.count).toBe(5);
+    expect(withLeads.hidden).toBe(true);
   });
 
   it("offers to create a chat when an older workspace has none", () => {

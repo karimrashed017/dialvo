@@ -15,11 +15,19 @@ import {
   normalizeEmail,
 } from "@/lib/leads/fields";
 import { createLimiter } from "@/lib/leads/rate-limit";
-import { prospectRuntimeStatus } from "@/lib/prospects/config";
+import {
+  contactDatabaseStatus,
+  prospectRuntimeStatus,
+} from "@/lib/prospects/config";
+import {
+  contactQueryFor,
+  startContactRun,
+} from "@/lib/prospects/contact-search";
 import { siteDomain } from "@/lib/prospects/domains";
 import { suggestIdealCustomer } from "@/lib/prospects/model";
 import { createProspectStore } from "@/lib/prospects/store";
 import type { Brief } from "@/lib/prospects/types";
+import type { Supabase } from "@/lib/supabase/server";
 
 // Everything a person does in "Find leads". Each action runs through
 // inWorkspace(), which checks the session and the membership. What only the
@@ -62,6 +70,7 @@ export async function saveSearch(form: FormData): Promise<ActionResult> {
         .select("id");
       mustSucceed({ error }, "update search");
       if (!data?.length) throw new ActionProblem("That search doesn't exist.");
+      await refreshSearchDetails(supabase, workspace.id, id);
       refresh();
       return { ok: true, message: "Saved." };
     }
@@ -71,10 +80,27 @@ export async function saveSearch(form: FormData): Promise<ActionResult> {
       .select("id")
       .single();
     mustSucceed({ error }, "add search");
+    await refreshSearchDetails(supabase, workspace.id, data!.id as string);
     refresh();
     // The form reads the new id from here and moves to it.
     return { ok: true, message: "Saved.", field: data!.id as string };
   });
+}
+
+/**
+ * With the contact database on, a saved search gets its "Search details"
+ * (the query and job titles a run will use) written or brought up to date
+ * now, so the team can check them before running. Never fails the save.
+ */
+async function refreshSearchDetails(
+  supabase: Supabase,
+  workspaceId: string,
+  searchId: string,
+) {
+  if (!contactDatabaseStatus().on) return;
+  await contactQueryFor(supabase, workspaceId, searchId).catch((error) =>
+    console.error("[prospects] search details:", (error as Error).message),
+  );
 }
 
 /** A few suggestions a minute per person, on top of the workspace's daily cap. */
@@ -149,11 +175,19 @@ export async function suggestSearch(): Promise<SuggestResult> {
 
 /** "Find leads": starts a run for a saved search. The open page advances it. */
 export async function startRun(form: FormData): Promise<ActionResult> {
-  return inWorkspace(async ({ workspace, user }) => {
+  return inWorkspace(async ({ supabase, workspace, user }) => {
     const id = searchId(form);
     const store = prospectRuntimeStatus().on ? createProspectStore() : null;
     if (!store) throw new ActionProblem(NOT_ON);
-    const started = await store.startRun(workspace.id, id, user.id);
+    // The contact database when its key is set, the web search otherwise.
+    const started =
+      (contactDatabaseStatus().on &&
+        (await startContactRun(supabase, workspace.id, id, user.id))) ||
+      (await store.startRun(workspace.id, id, user.id));
+    if (started.status === "invalid")
+      throw new ActionProblem(
+        "The search details are empty. Open Search details and write them again.",
+      );
     if (started.status === "not_found")
       throw new ActionProblem("That search doesn't exist.");
     if (started.status === "capped")

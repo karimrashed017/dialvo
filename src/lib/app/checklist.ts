@@ -1,7 +1,8 @@
 import type { Agent, ChatWidget, KnowledgeItem, WorkspaceSetup } from "./types";
 
-// What the "Get started" checklist shows, worked out from the workspace's
-// real state. A pure function, so the rules can be tested on their own.
+// What Home's setup steps show, worked out from the workspace's real state.
+// A pure function, so the rules can be tested on their own. Four steps get
+// the website chat answering; the fifth is the first search for leads.
 
 /** How long "reading" may last before the checklist stops believing it. */
 export const SITE_READ_STALE_MS = 90_000;
@@ -14,7 +15,12 @@ export type ChecklistInput = {
     Agent,
     "id" | "role" | "channel" | "enabled" | "approval_mode"
   >[];
+  /** "Find leads" has found at least one company for this workspace. */
+  foundLeads?: boolean;
 };
+
+/** How many steps there are, for "2 of 5 done". */
+export const CHECKLIST_STEPS = 5;
 
 const EMPTY: WorkspaceSetup = {
   site_status: "none",
@@ -54,8 +60,10 @@ export function checklistState(
     try: Boolean(setup.tried_agent_at),
     install: props.widgets.some((w) => w.last_seen_at),
     on: Boolean(inbound?.enabled),
+    find: Boolean(props.foundLeads),
   };
   const count = Object.values(done).filter(Boolean).length;
+  const dismissed = Boolean(setup.dismissed_at);
   return {
     setup,
     reading,
@@ -64,6 +72,9 @@ export function checklistState(
     inbound,
     done,
     count,
-    hidden: Boolean(setup.dismissed_at) || count === 4,
+    /** The four website-chat steps are all done. */
+    chatDone: done.teach && done.try && done.install && done.on,
+    dismissed,
+    hidden: dismissed || count === CHECKLIST_STEPS,
   };
 }

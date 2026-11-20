@@ -8,6 +8,11 @@ import {
   SEARCHES_PER_ROUND,
 } from "./config";
 import {
+  advanceContactRun,
+  defaultContactDeps,
+  type ContactDeps,
+} from "./contact-run";
+import {
   draftFirstEmail,
   findCompanies,
   researchCompany,
@@ -56,13 +61,19 @@ export type StepDeps = {
   client: ModelClient | null;
   /** For tests: reads a page without the network. */
   fetchSource?: FetchSource;
+  /** The contact database (Findymail), when its key is set. */
+  contacts?: ContactDeps | null;
 };
 
 /** The real database and model, or nulls when their keys aren't set. */
 export function defaultDeps(): StepDeps {
   if (!prospectRuntimeStatus().on) return { store: null, client: null };
   // Reads ANTHROPIC_API_KEY from the environment.
-  return { store: createProspectStore(), client: new Anthropic() };
+  return {
+    store: createProspectStore(),
+    client: new Anthropic(),
+    contacts: defaultContactDeps(),
+  };
 }
 
 export type StepResult = {
@@ -77,6 +88,12 @@ export async function advanceRun(
   const { store, client } = deps;
   if (!store || !client) return { status: "not_configured" };
   const { runId, workspaceId } = input;
+  // A run that uses the contact database finds its companies there (see
+  // contact-run.ts); from reading their sites on, it is like any other.
+  if (deps.contacts) {
+    const contact = await advanceContactRun(input, store, deps.contacts);
+    if (contact) return contact;
+  }
   const claim = await store.claim(runId, workspaceId);
   if (!claim) return { status: "not_found" };
   if (claim.status !== "searching" && claim.status !== "researching")
@@ -95,6 +112,9 @@ export async function advanceRun(
     if (claim.usage.cost_micros >= DAILY_SPEND_CAP_MICROS)
       return await end("stopped", "daily_limit");
 
+    // Whose customers this is a search for: so rivals can be told from buyers.
+    const sells = await store.sells(workspaceId).catch(() => "");
+
     if (claim.status === "searching") {
       const searchesLeft = DAILY_SEARCH_CAP - claim.usage.searches;
       if (searchesLeft <= 0) {
@@ -111,6 +131,7 @@ export async function advanceRun(
       }
       const found = await findCompanies(client, {
         brief: claim.run.brief,
+        sells,
         known: claim.known,
         wanted: claim.run.target_count - claim.run.found,
         searches: Math.min(SEARCHES_PER_ROUND, searchesLeft),
@@ -144,13 +165,15 @@ export async function advanceRun(
         const site = await readSite(company.website, deps.fetchSource);
         if (!site.ok) {
           // An unreachable site is tried once more on a later step; one
-          // that turns out not to be a company's site is not.
+          // that turns out not to be a company's site, or asks robots not
+          // to read it, is not.
           await store.saveResearch(
             runId,
             workspaceId,
             company.id,
-            site.problem === "no_website"
-              ? { status: "skipped", reason: "no_website" }
+            site.problem === "no_website" ||
+              site.problem === "robots_disallowed"
+              ? { status: "skipped", reason: site.problem }
               : { status: "retry" },
             NO_SPEND,
           );
@@ -158,6 +181,7 @@ export async function advanceRun(
         }
         const read = await researchCompany(client, {
           brief: claim.run.brief,
+          sells,
           pages: site.pages,
           fallbackName: company.company_name,
         });

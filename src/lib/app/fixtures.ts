@@ -3,7 +3,6 @@ import type { AppContext } from "./context";
 import { FIXTURES_ON } from "./fixture-flag";
 import type { InboxQueue, Repo } from "./repo";
 import {
-  LEAD_STATUSES,
   type ActivityEvent,
   type Agent,
   type Channel,
@@ -405,30 +404,37 @@ const ref = (leadId: string | null) => {
 };
 
 const repo: Repo = {
-  async today() {
+  async home() {
+    const waiting = CONVERSATIONS.filter((c) => c.status === "waiting_for_you");
     return {
-      conversationsToday: CONVERSATIONS.filter((c) => c.status !== "closed")
-        .length,
-      channelsToday: new Set(
-        CONVERSATIONS.filter((c) => c.status !== "closed").map(
-          (c) => c.channel,
-        ),
-      ).size,
-      qualifiedToday: 1,
-      meetingsBookedToday: 1,
-      waitingForYou: CONVERSATIONS.filter((c) => c.status === "waiting_for_you")
-        .length,
-      draftsWaiting: 1,
-      pipeline: Object.fromEntries(
-        LEAD_STATUSES.map((s) => [
-          s,
-          LEADS.filter((l) => l.status === s).length,
-        ]),
-      ) as Record<LeadStatus, number>,
-      upcoming: MEETINGS.map((m) => ({ ...m, lead: ref(m.lead_id) })),
-      feed: EVENTS.map((e) => ({ ...e, lead: ref(e.lead_id) })),
-      agentsOn: AGENTS.filter((a) => a.enabled).map((a) => a.role),
+      needs: {
+        emailDrafts: 0,
+        chatDrafts: 1,
+        chatsWaiting: waiting.filter((c) => c.id !== DRAFT.conversation_id)
+          .length,
+      },
+      // Finding leads isn't part of the preview: it shows as not started.
+      find: {
+        searches: 0,
+        running: false,
+        found: 0,
+        undecided: 0,
+        toWrite: 0,
+        drafted: 0,
+        approved: 0,
+      },
+      week: {
+        companiesFound: 0,
+        emailsApproved: 0,
+        chats: CONVERSATIONS.filter((c) => c.widget_id !== null).length,
+        chatsAnswered: 1,
+        leadsQualified: 1,
+      },
+      feed: EVENTS.slice(0, 6).map((e) => ({ ...e, lead: ref(e.lead_id) })),
     };
+  },
+  async emailDraftCount() {
+    return 0;
   },
   async waitingCount() {
     return CONVERSATIONS.filter((c) => c.status === "waiting_for_you").length;
