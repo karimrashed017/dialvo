@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { agentRuntimeStatus } from "@/lib/agents/config";
+import { alertEmailStatus } from "@/lib/alerts/email";
 import { getAppContext } from "@/lib/app/context";
 import { dateOnly } from "@/lib/app/time";
 import { requestOrigin } from "@/lib/auth/origin";
-import { PLANS } from "@/lib/site";
+import { trialState } from "@/lib/billing/trial";
+import { CONTACT_EMAIL, PLANS } from "@/lib/site";
 import { cn } from "@/lib/utils";
 import { ActionForm, SubmitButton } from "../_ui/form";
 import {
@@ -25,6 +27,7 @@ import {
   invite,
   removeMember,
   revokeInvitation,
+  updateAlertEmails,
   updateLeadForm,
   updateProfile,
   updateWorkspace,
@@ -44,7 +47,7 @@ function timezones(current: string): string[] {
 
 async function Settings() {
   const { repo, workspace, user } = await getAppContext();
-  const [members, invitations, forms, widgets, agents, origin] =
+  const [members, invitations, forms, widgets, agents, origin, alertsOn] =
     await Promise.all([
       repo.members(),
       repo.invitations(),
@@ -52,7 +55,10 @@ async function Settings() {
       repo.chatWidgets(),
       repo.agents(),
       requestOrigin(),
+      repo.alertEmails(),
     ]);
+  const trial = trialState(workspace);
+  const alertsLive = alertEmailStatus().on;
   const admin = workspace.role !== "member";
   const adminOnly = !admin && (
     <p className={`${hint} mt-3`}>
@@ -69,6 +75,41 @@ async function Settings() {
             Workspace
             <Badge>{PLANS[workspace.plan].name} plan</Badge>
           </h2>
+          <p
+            data-trial-line
+            className="border-b border-black/[0.06] px-4 py-2.5 text-[12.5px] leading-[1.45] text-[#0B0B0C]/70"
+          >
+            {trial.phase === "paid" ? (
+              <>Your plan is active.</>
+            ) : trial.phase === "trial" ? (
+              <>
+                Free trial: {trial.daysLeft}{" "}
+                {trial.daysLeft === 1 ? "day" : "days"} left. It ends on{" "}
+                {dateOnly(workspace.trial_ends_at, workspace.timezone)}.
+              </>
+            ) : trial.locked ? (
+              <>
+                Your free trial ended on{" "}
+                {dateOnly(workspace.trial_ends_at, workspace.timezone)}. Your
+                agent has stopped replying until you{" "}
+                <a href="/pricing" className="underline">
+                  pick a plan
+                </a>
+                .
+              </>
+            ) : (
+              <>
+                Your free trial ended on{" "}
+                {dateOnly(workspace.trial_ends_at, workspace.timezone)}. Paid
+                plans are coming and nothing has been switched off. To stay on,
+                email{" "}
+                <a href={`mailto:${CONTACT_EMAIL}`} className="underline">
+                  {CONTACT_EMAIL}
+                </a>
+                .
+              </>
+            )}
+          </p>
           <ActionForm action={updateWorkspace} className="p-4">
             <fieldset disabled={!admin} className="space-y-3">
               <label className={labelCls}>
@@ -146,6 +187,50 @@ async function Settings() {
               <SubmitButton>Save profile</SubmitButton>
             </div>
           </ActionForm>
+        </section>
+
+        <section
+          id="alerts"
+          className={cn(panel, "scroll-mt-28 lg:col-span-2")}
+        >
+          <h2 className={panelHead}>
+            Email alerts
+            <Badge tone={alertsOn ? "ink" : "outline"}>
+              {alertsOn ? "On for you" : "Off for you"}
+            </Badge>
+          </h2>
+          <div className="p-4">
+            <p className="max-w-[640px] text-[13px] leading-[1.5] text-[#0B0B0C]/70">
+              Dialvo emails you at {user.email} when a website chat is
+              qualified, needs a person, or has a draft reply waiting for your
+              approval: a short summary and a link to the conversation. This
+              switch is yours alone; each teammate has their own.
+            </p>
+            {!alertsLive && (
+              <p
+                data-alerts="not-live"
+                className="mt-2 max-w-[640px] rounded-xl bg-black/[0.04] px-3 py-2 text-[12.5px] leading-[1.45] text-[#0B0B0C]/75"
+              >
+                Email alerts aren&apos;t switched on yet on Dialvo&apos;s side,
+                so nothing is sent for now. Your choice here is saved and
+                applies as soon as they are.
+              </p>
+            )}
+            <ActionForm action={updateAlertEmails} className="mt-3">
+              <input
+                type="hidden"
+                name="alert_emails"
+                value={alertsOn ? "false" : "true"}
+              />
+              <SubmitButton variant="secondary" small>
+                {alertsOn ? "Turn my alerts off" : "Turn my alerts on"}
+              </SubmitButton>
+            </ActionForm>
+            <p className={`${hint} mt-2`}>
+              At most 20 alerts an hour go to a workspace. Dialvo never emails
+              your leads or visitors from here.
+            </p>
+          </div>
         </section>
 
         <section

@@ -49,6 +49,25 @@ export async function updateProfile(form: FormData): Promise<ActionResult> {
   });
 }
 
+/** Each person's own switch for the team's email alerts. */
+export async function updateAlertEmails(form: FormData): Promise<ActionResult> {
+  return inWorkspace(async ({ supabase, user }) => {
+    const on = form.get("alert_emails") === "true";
+    mustSucceed(
+      await supabase
+        .from("profiles")
+        .update({ alert_emails: on })
+        .eq("id", user.id),
+      "update alert emails",
+    );
+    refresh();
+    return {
+      ok: true,
+      message: on ? "Email alerts are on." : "Email alerts are off.",
+    };
+  });
+}
+
 export async function invite(form: FormData): Promise<ActionResult> {
   return inWorkspace(async ({ supabase, workspace, user }) => {
     const email = normalizeEmail(form.get("email"));

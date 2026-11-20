@@ -12,10 +12,12 @@ import {
 import { MarkAvatar } from "@/components/brand/logo";
 import { getAppContext } from "@/lib/app/context";
 import { FIXTURES_ON } from "@/lib/app/fixture-flag";
+import { trialBanner, trialState } from "@/lib/billing/trial";
 import { PLANS } from "@/lib/site";
 import { APP_CONFIGURED } from "@/lib/supabase/env";
 import { SetupNotice } from "../(auth)/frame";
 import { PAPER } from "../_site/theme";
+import { cn } from "@/lib/utils";
 import { Dropdown, menuItem } from "./_ui/dropdown";
 import { Badge, Initial } from "./_ui/kit";
 import { AppNav } from "./_ui/nav";
@@ -43,6 +45,7 @@ async function Shell({ children }: { children: React.ReactNode }) {
   ]);
   const on = agents.filter((a) => a.enabled).map((a) => ROLE_WORDS[a.role]);
   const displayName = user.name || user.email;
+  const banner = trialBanner(trialState(workspace));
 
   const switcher = (
     <Dropdown
@@ -124,6 +127,28 @@ async function Shell({ children }: { children: React.ReactNode }) {
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
+        {banner && (
+          <p
+            role="status"
+            data-trial={banner.ended ? "ended" : "running"}
+            className={cn(
+              "flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5 px-4 py-1.5 text-center text-[12.5px] leading-[1.4]",
+              banner.ended
+                ? "bg-[#0B0B0C] text-white"
+                : "border-b border-black/[0.07] bg-white text-[#0B0B0C]/70",
+            )}
+          >
+            <span>{banner.text}</span>
+            {banner.action && (
+              <a
+                href={banner.action.href}
+                className="font-medium underline underline-offset-2"
+              >
+                {banner.action.label}
+              </a>
+            )}
+          </p>
+        )}
         <header className="sticky top-0 z-30 border-b border-black/[0.07] bg-white/85 backdrop-blur-xl">
           <div className="flex h-[52px] items-center gap-2 px-3 sm:px-5">
             <div className="min-w-0 flex-1 lg:hidden">{switcher}</div>

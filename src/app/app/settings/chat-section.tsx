@@ -1,8 +1,10 @@
 import Link from "next/link";
+import { seenLine } from "@/lib/app/time";
 import type { ChatWidget } from "@/lib/app/types";
 import { cn } from "@/lib/utils";
 import { ActionForm, SubmitButton } from "../_ui/form";
 import { Badge, hint, input, labelCls, panel, panelHead } from "../_ui/kit";
+import { RecheckButton } from "../_ui/recheck";
 import {
   createChatWidget,
   deleteChatWidget,
@@ -124,6 +126,28 @@ export function ChatSection({
               >
                 {snippet}
               </pre>
+              <div className="mt-2.5 flex flex-wrap items-center gap-2">
+                <span className="text-[12px] font-medium text-[#0B0B0C]/75">
+                  On your site:
+                </span>
+                <span
+                  data-seen={w.last_seen_at ? "true" : "false"}
+                  className={cn(
+                    "text-[12.5px]",
+                    w.last_seen_at
+                      ? "font-medium text-[#0B0B0C]"
+                      : "text-[#0B0B0C]/55",
+                  )}
+                >
+                  {seenLine(w)}
+                </span>
+                <RecheckButton />
+              </div>
+              <p className={`${hint} mt-1.5`}>
+                The chat reports the site it loads on (its address only, nothing
+                about the visitor), so you can tell your code works. The preview
+                on this page doesn&apos;t count.
+              </p>
               <p className={`${hint} mt-2`}>
                 The preview is the real chat: a message you send from it arrives
                 in your Inbox as a new conversation. The chat sets no cookies;
