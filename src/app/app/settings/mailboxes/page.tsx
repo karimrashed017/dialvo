@@ -95,10 +95,11 @@ function MailboxRow({
           role="alert"
           className="mt-2 rounded-xl bg-[#B42318]/[0.06] px-3 py-2 text-[12.5px] leading-[1.5] text-[#B42318]"
         >
-          Paused: the mail server refused the login {AUTH_FAILURES_BEFORE_PAUSE}{" "}
-          times in a row, so Dialvo stopped trying. Emails waiting for this
-          mailbox are held, not lost. Create a new app password, connect this
-          address again below, and it carries on.
+          {box.pause_reason === "login_refused"
+            ? `Paused: the mail server refused the login ${AUTH_FAILURES_BEFORE_PAUSE} times in a row, so Dialvo stopped trying.`
+            : "Paused: nothing is sent from this mailbox."}{" "}
+          Emails waiting for this mailbox are held, not lost. Create a new app
+          password, connect this address again below, and it carries on.
           {box.last_error && (
             <span className="mt-1 block text-[#0B0B0C]/65">
               What the server said: {box.last_error}
