@@ -3,7 +3,6 @@ import Link from "next/link";
 import { Suspense } from "react";
 import {
   Activity,
-  ArrowRight,
   BellOff,
   CalendarCheck,
   Check,
@@ -16,6 +15,7 @@ import {
   UserPlus,
   type LucideIcon,
 } from "lucide-react";
+import { agentRuntimeStatus } from "@/lib/agents/config";
 import { getAppContext } from "@/lib/app/context";
 import { ago, dateTime } from "@/lib/app/time";
 import {
@@ -25,9 +25,10 @@ import {
   type LeadStatus,
   type TodayData,
 } from "@/lib/app/types";
+import { requestOrigin } from "@/lib/auth/origin";
 import { cn } from "@/lib/utils";
+import { Checklist } from "./_ui/checklist";
 import {
-  btn,
   ChannelTile,
   Empty,
   Initial,
@@ -245,75 +246,18 @@ function Pipeline({ today, timezone }: { today: TodayData; timezone: string }) {
   );
 }
 
-/** Shown until the workspace has its first lead: what to do, in order. */
-function GetStarted() {
-  const steps = [
-    {
-      title: "Add your leads",
-      text: "Type one in, or import a CSV from your CRM or a spreadsheet.",
-      href: "/app/leads",
-      action: "Go to leads",
-    },
-    {
-      title: "Put the form on your site",
-      text: "Copy the snippet and every enquiry lands in your inbox.",
-      href: "/app/settings#forms",
-      action: "Get the snippet",
-    },
-    {
-      title: "Teach your agents",
-      text: "Add pricing, FAQs and how you qualify to the knowledge base.",
-      href: "/app/knowledge",
-      action: "Open knowledge",
-    },
-    {
-      title: "Write their instructions",
-      text: "Set each agent's rules, approval mode and sending hours.",
-      href: "/app/agents",
-      action: "Set up agents",
-    },
-  ];
-  return (
-    <section className={cn(panel, "p-4 sm:p-5")}>
-      <h2 className="text-[15px] font-medium">Get your workspace ready</h2>
-      <p className="mt-1 max-w-[560px] text-[13px] leading-[1.5] text-[#0B0B0C]/55">
-        Nothing here yet, so the numbers above are zero. These four steps put
-        real leads and conversations on this page.
-      </p>
-      <ol className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-        {steps.map((s, i) => (
-          <li
-            key={s.title}
-            className="flex flex-col rounded-xl border border-black/[0.07] p-3.5"
-          >
-            <span className="text-[11px] text-[#0B0B0C]/40 tabular-nums">
-              {i + 1}
-            </span>
-            <span className="mt-1 text-[13.5px] font-medium">{s.title}</span>
-            <span className="mt-1 flex-1 text-[12.5px] leading-[1.45] text-[#0B0B0C]/55">
-              {s.text}
-            </span>
-            <Link
-              href={s.href}
-              className={cn(btn.secondary, btn.small, "mt-3 self-start")}
-            >
-              {s.action}
-              <ArrowRight aria-hidden className="size-3.5" />
-            </Link>
-          </li>
-        ))}
-      </ol>
-    </section>
-  );
-}
-
 async function Today() {
   const { workspace, repo, user } = await getAppContext();
-  const [today, waiting] = await Promise.all([
-    repo.today(),
-    repo.conversations("waiting"),
-  ]);
-  const leads = Object.values(today.pipeline).reduce((a, b) => a + b, 0);
+  const [today, waiting, setup, knowledge, widgets, agents, origin] =
+    await Promise.all([
+      repo.today(),
+      repo.conversations("waiting"),
+      repo.setup(),
+      repo.knowledge(),
+      repo.chatWidgets(),
+      repo.agents(),
+      requestOrigin(),
+    ]);
   const date = new Date().toLocaleDateString("en-US", {
     timeZone: workspace.timezone,
     weekday: "long",
@@ -337,7 +281,16 @@ async function Today() {
         </p>
       </div>
       <Tiles today={today} />
-      {leads === 0 && today.feed.length === 0 && <GetStarted />}
+      <Checklist
+        setup={setup}
+        knowledge={knowledge}
+        widgets={widgets}
+        agents={agents}
+        website={workspace.website}
+        origin={origin}
+        runtime={agentRuntimeStatus().on}
+        admin={workspace.role !== "member"}
+      />
       <div className="grid items-start gap-3 lg:grid-cols-[1.2fr_1fr_0.85fr]">
         <Feed events={today.feed} />
         <section className={cn(panel, "lg:min-h-[300px]")}>

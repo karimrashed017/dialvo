@@ -1,10 +1,15 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import type { ActionResult } from "@/lib/app/action";
 import { rememberWorkspace } from "@/lib/app/workspace-cookie";
 import { safeTimeZone } from "@/lib/app/time";
 import { getCurrentUser } from "@/lib/auth/user";
+import {
+  markSiteReading,
+  readSiteIntoKnowledge,
+} from "@/lib/knowledge/site-knowledge";
 import { cleanLongText, cleanText, isUuid } from "@/lib/leads/fields";
 import { APP_CONFIGURED } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
@@ -60,6 +65,20 @@ export async function createWorkspace(form: FormData): Promise<ActionResult> {
     };
   }
   await rememberWorkspace(data);
+  if (website) {
+    // Read their website into Knowledge, so the agent knows the business
+    // from the first minute. It happens after this response has gone (the
+    // person is already on Today, where the checklist shows the progress),
+    // and it fails quietly: the checklist then offers to try again.
+    await markSiteReading(supabase, data, website);
+    after(() =>
+      readSiteIntoKnowledge(supabase, {
+        workspaceId: data,
+        userId: user.id,
+        address: website,
+      }),
+    );
+  }
   redirect("/app");
 }
 
