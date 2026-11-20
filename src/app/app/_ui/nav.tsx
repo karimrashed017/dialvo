@@ -11,6 +11,7 @@ import {
   ListTree,
   Phone,
   Settings,
+  Telescope,
   Users,
   type LucideIcon,
 } from "lucide-react";
@@ -18,6 +19,7 @@ import { cn } from "@/lib/utils";
 
 const NAV: { href: string; icon: LucideIcon; label: string }[] = [
   { href: "/app", icon: LayoutDashboard, label: "Today" },
+  { href: "/app/prospects", icon: Telescope, label: "Find leads" },
   { href: "/app/inbox", icon: Inbox, label: "Inbox" },
   { href: "/app/leads", icon: Users, label: "Leads" },
   { href: "/app/agents", icon: Bot, label: "Agents" },

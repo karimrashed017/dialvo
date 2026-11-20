@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { migrationFiles, TestDb } from "./harness";
+import { OUTBOUND_TABLES } from "./outbound-tables";
 
 // The isolation rules, proved against the real migrations:
 //   * a member of workspace A cannot read or write any row of workspace B,
@@ -264,7 +265,12 @@ const TABLES: {
   },
 ];
 
-const ALL_TABLES = [...TABLES.map((t) => t.table), "workspaces", "profiles"];
+const ALL_TABLES = [
+  ...TABLES.map((t) => t.table),
+  "workspaces",
+  "profiles",
+  ...OUTBOUND_TABLES,
+];
 
 /** A write that must change nothing: refused outright, or zero rows. */
 async function expectNoEffect(run: () => Promise<{ affected: number }>) {

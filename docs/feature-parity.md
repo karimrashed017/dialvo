@@ -287,3 +287,27 @@ row of section 2 and part of section 3; the rest is still to build.
 Where the app differs on purpose: the chat widget carries no agent name or
 photo. Replies are labelled "Assistant" or "Team member", and the widget
 shows the Spark mark in black with "Powered by Dialvo".
+
+## 13. What "Find leads" adds (slice 3a, 20 Nov 2026)
+
+The first outbound slice. The benchmark's outbound starts from a contact
+database or the customer's own list; ours starts from a description: the
+customer says who they sell to and Dialvo finds the companies itself.
+
+| Benchmark capability (our words)                      | In the app                                                                                                                                                                                                                                       |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Live web search prospecting, with sources per match   | **Built, not yet run with the real model.** Find leads: describe the ideal customer, Dialvo searches the web and reads each company's own site. Every email, phone number, contact and fact is shown with the page it came from                  |
+| Company and contact database                          | Not built, on purpose. No bought or scraped contact data: only what a company publishes on its own website. No social-network profiles, no guessed or pattern-built email addresses                                                              |
+| Research per contact                                  | **Built** per company: what they do, where, a named contact if the site names one, and one to three checkable facts, each with a quote found on the page                                                                                         |
+| One researched message per person                     | **Partly.** One first email per kept company, drafted by the outbound agent from Knowledge, its instructions and the research. Email only; no follow-ups or sequence yet                                                                         |
+| Approval before send, editable drafts                 | **Built.** Approve, edit, discard, bulk approve. Approved means "ready to send"                                                                                                                                                                  |
+| Sending, deliverability, send windows, reply handling | Not built. **Nothing is sent**: no mailbox is connected yet, and the app says so on the page. That is the next slice                                                                                                                             |
+| Opt-out handling, suppression                         | **Partly.** A per-workspace never-contact list (addresses and whole domains) honoured when finding, drafting and approving; do not contact on a lead blocks approval. No unsubscribe link or automatic opt-out from replies until sending exists |
+| Signal-built lists (funding, hiring, tech changes)    | Not built                                                                                                                                                                                                                                        |
+| Lead scoring                                          | Not built. A result is marked "has email" or "no email found", nothing more                                                                                                                                                                      |
+
+Where the app differs on purpose: it finds companies, not people. A named
+contact is shown only when the company's own site presents that person as
+the one to talk to; private individuals' pages are skipped; and a company
+with no published address is still listed, marked "No email found", rather
+than given a guessed one.

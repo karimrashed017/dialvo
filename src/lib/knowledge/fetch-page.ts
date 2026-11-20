@@ -313,55 +313,25 @@ export type FetchedPage = {
   truncated: boolean;
 };
 
-/** A link found on a page: where it goes and the words on it. */
-export type PageLink = { url: string; text: string };
-
-/** The most links kept from one page. */
-const MAX_LINKS = 400;
+export type PageSource = {
+  /** Where the page was finally read from, after redirects. */
+  url: string;
+  /** True for HTML, false for plain text. */
+  html: boolean;
+  /** The page as it was sent, decoded, cut at MAX_PAGE_BYTES. */
+  body: string;
+};
 
 /**
- * The https links on a page, made absolute. Read from the whole page, menus
- * and footer included, because that is where a site lists its main pages.
+ * One public page as it was sent, under all the rules at the top of this
+ * file. For callers that need more than the readable text (the lead finder
+ * reads a company's contact links from the markup); everyone else wants
+ * fetchPage.
  */
-export function pageLinks(html: string, base: string): PageLink[] {
-  const found = new Map<string, string>();
-  const anchor =
-    /<a\b[^>]*?\bhref\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))[^>]*>([\s\S]*?)<\/a\s*>/gi;
-  for (const match of html.matchAll(anchor)) {
-    if (found.size >= MAX_LINKS) break;
-    const href = decodeEntities(match[1] ?? match[2] ?? match[3] ?? "").trim();
-    if (!href || /^(#|mailto:|tel:|javascript:|data:)/i.test(href)) continue;
-    let url: URL;
-    try {
-      url = new URL(href, base);
-    } catch {
-      continue;
-    }
-    if (url.protocol !== "https:") continue;
-    url.hash = "";
-    const key = url.toString();
-    if (found.has(key)) continue;
-    const text = decodeEntities(match[4].replace(/<[^>]*>/g, " "))
-      .replace(/\s+/g, " ")
-      .trim()
-      .slice(0, 120);
-    found.set(key, text);
-  }
-  return [...found].map(([url, text]) => ({ url, text }));
-}
-
-export async function fetchPage(
+export async function fetchPageSource(
   raw: string,
   deps: PageDeps = DEFAULT_DEPS,
-): Promise<FetchedPage> {
-  return (await fetchPageWithLinks(raw, deps)).page;
-}
-
-/** Like fetchPage, and also returns the links the page carries. */
-export async function fetchPageWithLinks(
-  raw: string,
-  deps: PageDeps = DEFAULT_DEPS,
-): Promise<{ page: FetchedPage; links: PageLink[] }> {
+): Promise<PageSource> {
   let url = parsePageUrl(raw);
   const deadline = AbortSignal.timeout(PAGE_TIMEOUT_MS);
   for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
@@ -404,21 +374,81 @@ export async function fetchPageWithLinks(
     const html = /^(text\/html|application\/xhtml\+xml)\b/.test(type);
     if (!html && !/^text\/plain\b/.test(type))
       throw new PageFetchError("not_text");
-
-    const decoded = decodeBody(response.body, type);
-    const page = html
-      ? readableText(decoded)
-      : { title: "", text: decoded.replace(/\r\n?/g, "\n").trim() };
-    if (page.text.length < 40) throw new PageFetchError("no_text");
     return {
-      page: {
-        url: url.toString(),
-        title: page.title,
-        text: page.text.slice(0, MAX_PAGE_TEXT),
-        truncated: page.text.length > MAX_PAGE_TEXT,
-      },
-      links: html ? pageLinks(decoded, url.toString()) : [],
+      url: url.toString(),
+      html,
+      body: decodeBody(response.body, type),
     };
   }
   throw new PageFetchError("too_many_redirects");
+}
+
+/** A link found on a page: where it goes and the words on it. */
+export type PageLink = { url: string; text: string };
+
+/** The most links kept from one page. */
+const MAX_LINKS = 400;
+
+/**
+ * The https links on a page, made absolute. Read from the whole page, menus
+ * and footer included, because that is where a site lists its main pages.
+ */
+export function pageLinks(html: string, base: string): PageLink[] {
+  const found = new Map<string, string>();
+  const anchor =
+    /<a\b[^>]*?\bhref\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))[^>]*>([\s\S]*?)<\/a\s*>/gi;
+  for (const match of html.matchAll(anchor)) {
+    if (found.size >= MAX_LINKS) break;
+    const href = decodeEntities(match[1] ?? match[2] ?? match[3] ?? "").trim();
+    if (!href || /^(#|mailto:|tel:|javascript:|data:)/i.test(href)) continue;
+    let url: URL;
+    try {
+      url = new URL(href, base);
+    } catch {
+      continue;
+    }
+    if (url.protocol !== "https:") continue;
+    url.hash = "";
+    const key = url.toString();
+    if (found.has(key)) continue;
+    const text = decodeEntities(match[4].replace(/<[^>]*>/g, " "))
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 120);
+    found.set(key, text);
+  }
+  return [...found].map(([url, text]) => ({ url, text }));
+}
+
+/** The readable page from what was sent, or a PageFetchError if it is empty. */
+function readablePage(source: PageSource): FetchedPage {
+  const page = source.html
+    ? readableText(source.body)
+    : { title: "", text: source.body.replace(/\r\n?/g, "\n").trim() };
+  if (page.text.length < 40) throw new PageFetchError("no_text");
+  return {
+    url: source.url,
+    title: page.title,
+    text: page.text.slice(0, MAX_PAGE_TEXT),
+    truncated: page.text.length > MAX_PAGE_TEXT,
+  };
+}
+
+export async function fetchPage(
+  raw: string,
+  deps: PageDeps = DEFAULT_DEPS,
+): Promise<FetchedPage> {
+  return readablePage(await fetchPageSource(raw, deps));
+}
+
+/** Like fetchPage, and also returns the links the page carries. */
+export async function fetchPageWithLinks(
+  raw: string,
+  deps: PageDeps = DEFAULT_DEPS,
+): Promise<{ page: FetchedPage; links: PageLink[] }> {
+  const source = await fetchPageSource(raw, deps);
+  return {
+    page: readablePage(source),
+    links: source.html ? pageLinks(source.body, source.url) : [],
+  };
 }
