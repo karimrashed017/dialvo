@@ -4,8 +4,8 @@ The marketing site and the signed-in app (slice 1, see "The app" below) for Dial
 They answer every lead within a minute, go out to find new business, follow up
 on every channel (voice, email, chat, social, SMS and WhatsApp), book the
 meetings and close simple sales; bigger deals go to the customer's team, and
-reps get a human dialer. Next.js 16 (App Router, Cache Components), Tailwind CSS 4. Early access:
-every "Join the waitlist" button opens the waitlist form at /waitlist, which saves each sign-up as a private file in the Vercel Blob store "dialvo-waitlist".
+reps get a human dialer. Next.js 16 (App Router, Cache Components), Tailwind CSS 4. Open for sign-up:
+every "Start free" button opens /signup (the old /waitlist address redirects there). Earlier waitlist sign-ups remain as private files in the Vercel Blob store "dialvo-waitlist".
 
 ## Run it
 
@@ -135,7 +135,7 @@ settings and the manual test checklist.**
   complex, negotiated or high-value deals: those go to the customer's team.
   Payments go through a secure link; the agent never takes card details.
 - No certifications are claimed.
-- The whole product is in early access; individual features aren't tagged.
+- Sign-up is open. Channels are switched on in stages, and the FAQ says plainly which are live; individual features aren't tagged.
 - AI voice calls go only to people who asked or opted in. Cold calls are made
   by reps with the dialer.
 - The site makes no claim about how the agent introduces itself (founder,

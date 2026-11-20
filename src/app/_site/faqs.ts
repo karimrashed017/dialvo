@@ -12,7 +12,7 @@ export const FAQS: Record<string, Faq[]> = {
     },
     {
       q: "Is everything available today?",
-      a: "Dialvo is in early access. We're bringing teams on in small groups, starting with the channels each one needs first, and switching on the rest as we go. When you write to us we'll tell you plainly what's ready for your use case and what isn't yet.",
+      a: "Not all of it yet. You can create an account today and put the website chat agent to work: it answers visitors from your knowledge base, qualifies them and hands the good ones to you. The other channels are being switched on in stages. Write to us and we'll tell you plainly what's ready for your use case and what isn't yet.",
     },
     {
       q: "Does it replace my sales reps?",
@@ -56,7 +56,7 @@ export const FAQS: Record<string, Faq[]> = {
   "Plans and trial": [
     {
       q: "How does the free trial work?",
-      a: `It's free until an agent books your first meeting. The trial covers up to ${TRIAL.calls} AI calls and needs a card to start, which isn't charged during the trial.`,
+      a: `It's free until an agent books your first meeting. The trial covers up to ${TRIAL.calls} AI calls and needs no card to start.`,
     },
     {
       q: "What happens after the first booked meeting?",

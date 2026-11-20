@@ -19,7 +19,7 @@ export const AGENT_NAME = "Dialvo website demo";
 
 // Bump this when AGENT_SETTINGS changes: an agent tagged with an older
 // version is updated in place the next time the server starts.
-const SETTINGS_TAG = "dialvo-demo-settings-v3";
+const SETTINGS_TAG = "dialvo-demo-settings-v4";
 
 /**
  * The language models to try, fastest suitable first. All are on ElevenLabs'

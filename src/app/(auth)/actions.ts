@@ -184,8 +184,7 @@ export async function signUp(_: AuthState, form: FormData): Promise<AuthState> {
       return {
         ok: false,
         email,
-        message:
-          "Sign-ups are closed right now. Join the waitlist and we'll be in touch.",
+        message: "Sign-ups are closed right now. Please try again soon.",
       };
     if (error.status === 429)
       return {

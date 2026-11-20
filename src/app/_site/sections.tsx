@@ -693,7 +693,7 @@ export function FinalCall() {
         <Rise>
           <p className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/70 px-3 py-1 text-[13px] text-[#0B0B0C]/75 backdrop-blur-md">
             <span className="size-1.5 rounded-full bg-[#1F3BFF]" />
-            Early access
+            Now open
           </p>
         </Rise>
         <Words
@@ -702,8 +702,8 @@ export function FinalCall() {
         />
         <Rise delay={0.3}>
           <p className="mx-auto mt-6 max-w-[520px] text-[17px] leading-[1.55] text-[#0B0B0C]/75 sm:text-[18px]">
-            Join the waitlist. It costs nothing until Dialvo books your first
-            meeting.
+            Create your account in a couple of minutes. It costs nothing until
+            Dialvo books your first meeting.
           </p>
         </Rise>
         <Rise
@@ -714,7 +714,7 @@ export function FinalCall() {
             href={startHref()}
             className="inline-flex h-12 items-center gap-2 rounded-full bg-[#0B0B0C] px-6 text-[15.5px] font-medium text-white hover:bg-black/85"
           >
-            Join the waitlist
+            Start free
             <ArrowRight aria-hidden className="size-4" />
           </a>
           <Link

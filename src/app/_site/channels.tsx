@@ -185,11 +185,11 @@ export function Channels() {
               href={startHref()}
               className="inline-flex h-11 items-center gap-2 rounded-full bg-[#0B0B0C] px-5 text-[14.5px] font-medium text-white transition-colors hover:bg-black/85"
             >
-              Join the waitlist
+              Start free
               <ArrowRight aria-hidden className="size-4" />
             </a>
             <span className="rounded-full border border-black/15 px-2.5 py-1 text-[12px] text-[#0B0B0C]/60">
-              Early access
+              Now open
             </span>
           </div>
         </div>

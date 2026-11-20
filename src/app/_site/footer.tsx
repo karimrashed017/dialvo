@@ -65,7 +65,7 @@ const COLUMNS: Column[] = [
   {
     title: "Dialvo",
     links: [
-      { href: START_HREF, label: "Join the waitlist" },
+      { href: START_HREF, label: "Start free" },
       { href: `mailto:${CONTACT_EMAIL}`, label: "Contact" },
     ],
   },
@@ -84,10 +84,6 @@ export function SiteFooter() {
               Inbound and outbound sales, run by AI agents.
             </p>
           </div>
-          <p className="inline-flex items-center gap-2 self-start rounded-full border border-black/10 bg-white/70 px-3 py-1 text-[13px] text-[#0B0B0C]/75 sm:self-auto">
-            <span className="size-1.5 rounded-full bg-[#1F3BFF]" />
-            Early access
-          </p>
         </div>
         <nav
           aria-label="Footer"
@@ -114,7 +110,7 @@ export function SiteFooter() {
       </div>
       <div className="mx-auto mt-8 flex max-w-[1180px] flex-col gap-2 text-[12.5px] text-[#0B0B0C]/40 sm:flex-row sm:justify-between sm:gap-8">
         <p className="shrink-0">
-          © 2026 Dialvo · Early access ·{" "}
+          © 2026 Dialvo ·{" "}
           <a href={`mailto:${CONTACT_EMAIL}`} className="hover:text-[#0B0B0C]">
             {CONTACT_EMAIL}
           </a>

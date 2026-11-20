@@ -5,7 +5,7 @@ import { Rise } from "./motion";
 import type { Plan } from "./plans";
 import { card, muted, serif } from "./theme";
 
-// The plan cards. Each button opens the early access email with the plan
+// The plan cards. Each button opens sign-up with the plan
 // already picked.
 
 export function PricingCards({ plans }: { plans: Plan[] }) {

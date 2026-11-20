@@ -81,7 +81,7 @@ export const PLATFORM_PAGE = {
     },
     {
       q: "Is everything available today?",
-      a: "Dialvo is in early access. Teams are brought on in small groups, and channels and integrations are switched on as each account needs them.",
+      a: "Not all of it yet. The website chat agent is live today, and the other channels and integrations are being switched on in stages. Write to us and we'll tell you plainly what's ready.",
     },
     {
       q: "Does Dialvo hold any security certifications?",

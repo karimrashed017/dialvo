@@ -24,9 +24,8 @@ export function LegalPage({
             className="rounded-2xl border border-dashed border-black/25 px-4 py-3 text-[14px] leading-[1.55] text-[#0B0B0C]/75"
           >
             <span className="font-medium text-[#0B0B0C]">Draft.</span> This is a
-            plain-language placeholder while Dialvo is in early access. It
-            hasn&apos;t been reviewed by a lawyer yet and will change before
-            launch.
+            plain-language placeholder. It hasn&apos;t been reviewed by a lawyer
+            yet and will change.
           </p>
           <h1
             className={`${serif} mt-10 text-[48px] leading-none sm:text-[64px]`}

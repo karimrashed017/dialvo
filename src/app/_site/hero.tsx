@@ -39,7 +39,7 @@ export function Hero() {
             className="inline-flex items-center gap-2 rounded-full border border-black/[0.08] bg-white/60 py-1 pr-3 pl-1 text-[13px] text-[#0B0B0C]/85 backdrop-blur-md transition-colors hover:bg-white/80"
           >
             <span className="rounded-full bg-[#1F3BFF] px-2 py-0.5 text-[11.5px] font-medium text-white">
-              Early access
+              Now open
             </span>
             Inbound, outbound, closing and expansion
             <ArrowRight aria-hidden className="size-3.5" />
@@ -63,7 +63,7 @@ export function Hero() {
           <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
             <CtaButton
               href={startHref()}
-              label="Join the waitlist"
+              label="Start free"
               icon={<Mark className="size-[18px]" />}
               primary
             />

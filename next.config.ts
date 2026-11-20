@@ -30,6 +30,10 @@ const nextConfig: NextConfig = {
     // the default 75. Everything else keeps 75.
     qualities: [75, 90],
   },
+  // The waitlist closed when sign-up opened (founder, 20 Nov 2026).
+  async redirects() {
+    return [{ source: "/waitlist", destination: "/signup", permanent: false }];
+  },
   async headers() {
     return [{ source: "/:path*", headers: SECURITY_HEADERS }];
   },

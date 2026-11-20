@@ -2,7 +2,7 @@
 
 > Dialvo runs inbound and outbound sales with AI agents. They answer every lead within a minute, go out to find new business, follow up on every channel (voice, email, chat, social, SMS and WhatsApp), book the meetings, close simple sales and grow existing customers with onboarding, renewals and upgrades. Bigger or more complex deals go to your team, and your reps get a human dialer.
 
-Dialvo is in early access: teams are brought on in small groups, and channels are switched on as each account needs them. Website: https://trydialvo.com. Contact: contact@trydialvo.com.
+Dialvo is open for sign-up at https://trydialvo.com/signup. The website chat agent is live today; the other channels are being switched on in stages. Website: https://trydialvo.com. Contact: contact@trydialvo.com.
 
 ## Channels
 
@@ -115,6 +115,6 @@ AI voice agents call people who asked to hear from you or opted in; Dialvo's AI 
 - [Plays](https://trydialvo.com/plays): every play as a card
 - [Platform](https://trydialvo.com/platform): the six feature groups
 - [Pricing](https://trydialvo.com/pricing): plans and a full comparison
-- Join the waitlist: email contact@trydialvo.com
+- Start free: https://trydialvo.com/signup
 - [Privacy](https://trydialvo.com/privacy) (draft)
 - [Terms](https://trydialvo.com/terms) (draft)

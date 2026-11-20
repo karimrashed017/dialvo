@@ -796,7 +796,7 @@ export const MOTION_PAGES: Record<MotionId, MotionContent> = {
       },
       {
         q: "Which plan includes closing?",
-        a: "The AI closer is part of Pro and Scale. Dialvo is in early access, and we'll tell you plainly what's ready for your use case when you join.",
+        a: "The AI closer is part of Pro and Scale. It is being switched on in stages, and we'll tell you plainly what's ready for your use case when you write to us.",
       },
     ],
   },

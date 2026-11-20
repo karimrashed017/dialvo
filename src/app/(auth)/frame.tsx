@@ -64,7 +64,7 @@ export function SetupNotice() {
       </header>
       <main className="flex flex-1 flex-col items-center justify-center px-5 pt-10 pb-28 text-center">
         <p className="text-[13px] font-medium tracking-[0.08em] text-[#1F3BFF] uppercase">
-          Early access
+          One moment
         </p>
         <h1
           className={`${serif} mt-4 max-w-[560px] text-[40px] leading-[1.05] sm:text-[54px]`}
@@ -72,20 +72,13 @@ export function SetupNotice() {
           Dialvo&apos;s app is being set up
         </h1>
         <p className="mt-5 max-w-[440px] text-[16px] leading-[1.6] text-[#0B0B0C]/65">
-          Log-in isn&apos;t open yet. We&apos;re bringing teams on in small
-          groups: join the waitlist and we&apos;ll email you when it&apos;s your
-          turn. Questions?{" "}
+          Log-in isn&apos;t available right now. Please try again shortly.
+          Questions?{" "}
           <a href={`mailto:${CONTACT_EMAIL}`} className={authLink}>
             {CONTACT_EMAIL}
           </a>
         </p>
         <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row">
-          <Link
-            href="/waitlist"
-            className="inline-flex h-12 items-center rounded-full bg-[#0B0B0C] px-6 text-[15.5px] font-medium text-white hover:bg-black/85"
-          >
-            Join the waitlist
-          </Link>
           <Link
             href="/"
             className="inline-flex h-12 items-center rounded-full border border-black/10 bg-white/70 px-6 text-[15.5px] hover:bg-white"

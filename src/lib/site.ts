@@ -12,8 +12,8 @@ export const TAGLINE = "Inbound and outbound sales, run by AI agents.";
 export const DESCRIPTION =
   "Dialvo runs inbound and outbound sales with AI agents. They answer every lead within a minute, go out to find new business, follow up on voice, email, chat, social, SMS and WhatsApp, book the meetings, close simple sales, grow the customers you already have and hand your team the bigger deals.";
 
-/** Where every "Join the waitlist" button leads: the waitlist form. */
-export const START_HREF = "/waitlist";
+/** Where every "Start free" button leads: creating an account. */
+export const START_HREF = "/signup";
 
 /** The free trial: it ends at the first booked meeting. */
 export const TRIAL = { calls: 300 } as const;

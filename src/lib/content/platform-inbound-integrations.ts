@@ -597,7 +597,7 @@ export const INBOUND_INTEGRATION_FEATURES = {
       },
       {
         title: "Plan",
-        body: "The API is part of Pro. Dialvo is in early access, and the API reference is shared with teams as they're brought on.",
+        body: "The API is part of Pro. The API reference is shared with teams when the API is switched on for their account.",
       },
     ],
     related: ["crm-integration", "slack-integration", "analytics"],

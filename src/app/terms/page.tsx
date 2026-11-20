@@ -8,24 +8,24 @@ export { viewport } from "../_legal/legal-page";
 export const metadata: Metadata = pageMetadata({
   title: "Terms · Dialvo",
   description:
-    "The terms for using Dialvo, the AI sales team for every channel. A draft while Dialvo is in early access.",
+    "The terms for using Dialvo, the AI sales team for every channel. A plain-language draft.",
   path: "/terms",
 });
 
 export default function Terms() {
   return (
     <LegalPage title="Terms" updated="19 November 2026">
-      <h2>Early access</h2>
+      <h2>What&apos;s switched on</h2>
       <p>
-        Dialvo is in early access. We bring teams on in small groups, and not
+        Dialvo is new and its channels are being switched on in stages. Not
         every channel or feature described on this site is switched on for every
         account yet. Things may change, break or be removed while we build.
       </p>
       <h2>Free trial and plans</h2>
       <p>
         The free trial lasts until your first booked meeting, for up to{" "}
-        {TRIAL.calls} AI calls, and needs a card to start. After that, plans are
-        ${PLANS.starter.price} (Starter), ${PLANS.pro.price} (Pro) or $
+        {TRIAL.calls} AI calls, and needs no card to start. After that, plans
+        are ${PLANS.starter.price} (Starter), ${PLANS.pro.price} (Pro) or $
         {PLANS.scale.price} (Scale) a month, billed monthly, with no contract.
         You can cancel anytime.
       </p>

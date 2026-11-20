@@ -5,11 +5,10 @@ import { PLANS } from "@/lib/site";
 import { cn } from "@/lib/utils";
 import { startHref } from "./links";
 
-// The phone's signup bar. Dialvo is in early access: its button opens the
-// waitlist form.
+// The phone's signup bar: its button opens sign-up.
 
 /**
- * On phones, an early access bar along the bottom once the hero is behind
+ * On phones, a sign-up bar along the bottom once the hero is behind
  * them. It steps aside while the plan cards are on screen, since those have
  * their own buttons.
  */
@@ -59,7 +58,7 @@ export function StickyBuy() {
           tabIndex={show ? 0 : -1}
           className="inline-flex h-10 shrink-0 items-center rounded-full bg-[#0B0B0C] px-4 text-[14px] font-medium text-white"
         >
-          Early access
+          Start free
         </a>
       </div>
     </div>

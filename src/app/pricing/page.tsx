@@ -154,7 +154,7 @@ export default function Pricing() {
                           href={startHref({ plan: c.id })}
                           className="mt-3 inline-flex h-8 items-center rounded-full border border-black/15 px-3.5 text-[13px] hover:bg-black/[0.06]"
                         >
-                          Join the waitlist
+                          Start free
                         </a>
                       </th>
                     ))}
@@ -188,9 +188,8 @@ export default function Pricing() {
               The free trial covers up to {TRIAL.calls} AI calls and ends at
               your first booked meeting. Add-ons on any plan: extra AI calls,
               lead credits, sending inboxes and dialer seats. Need more than
-              Scale? Email us and we&apos;ll put a plan together. Dialvo is in
-              early access: we bring teams on in small groups and switch
-              channels on as each account needs them.
+              Scale? Email us and we&apos;ll put a plan together. Channels are
+              switched on in stages: ask us what&apos;s ready for your use case.
             </p>
           </div>
         </section>

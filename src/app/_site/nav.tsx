@@ -389,7 +389,7 @@ export function SiteNav() {
                 ring,
               )}
             >
-              Join the waitlist
+              Start free
             </a>
             <button
               ref={sheetButton}
@@ -486,7 +486,7 @@ export function SiteNav() {
               href={startHref()}
               className="mt-1 flex h-11 items-center justify-center rounded-xl bg-[#0B0B0C] text-[15px] font-medium text-white"
             >
-              Join the waitlist
+              Start free
             </a>
             <Link
               href="/#channels"

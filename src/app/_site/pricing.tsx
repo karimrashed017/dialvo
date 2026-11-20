@@ -18,7 +18,7 @@ export function PricingSection({
         <Rise>
           <p className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/70 px-3 py-1 text-[13px] text-[#0B0B0C]/75">
             <span className="size-1.5 rounded-full bg-[#1F3BFF]" />
-            Early access
+            Now open
           </p>
         </Rise>
         <Words
@@ -29,9 +29,9 @@ export function PricingSection({
         <Rise delay={0.2}>
           <p className={`mt-5 text-[17px] leading-[1.55] ${muted}`}>
             You pay nothing until an agent books your first meeting (the trial
-            covers up to {TRIAL.calls} AI calls, with a card to start). Then $
-            {PLANS.starter.price}, ${PLANS.pro.price} or ${PLANS.scale.price} a
-            month. No contract, cancel anytime.
+            covers up to {TRIAL.calls} AI calls, with no card needed to start).
+            Then ${PLANS.starter.price}, ${PLANS.pro.price} or $
+            {PLANS.scale.price} a month. No contract, cancel anytime.
           </p>
         </Rise>
       </div>

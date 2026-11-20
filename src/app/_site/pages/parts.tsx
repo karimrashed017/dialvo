@@ -79,12 +79,12 @@ export function Breadcrumbs({
   );
 }
 
-/** The small "Early access" badge with the page's kind beside it. */
+/** The small "Now open" badge with the page's kind beside it. */
 export function Eyebrow({ label, href }: { label: string; href?: string }) {
   const inner = (
     <>
       <span className="shrink-0 rounded-full bg-[#1F3BFF] px-2 py-0.5 text-[11.5px] font-medium whitespace-nowrap text-white">
-        Early access
+        Now open
       </span>
       {label}
     </>
@@ -119,7 +119,7 @@ export function HeroButtons({
         href={startHref({ play })}
         className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-[#0B0B0C] px-6 text-[15.5px] font-medium text-white transition-colors hover:bg-black/85"
       >
-        Join the waitlist
+        Start free
         <ArrowRight aria-hidden className="size-4" />
       </a>
       <Link

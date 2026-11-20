@@ -1,7 +1,7 @@
 import { fmt, PLANS } from "@/lib/site";
 
 // Starter, Pro and Scale (prices: founder, 19 Nov 2026). Every number comes from
-// src/lib/site.ts. Dialvo as a whole is in early access; the plans describe
+// src/lib/site.ts. The plans describe
 // the product, not a list of what's switched on for each account today.
 
 export type Plan = {
@@ -28,7 +28,7 @@ export const PLAN_CARDS: Plan[] = [
     price: PLANS.starter.price,
     tagline: "Inbound.",
     lead: "For a business that gets leads and loses them to slow replies. Every lead answered, qualified and booked.",
-    cta: "Join the waitlist",
+    cta: "Start free",
     intro: "Includes",
     features: [
       "Voice agent for inbound leads: speed to lead, qualification and booking",
@@ -48,7 +48,7 @@ export const PLAN_CARDS: Plan[] = [
     price: PLANS.pro.price,
     tagline: "Inbound, outbound, closing and expansion.",
     lead: "For agencies and sales teams that want every channel worked, new business opened and simple sales closed.",
-    cta: "Join the waitlist",
+    cta: "Start free",
     intro: "Everything in Starter, plus",
     features: [
       "All channels: chat, social and WhatsApp agents as well",
@@ -71,7 +71,7 @@ export const PLAN_CARDS: Plan[] = [
     price: PLANS.scale.price,
     tagline: "For agencies and several brands.",
     lead: "Everything in Pro, across five workspaces, with higher limits and hands-on setup.",
-    cta: "Join the waitlist",
+    cta: "Start free",
     intro: "Everything in Pro, plus",
     features: [
       `${fmt(PLANS.scale.calls)} AI calls a month, with premium voices`,

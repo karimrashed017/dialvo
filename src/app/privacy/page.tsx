@@ -8,7 +8,7 @@ export { viewport } from "../_legal/legal-page";
 export const metadata: Metadata = pageMetadata({
   title: "Privacy · Dialvo",
   description:
-    "How Dialvo, the AI sales team, handles the information you give us and the calls and messages its agents handle for you. A draft while Dialvo is in early access.",
+    "How Dialvo, the AI sales team, handles the information you give us and the calls and messages its agents handle for you. A plain-language draft.",
   path: "/privacy",
 });
 
@@ -17,9 +17,9 @@ export default function Privacy() {
     <LegalPage title="Privacy" updated="19 November 2026">
       <h2>What we collect</h2>
       <p>
-        When you email us for early access, we keep your email and whatever you
-        tell us about your business. Our site counts page visits without cookies
-        and without identifying you.
+        When you email us, we keep your email and whatever you tell us about
+        your business. Our site counts page visits without cookies and without
+        identifying you.
       </p>
       <h2>Calls and messages</h2>
       <p>
@@ -43,7 +43,7 @@ export default function Privacy() {
       <h2>How we use it</h2>
       <ul>
         <li>To run Dialvo for you and support you.</li>
-        <li>To email you about your account and early access.</li>
+        <li>To email you about your account.</li>
         <li>To keep Dialvo safe and within calling rules.</li>
       </ul>
       <p>We don&apos;t sell your information.</p>
