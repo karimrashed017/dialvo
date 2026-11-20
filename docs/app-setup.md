@@ -963,8 +963,7 @@ Tested:
   are on; the job runs every minute and reports succeeded; the seed in
   `scripts/e2e-mail-seed.sql` ran through the real functions, including the
   Vault-signed unsubscribe token.
-- In a real browser against the real project (`scripts/e2e-mail.mjs`, 60
-  checks, all passing): the Mailboxes page, the help text per provider, a
+- In a real browser against the real project (`scripts/e2e-mail.mjs`: 60 checks on the first full run, of which 58 passed and 2 failed because of mistakes in the script itself; with those fixed, the rerun passed 58 of 58, the 2 fewer being checks that only apply before a reply by hand exists): the Mailboxes page, the help text per provider, a
   connection refused for a private address and for a server that doesn't
   exist, the sender details and their confirmation, the First emails
   states (Waiting for you, Scheduled with time and mailbox, Sent, Replied,
