@@ -403,6 +403,22 @@ async function Settings() {
           </div>
         </section>
 
+        <section id="crm" className={cn(panel, "scroll-mt-28 lg:col-span-2")}>
+          <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+            <p className="min-w-0 flex-1 text-[13px] leading-[1.5] text-[#0B0B0C]/70">
+              <span className="font-medium text-[#0B0B0C]">CRM</span>: connect
+              HubSpot or Pipedrive to send leads, conversations and meetings
+              there, and skip anyone already in it.
+            </p>
+            <Link
+              href="/app/settings/crm"
+              className={cn(btn.secondary, btn.small)}
+            >
+              Open CRM
+            </Link>
+          </div>
+        </section>
+
         <section id="forms" className={cn(panel, "scroll-mt-28 lg:col-span-2")}>
           <h2 className={panelHead}>
             Lead-capture forms
