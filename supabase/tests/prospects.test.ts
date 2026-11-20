@@ -607,6 +607,14 @@ describe("a run", () => {
       ["c1", "c2", "c3"].map((d) => ({ domain: `${d}.example` })),
       { maxRounds: 1 },
     );
+    // Candidates stored together share a timestamp, and are then handed out
+    // in no particular order. Space them out so this test can name them.
+    await db.admin(
+      `update prospects
+       set created_at = created_at + right(split_part(domain, '.', 1), 1)::int * interval '1 second'
+       where run_id = $1`,
+      [run],
+    );
     const first = await claim(run!, W);
     expect(first!.status).toBe("researching");
     expect(first!.work!.map((w) => w.domain)).toEqual([
