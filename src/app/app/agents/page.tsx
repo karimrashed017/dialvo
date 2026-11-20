@@ -7,6 +7,8 @@ import {
   TrendingUp,
   type LucideIcon,
 } from "lucide-react";
+import Link from "next/link";
+import { agentRuntimeStatus } from "@/lib/agents/config";
 import { getAppContext } from "@/lib/app/context";
 import { CHANNEL_LABEL, CHANNELS, type Agent } from "@/lib/app/types";
 import { cn } from "@/lib/utils";
@@ -16,7 +18,6 @@ import {
   hint,
   input,
   labelCls,
-  NotLive,
   PageHead,
   PageSkeleton,
   panel,
@@ -65,12 +66,17 @@ function AgentCard({
   agent,
   canEdit,
   timezone,
+  runtime,
 }: {
   agent: Agent;
   canEdit: boolean;
   timezone: string;
+  /** Whether this server has the keys to run an agent at all. */
+  runtime: boolean;
 }) {
   const role = ROLE[agent.role];
+  // The one agent that acts today: inbound, on the website chat.
+  const answersChat = agent.role === "inbound" && agent.channel === "chat";
   const days = new Set(agent.send_window?.days ?? []);
   return (
     <section className={panel}>
@@ -109,9 +115,36 @@ function AgentCard({
 
       {agent.enabled && (
         <p className="border-b border-black/[0.06] bg-[#1F3BFF]/[0.05] px-4 py-2 text-[12.5px] leading-[1.45] text-[#0B0B0C]/75">
-          Switched on, but not live yet: this agent can&apos;t answer, send or
-          call until its channel is connected in a later release. Its settings
-          are saved and ready.
+          {!answersChat ? (
+            <>
+              Switched on, but not live yet: this agent can&apos;t answer, send
+              or call until its channel is connected in a later release. Its
+              settings are saved and ready.
+            </>
+          ) : !runtime ? (
+            <>
+              Switched on, but the agent isn&apos;t switched on yet on
+              Dialvo&apos;s side. Until it is, visitors&apos; chat messages are
+              saved to your Inbox and nobody is answered automatically.
+            </>
+          ) : (
+            <>
+              Live on your website chat.{" "}
+              {agent.approval_mode === "auto"
+                ? "It answers visitors on its own."
+                : "It writes a draft for every message, and nothing is sent until you approve it in the Inbox."}{" "}
+              <Link href="/app/settings#chat" className="underline">
+                Add the chat to your site
+              </Link>
+              .
+            </>
+          )}
+        </p>
+      )}
+      {!agent.enabled && answersChat && (
+        <p className="border-b border-black/[0.06] px-4 py-2 text-[12.5px] leading-[1.45] text-[#0B0B0C]/60">
+          Off. Switch it on and it answers visitors in your website chat from
+          your Knowledge. While it is off, chats wait for you in the Inbox.
         </p>
       )}
 
@@ -133,6 +166,27 @@ function AgentCard({
             <p className={`${hint} mt-1.5`}>
               In plain words: who to help, what to ask, what never to say. Facts
               like prices belong in Knowledge.
+            </p>
+          </div>
+
+          <div className="lg:col-span-2">
+            <label className={labelCls}>
+              Qualifying questions
+              <textarea
+                name="qualifying_questions"
+                rows={3}
+                maxLength={4000}
+                defaultValue={agent.qualifying_questions}
+                placeholder={
+                  "One per line, e.g.\nHow many locations do you have?\nWhat do you use today?\nWhen do you want to start?"
+                }
+                className={`${input} mt-1`}
+              />
+            </label>
+            <p className={`${hint} mt-1.5`}>
+              The agent works these into the conversation, one at a time, and
+              records whether the lead is qualified, not a fit, or needs a
+              person.
             </p>
           </div>
 
@@ -171,11 +225,7 @@ function AgentCard({
                     "Ask me first",
                     "Drafts wait in your inbox for a yes.",
                   ],
-                  [
-                    "auto",
-                    "Send on its own",
-                    "Within its instructions and send window.",
-                  ],
+                  ["auto", "Send on its own", "Within its instructions."],
                 ] as const
               ).map(([value, title, text]) => (
                 <label
@@ -245,8 +295,8 @@ function AgentCard({
               </label>
             </div>
             <p className={`${hint} mt-1.5`}>
-              {timezone.replace(/_/g, " ")} time. Nothing goes out outside these
-              hours.
+              {timezone.replace(/_/g, " ")} time. For messages the agent starts
+              itself. Replies to a visitor who is chatting are not held back.
             </p>
           </fieldset>
 
@@ -281,14 +331,13 @@ async function Agents() {
   const { repo, workspace } = await getAppContext();
   const agents = await repo.agents();
   const canEdit = workspace.role !== "member";
+  const runtime = agentRuntimeStatus().on;
   return (
     <>
       <PageHead
         title="Agents"
-        note="Four agents, one per job. Set what each should do and when it may send. In this release they are configuration only: nothing here contacts a lead yet."
-      >
-        <NotLive />
-      </PageHead>
+        note="Four agents, one per job. The inbound agent answers your website chat once you switch it on. The other three are settings only for now: they don't contact anyone yet."
+      />
       <div className="flex flex-col gap-3">
         {agents.map((agent) => (
           <AgentCard
@@ -296,6 +345,7 @@ async function Agents() {
             agent={agent}
             canEdit={canEdit}
             timezone={workspace.timezone}
+            runtime={runtime}
           />
         ))}
       </div>

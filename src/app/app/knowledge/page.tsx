@@ -19,7 +19,12 @@ import {
   panel,
   panelHead,
 } from "../_ui/kit";
-import { deleteKnowledge, saveKnowledge } from "./actions";
+import {
+  addKnowledgePage,
+  deleteKnowledge,
+  refreshKnowledgePage,
+  saveKnowledge,
+} from "./actions";
 
 export const metadata: Metadata = { title: "Knowledge" };
 
@@ -74,8 +79,8 @@ function Fields({
             className={`${input} mt-1`}
           />
           <span className={`${hint} mt-1.5 block`}>
-            The address is saved now. Dialvo doesn&apos;t read the page yet: it
-            will be marked &quot;not fetched yet&quot; until that&apos;s built.
+            This page hasn&apos;t been read yet, so your agents can&apos;t use
+            it. Press &quot;Read the page now&quot; below.
           </span>
         </label>
       )}
@@ -85,6 +90,8 @@ function Fields({
 
 function Item({ item }: { item: KnowledgeItem }) {
   const url = item.kind === "url";
+  // A page whose text has been read is edited like any other text.
+  const fetched = url && item.source_url !== null;
   return (
     <li className="border-b border-black/[0.05] last:border-0">
       <details className="group">
@@ -116,9 +123,27 @@ function Item({ item }: { item: KnowledgeItem }) {
             <p className={hint}>File items can&apos;t be edited here yet.</p>
           ) : (
             <ActionForm action={saveKnowledge}>
-              <Fields item={item} kind={url ? "url" : "text"} />
+              <Fields item={item} kind={url && !fetched ? "url" : "text"} />
               <div className="mt-3 flex justify-end">
                 <SubmitButton variant="secondary">Save changes</SubmitButton>
+              </div>
+            </ActionForm>
+          )}
+          {url && (
+            <ActionForm
+              action={refreshKnowledgePage}
+              className="mt-3 border-t border-black/[0.06] pt-3"
+            >
+              <input type="hidden" name="item" value={item.id} />
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className={`${hint} min-w-0 flex-1 break-all`}>
+                  {fetched
+                    ? `Read from ${item.source_url}. Reading it again replaces the text above, including your edits.`
+                    : "Dialvo fetches the page and keeps its readable text."}
+                </p>
+                <SubmitButton variant="secondary" small pendingText="Reading…">
+                  {fetched ? "Read again" : "Read the page now"}
+                </SubmitButton>
               </div>
             </ActionForm>
           )}
@@ -150,10 +175,8 @@ async function Knowledge() {
     <>
       <PageHead
         title="Knowledge"
-        note="What your agents know about your business. They answer from this, and say they'll check when something isn't here."
-      >
-        <NotLive>Agents don&apos;t read this yet</NotLive>
-      </PageHead>
+        note="What your agents know about your business. The inbound agent answers website chats from this and nothing else, and offers a person when the answer isn't here."
+      />
       <div className="grid items-start gap-3 lg:grid-cols-[minmax(0,1fr)_360px]">
         <section className={cn(panel, "overflow-hidden")}>
           <h2 className={panelHead}>
@@ -187,12 +210,45 @@ async function Knowledge() {
             </ActionForm>
           </section>
           <section className={panel}>
-            <h2 className={panelHead}>Add a web page</h2>
-            <ActionForm action={saveKnowledge} resetOnSuccess className="p-4">
-              <Fields kind="url" />
+            <h2 className={panelHead}>Add from a web page</h2>
+            <ActionForm
+              action={addKnowledgePage}
+              resetOnSuccess
+              className="p-4"
+            >
+              <label className={labelCls}>
+                Web address
+                <input
+                  name="url"
+                  required
+                  maxLength={2000}
+                  inputMode="url"
+                  placeholder="https://yourcompany.com/pricing"
+                  className={`${input} mt-1`}
+                />
+              </label>
+              <label className={`${labelCls} mt-3`}>
+                Title{" "}
+                <span className="font-normal text-[#0B0B0C]/45">
+                  (optional)
+                </span>
+                <input
+                  name="title"
+                  maxLength={200}
+                  className={`${input} mt-1`}
+                />
+              </label>
+              <p className={`${hint} mt-2`}>
+                Dialvo reads the page once and keeps its text (up to about
+                20,000 characters), which you can then edit. Public https pages
+                only. Pages drawn by JavaScript may come back empty.
+              </p>
               <div className="mt-3 flex justify-end">
-                <SubmitButton pendingText="Adding…" variant="secondary">
-                  Add address
+                <SubmitButton
+                  pendingText="Reading the page…"
+                  variant="secondary"
+                >
+                  Add page
                 </SubmitButton>
               </div>
             </ActionForm>

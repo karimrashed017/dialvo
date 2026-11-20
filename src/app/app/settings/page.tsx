@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { agentRuntimeStatus } from "@/lib/agents/config";
 import { getAppContext } from "@/lib/app/context";
 import { dateOnly } from "@/lib/app/time";
 import { requestOrigin } from "@/lib/auth/origin";
@@ -28,6 +29,7 @@ import {
   updateProfile,
   updateWorkspace,
 } from "./actions";
+import { ChatSection } from "./chat-section";
 import { CopyButton } from "./copy";
 import { captureUrl, fetchSnippet, formSnippet } from "./snippet";
 
@@ -42,12 +44,15 @@ function timezones(current: string): string[] {
 
 async function Settings() {
   const { repo, workspace, user } = await getAppContext();
-  const [members, invitations, forms, origin] = await Promise.all([
-    repo.members(),
-    repo.invitations(),
-    repo.leadForms(),
-    requestOrigin(),
-  ]);
+  const [members, invitations, forms, widgets, agents, origin] =
+    await Promise.all([
+      repo.members(),
+      repo.invitations(),
+      repo.leadForms(),
+      repo.chatWidgets(),
+      repo.agents(),
+      requestOrigin(),
+    ]);
   const admin = workspace.role !== "member";
   const adminOnly = !admin && (
     <p className={`${hint} mt-3`}>
@@ -299,6 +304,16 @@ async function Settings() {
             )}
           </div>
         </section>
+
+        <ChatSection
+          widgets={widgets}
+          origin={origin}
+          admin={admin}
+          agentOn={agents.some(
+            (a) => a.enabled && a.role === "inbound" && a.channel === "chat",
+          )}
+          runtime={agentRuntimeStatus().on}
+        />
 
         <section id="forms" className={cn(panel, "scroll-mt-28 lg:col-span-2")}>
           <h2 className={panelHead}>

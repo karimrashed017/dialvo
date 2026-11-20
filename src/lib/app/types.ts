@@ -118,6 +118,27 @@ export type Conversation = {
   assigned_to: string | null;
   last_message_at: string | null;
   created_at: string;
+  /** Set when it came in through a website chat widget. */
+  widget_id: string | null;
+  /** A person has it: the agent stays silent until it is handed back. */
+  agent_paused: boolean;
+  outcome: ConversationOutcome | null;
+  outcome_summary: string | null;
+};
+
+export type ConversationOutcome = "qualified" | "not_qualified" | "needs_human";
+export const OUTCOME_LABEL: Record<ConversationOutcome, string> = {
+  qualified: "Qualified",
+  not_qualified: "Not a fit",
+  needs_human: "Needs a person",
+};
+
+/** A reply an agent wrote that is waiting for a person's yes. */
+export type MessageDraft = {
+  id: string;
+  conversation_id: string;
+  body: string;
+  created_at: string;
 };
 
 export type DeliveryStatus =
@@ -137,10 +158,13 @@ export type Message = {
 export type ConversationListItem = Conversation & {
   lead: LeadRef & { email: string | null };
   preview: string | null;
+  /** An agent's draft reply is waiting for approval. */
+  has_draft: boolean;
 };
 
 export type ConversationThread = ConversationListItem & {
   messages: Message[];
+  draft: MessageDraft | null;
 };
 
 export type SendWindow = { days: number[]; start: string; end: string };
@@ -151,6 +175,8 @@ export type Agent = {
   role: "inbound" | "outbound" | "closing" | "expansion";
   channel: Channel;
   instructions: string;
+  /** One per line. */
+  qualifying_questions: string;
   voice: string | null;
   enabled: boolean;
   approval_mode: "auto" | "approve_first";
@@ -163,6 +189,8 @@ export type KnowledgeItem = {
   kind: "text" | "url" | "file";
   content: string;
   status: "ready" | "not_fetched" | "processing" | "failed";
+  /** Where the text was read from, for a fetched web page. */
+  source_url: string | null;
   updated_at: string;
 };
 
@@ -210,12 +238,23 @@ export type LeadForm = {
   created_at: string;
 };
 
+export type ChatWidget = {
+  id: string;
+  name: string;
+  token: string;
+  enabled: boolean;
+  title: string;
+  welcome: string;
+  created_at: string;
+};
+
 export type TodayData = {
   conversationsToday: number;
   channelsToday: number;
   qualifiedToday: number;
   meetingsBookedToday: number;
   waitingForYou: number;
+  draftsWaiting: number;
   pipeline: Record<LeadStatus, number>;
   upcoming: (Meeting & { lead: LeadRef | null })[];
   feed: FeedEvent[];

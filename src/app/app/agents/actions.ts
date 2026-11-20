@@ -10,9 +10,9 @@ import {
 import { CHANNELS, type Channel } from "@/lib/app/types";
 import { cleanLongText, cleanText, isUuid } from "@/lib/leads/fields";
 
-// Agent settings. Owners and admins only (the database says the same). This
-// slice stores the configuration; the agents don't act on it yet, and the
-// page says so.
+// Agent settings. Owners and admins only (the database says the same). The
+// inbound agent on the chat channel acts on them (src/lib/agents); the other
+// agents' settings are stored for later, and the page says so.
 
 const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
 
@@ -77,6 +77,10 @@ export async function updateAgent(form: FormData): Promise<ActionResult> {
             name,
             channel,
             instructions: cleanLongText(form.get("instructions"), 20000),
+            qualifying_questions: cleanLongText(
+              form.get("qualifying_questions"),
+              4000,
+            ),
             voice: cleanText(form.get("voice"), 80) || null,
             approval_mode:
               form.get("approval_mode") === "auto" ? "auto" : "approve_first",

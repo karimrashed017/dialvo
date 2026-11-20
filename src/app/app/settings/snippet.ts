@@ -43,3 +43,12 @@ export function fetchSnippet(origin: string, token: string): string {
   }),
 });`;
 }
+
+/** The chat widget's script address. */
+export const widgetUrl = (origin: string, token: string) =>
+  `${origin}/widget.js?id=${token}`;
+
+/** One line to paste before </body> on every page that should have the chat. */
+export function chatSnippet(origin: string, token: string): string {
+  return `<script src="${widgetUrl(origin, token)}" async></script>`;
+}

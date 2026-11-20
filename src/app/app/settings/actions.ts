@@ -220,3 +220,69 @@ export async function deleteLeadForm(form: FormData): Promise<ActionResult> {
     return { ok: true };
   }, admin);
 }
+
+// ---------------------------------------------------------------------------
+// Website chat widgets
+// ---------------------------------------------------------------------------
+
+function widgetFields(form: FormData) {
+  const name = cleanText(form.get("name"), 120);
+  if (!name) throw new ActionProblem("Give the chat a name.", "name");
+  const title = cleanText(form.get("title"), 60);
+  if (!title)
+    throw new ActionProblem("Add the title visitors will see.", "title");
+  return { name, title, welcome: cleanText(form.get("welcome"), 300) };
+}
+
+export async function createChatWidget(form: FormData): Promise<ActionResult> {
+  return inWorkspace(async ({ supabase, workspace, user }) => {
+    const name = cleanText(form.get("name"), 120) || "Website chat";
+    mustSucceed(
+      await supabase.from("chat_widgets").insert({
+        workspace_id: workspace.id,
+        name,
+        created_by: user.id,
+      }),
+      "create chat widget",
+    );
+    refresh();
+    return { ok: true };
+  }, admin);
+}
+
+export async function updateChatWidget(form: FormData): Promise<ActionResult> {
+  return inWorkspace(async ({ supabase, workspace }) => {
+    const id = form.get("widget");
+    if (!isUuid(id)) throw new ActionProblem("That chat doesn't exist.");
+    const changes = form.has("enabled")
+      ? { enabled: form.get("enabled") === "true" }
+      : widgetFields(form);
+    mustSucceed(
+      await supabase
+        .from("chat_widgets")
+        .update(changes)
+        .eq("workspace_id", workspace.id)
+        .eq("id", id),
+      "update chat widget",
+    );
+    refresh();
+    return { ok: true, message: form.has("enabled") ? undefined : "Saved." };
+  }, admin);
+}
+
+export async function deleteChatWidget(form: FormData): Promise<ActionResult> {
+  return inWorkspace(async ({ supabase, workspace }) => {
+    const id = form.get("widget");
+    if (!isUuid(id)) throw new ActionProblem("That chat doesn't exist.");
+    mustSucceed(
+      await supabase
+        .from("chat_widgets")
+        .delete()
+        .eq("workspace_id", workspace.id)
+        .eq("id", id),
+      "delete chat widget",
+    );
+    refresh();
+    return { ok: true };
+  }, admin);
+}

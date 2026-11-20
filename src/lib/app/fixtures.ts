@@ -13,6 +13,7 @@ import {
   type LeadStatus,
   type Meeting,
   type Message,
+  type MessageDraft,
 } from "./types";
 
 // DESIGN-PREVIEW-FIXTURES
@@ -138,6 +139,10 @@ function conversation(
     assigned_to: assigned,
     last_message_at: minutesAgo(last),
     created_at: minutesAgo(last + 60),
+    widget_id: channel === "chat" ? id(971) : null,
+    agent_paused: false,
+    outcome: null,
+    outcome_summary: null,
   };
 }
 
@@ -331,6 +336,7 @@ const AGENTS: Agent[] = [
     channel: "chat",
     instructions:
       "Answer new leads within a minute. Ask how many locations they run and what they use today. Book qualified leads with Priya.",
+    qualifying_questions: "",
     voice: null,
     enabled: true,
     approval_mode: "auto",
@@ -342,6 +348,7 @@ const AGENTS: Agent[] = [
     role: "outbound",
     channel: "email",
     instructions: "",
+    qualifying_questions: "",
     voice: null,
     enabled: false,
     approval_mode: "approve_first",
@@ -353,6 +360,7 @@ const AGENTS: Agent[] = [
     role: "closing",
     channel: "chat",
     instructions: "",
+    qualifying_questions: "",
     voice: null,
     enabled: false,
     approval_mode: "approve_first",
@@ -364,12 +372,21 @@ const AGENTS: Agent[] = [
     role: "expansion",
     channel: "email",
     instructions: "",
+    qualifying_questions: "",
     voice: null,
     enabled: false,
     approval_mode: "approve_first",
     send_window: { days: [1, 2, 3, 4, 5], start: "09:00", end: "17:00" },
   },
 ];
+
+// One draft reply waiting for approval, so the preview shows that state.
+const DRAFT: MessageDraft = {
+  id: id(981),
+  conversation_id: id(201),
+  body: "Yes, we do. Most clinic sites go live in about three weeks. How many locations do you run?",
+  created_at: minutesAgo(3),
+};
 
 function listItem(c: Conversation): ConversationListItem {
   const l = byId(c.lead_id);
@@ -378,6 +395,7 @@ function listItem(c: Conversation): ConversationListItem {
     ...c,
     lead: { id: l.id, name: l.name, company: l.company, email: l.email },
     preview: last?.body ?? null,
+    has_draft: c.id === DRAFT.conversation_id,
   };
 }
 
@@ -400,6 +418,7 @@ const repo: Repo = {
       meetingsBookedToday: 1,
       waitingForYou: CONVERSATIONS.filter((c) => c.status === "waiting_for_you")
         .length,
+      draftsWaiting: 1,
       pipeline: Object.fromEntries(
         LEAD_STATUSES.map((s) => [
           s,
@@ -475,6 +494,7 @@ const repo: Repo = {
     return {
       ...listItem(c),
       messages: MESSAGES.filter((m) => m.conversation_id === c.id),
+      draft: c.id === DRAFT.conversation_id ? DRAFT : null,
     };
   },
   async knowledge() {
@@ -486,6 +506,7 @@ const repo: Repo = {
         content:
           "Websites and local SEO for clinics, gyms and trades. Fixed monthly plans from $900. Most projects go live in three weeks.",
         status: "ready",
+        source_url: null,
         updated_at: minutesAgo(4000),
       },
       {
@@ -494,6 +515,7 @@ const repo: Repo = {
         kind: "url",
         content: "https://northwind.example/pricing",
         status: "not_fetched",
+        source_url: null,
         updated_at: minutesAgo(900),
       },
       {
@@ -503,6 +525,7 @@ const repo: Repo = {
         content:
           '"We already have a site": ask when it last brought in an enquiry. "Too expensive": compare with one new client a month.',
         status: "ready",
+        source_url: null,
         updated_at: minutesAgo(300),
       },
     ];
@@ -548,6 +571,19 @@ const repo: Repo = {
         token: "0".repeat(64),
         enabled: true,
         redirect_url: null,
+        created_at: minutesAgo(50000),
+      },
+    ];
+  },
+  async chatWidgets() {
+    return [
+      {
+        id: id(971),
+        name: "Website chat",
+        token: "0".repeat(64),
+        enabled: true,
+        title: "Chat with us",
+        welcome: "Hi. How can we help?",
         created_at: minutesAgo(50000),
       },
     ];

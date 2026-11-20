@@ -7,6 +7,7 @@ import {
   type ActivityEvent,
   type Agent,
   type Call,
+  type ChatWidget,
   type Conversation,
   type ConversationListItem,
   type ConversationThread,
@@ -21,6 +22,7 @@ import {
   type Meeting,
   type Member,
   type Message,
+  type MessageDraft,
   type TodayData,
   type Workspace,
 } from "./types";
@@ -44,12 +46,13 @@ export interface Repo {
   members(): Promise<Member[]>;
   invitations(): Promise<Invitation[]>;
   leadForms(): Promise<LeadForm[]>;
+  chatWidgets(): Promise<ChatWidget[]>;
 }
 
 const LEAD_COLUMNS =
   "id, name, email, phone, company, website, source, status, owner_id, consent_call, consent_call_at, consent_call_source, consent_sms, consent_sms_at, consent_sms_source, consent_whatsapp, consent_whatsapp_at, consent_whatsapp_source, consent_email, consent_email_at, consent_email_source, do_not_contact, do_not_contact_at, custom_fields, created_at, updated_at";
 const CONVERSATION_COLUMNS =
-  "id, lead_id, channel, status, assigned_to, last_message_at, created_at";
+  "id, lead_id, channel, status, assigned_to, last_message_at, created_at, widget_id, agent_paused, outcome, outcome_summary";
 const MESSAGE_COLUMNS =
   "id, conversation_id, direction, author, author_user_id, body, delivery_status, sent_at";
 const MEETING_COLUMNS =
@@ -105,22 +108,33 @@ export function createRepo(
     list: (Conversation & { lead: ConversationListItem["lead"] })[],
   ): Promise<ConversationListItem[]> {
     if (list.length === 0) return [];
-    const latest = rows<Pick<Message, "conversation_id" | "body">>(
-      await from("messages")
+    const ids = list.map((c) => c.id);
+    const [messages, drafts] = await Promise.all([
+      from("messages")
         .select("conversation_id, body")
         .eq("workspace_id", ws)
-        .in(
-          "conversation_id",
-          list.map((c) => c.id),
-        )
+        .in("conversation_id", ids)
         .order("sent_at", { ascending: false })
         .limit(600),
-    );
+      from("message_drafts")
+        .select("conversation_id")
+        .eq("workspace_id", ws)
+        .eq("status", "pending")
+        .in("conversation_id", ids),
+    ]);
+    const latest = rows<Pick<Message, "conversation_id" | "body">>(messages);
     const preview = new Map<string, string>();
     for (const m of latest)
       if (!preview.has(m.conversation_id))
         preview.set(m.conversation_id, m.body.slice(0, 160));
-    return list.map((c) => ({ ...c, preview: preview.get(c.id) ?? null }));
+    const waiting = new Set(
+      rows<{ conversation_id: string }>(drafts).map((d) => d.conversation_id),
+    );
+    return list.map((c) => ({
+      ...c,
+      preview: preview.get(c.id) ?? null,
+      has_draft: waiting.has(c.id),
+    }));
   }
 
   return {
@@ -138,6 +152,7 @@ export function createRepo(
         qualified,
         booked,
         waiting,
+        drafts,
         upcoming,
         feed,
         agents,
@@ -159,6 +174,10 @@ export function createRepo(
           .eq("workspace_id", ws)
           .gte("created_at", start),
         waitingCount(),
+        from("message_drafts")
+          .select("id", head)
+          .eq("workspace_id", ws)
+          .eq("status", "pending"),
         from("meetings")
           .select(`${MEETING_COLUMNS}, lead:leads(id, name, company)`)
           .eq("workspace_id", ws)
@@ -192,6 +211,7 @@ export function createRepo(
         qualifiedToday: count(qualified),
         meetingsBookedToday: count(booked),
         waitingForYou: waiting,
+        draftsWaiting: count(drafts),
         pipeline,
         upcoming: rows<Meeting & { lead: LeadRef | null }>(upcoming),
         feed: rows<FeedEvent>(feed),
@@ -299,7 +319,7 @@ export function createRepo(
 
     async conversation(id) {
       if (!isUuid(id)) return null;
-      const [conversation, messages] = await Promise.all([
+      const [conversation, messages, drafts] = await Promise.all([
         from("conversations")
           .select(
             `${CONVERSATION_COLUMNS}, lead:leads(id, name, company, email)`,
@@ -313,24 +333,33 @@ export function createRepo(
           .eq("conversation_id", id)
           .order("sent_at")
           .limit(500),
+        from("message_drafts")
+          .select("id, conversation_id, body, created_at")
+          .eq("workspace_id", ws)
+          .eq("conversation_id", id)
+          .eq("status", "pending")
+          .limit(1),
       ]);
       if (conversation.error)
         throw new Error(`Database read failed: ${conversation.error.message}`);
       if (!conversation.data) return null;
       const list = rows<Message>(messages);
+      const draft = rows<MessageDraft>(drafts)[0] ?? null;
       return {
         ...(conversation.data as unknown as Conversation & {
           lead: ConversationListItem["lead"];
         }),
         preview: list.at(-1)?.body.slice(0, 160) ?? null,
+        has_draft: draft !== null,
         messages: list,
+        draft,
       };
     },
 
     async knowledge() {
       return rows<KnowledgeItem>(
         await from("knowledge_items")
-          .select("id, title, kind, content, status, updated_at")
+          .select("id, title, kind, content, status, source_url, updated_at")
           .eq("workspace_id", ws)
           .order("created_at", { ascending: false })
           .limit(200),
@@ -342,7 +371,7 @@ export function createRepo(
       return rows<Agent>(
         await from("agents")
           .select(
-            "id, name, role, channel, instructions, voice, enabled, approval_mode, send_window",
+            "id, name, role, channel, instructions, qualifying_questions, voice, enabled, approval_mode, send_window",
           )
           .eq("workspace_id", ws)
           .order("created_at")
@@ -394,6 +423,16 @@ export function createRepo(
           .eq("workspace_id", ws)
           .order("created_at")
           .limit(50),
+      );
+    },
+
+    async chatWidgets() {
+      return rows<ChatWidget>(
+        await from("chat_widgets")
+          .select("id, name, token, enabled, title, welcome, created_at")
+          .eq("workspace_id", ws)
+          .order("created_at")
+          .limit(20),
       );
     },
   };

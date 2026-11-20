@@ -4,9 +4,13 @@ import { Suspense } from "react";
 import {
   Activity,
   ArrowRight,
+  BellOff,
   CalendarCheck,
   Check,
   FileUp,
+  Hand,
+  MessageCircle,
+  MessageSquareDashed,
   NotebookPen,
   PenLine,
   UserPlus,
@@ -36,6 +40,13 @@ import {
 export const metadata: Metadata = { title: "Today" };
 
 const EVENT_ICON: Record<string, LucideIcon> = {
+  chat_started: MessageCircle,
+  chat_reply: MessageCircle,
+  draft_waiting: MessageSquareDashed,
+  draft_approved: Check,
+  handoff_requested: Hand,
+  handed_back: Hand,
+  do_not_contact: BellOff,
   note: NotebookPen,
   lead_created: UserPlus,
   lead_imported: FileUp,
@@ -70,7 +81,10 @@ function Tiles({ today }: { today: TodayData }) {
     {
       label: "Waiting for you",
       value: today.waitingForYou,
-      note: "conversations to answer",
+      note:
+        today.draftsWaiting > 0
+          ? `${today.draftsWaiting} ${today.draftsWaiting === 1 ? "draft" : "drafts"} to approve`
+          : "conversations to answer",
       href: "/app/inbox",
       alert: today.waitingForYou > 0,
     },

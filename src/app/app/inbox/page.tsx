@@ -2,18 +2,23 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { ArrowLeft, Inbox as InboxIcon, MessageCircle } from "lucide-react";
+import { agentRuntimeStatus } from "@/lib/agents/config";
 import { getAppContext } from "@/lib/app/context";
 import type { InboxQueue } from "@/lib/app/repo";
 import { ago, dateTime } from "@/lib/app/time";
 import {
   CHANNEL_LABEL,
+  OUTCOME_LABEL,
+  type Agent,
   type ConversationThread,
   type Member,
 } from "@/lib/app/types";
 import { cn } from "@/lib/utils";
 import { ActionForm, SubmitButton } from "../_ui/form";
+import { LiveRefresh } from "../_ui/live";
 import {
   Badge,
+  btn,
   ChannelTile,
   Empty,
   input,
@@ -22,7 +27,15 @@ import {
   PageSkeleton,
   panel,
 } from "../_ui/kit";
-import { assign, reply, setConversationStatus } from "./actions";
+import {
+  approveDraft,
+  assign,
+  discardDraft,
+  handBackToAgent,
+  reply,
+  sendChatReply,
+  setConversationStatus,
+} from "./actions";
 
 export const metadata: Metadata = { title: "Inbox" };
 
@@ -40,19 +53,135 @@ const STATUS_WORDS = {
   closed: "Closed",
 } as const;
 
+/** Who is answering a website chat right now, in a sentence. */
+function ChatStatus({
+  thread,
+  agent,
+}: {
+  thread: ConversationThread;
+  /** The workspace's inbound chat agent, if it is switched on. */
+  agent: Agent | undefined;
+}) {
+  const runtime = agentRuntimeStatus().on;
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 border-b border-black/[0.06] bg-black/[0.02] px-4 py-2 text-[12.5px] leading-[1.45] text-[#0B0B0C]/70">
+      <p className="min-w-0 flex-1">
+        {thread.outcome && (
+          <Badge
+            tone={thread.outcome === "qualified" ? "ink" : "outline"}
+            className="mr-2"
+          >
+            {OUTCOME_LABEL[thread.outcome]}
+          </Badge>
+        )}
+        {thread.agent_paused
+          ? "A person has this chat. The agent is paused here until you hand it back."
+          : !agent
+            ? "The inbound agent is off, so nobody answers automatically. Your reply appears in the visitor's chat."
+            : !runtime
+              ? "The agent isn't switched on yet on Dialvo's side, so nobody answers automatically. Your reply appears in the visitor's chat."
+              : agent.approval_mode === "auto"
+                ? "The inbound agent is answering this chat on its own."
+                : "The inbound agent writes drafts for this chat. Nothing is sent until you approve it."}
+        {thread.outcome_summary && (
+          <span className="mt-0.5 block text-[#0B0B0C]/55">
+            Agent&apos;s note: {thread.outcome_summary}
+          </span>
+        )}
+      </p>
+      {thread.agent_paused && (
+        <ActionForm action={handBackToAgent} quiet>
+          <input type="hidden" name="conversation" value={thread.id} />
+          <SubmitButton variant="secondary" small pendingText="Handing back…">
+            Hand back to agent
+          </SubmitButton>
+        </ActionForm>
+      )}
+    </div>
+  );
+}
+
+/** The agent's draft reply: approve & send, edit, or discard. */
+function Draft({ thread }: { thread: ConversationThread }) {
+  const draft = thread.draft;
+  if (!draft) return null;
+  return (
+    <div className="border-t border-black/[0.06] bg-[#1F3BFF]/[0.04] p-3">
+      <p className="mb-1.5 flex items-center gap-2 text-[12px] font-medium text-[#0B0B0C]/70">
+        <Badge tone="blue">Draft</Badge>
+        The agent wrote this reply. The visitor hasn&apos;t seen it.
+      </p>
+      <p className="rounded-xl border border-black/[0.08] bg-white px-3.5 py-2 text-[13.5px] leading-[1.45] whitespace-pre-wrap">
+        {draft.body}
+      </p>
+      <div className="mt-2 flex flex-wrap items-start gap-2">
+        <ActionForm action={approveDraft} quiet>
+          <input type="hidden" name="draft" value={draft.id} />
+          <SubmitButton small pendingText="Sending…">
+            Approve &amp; send
+          </SubmitButton>
+        </ActionForm>
+        {/* Closed, it is a button in the row; open, it takes the row below. */}
+        <details className="min-w-0 open:order-last open:basis-full">
+          <summary
+            className={cn(
+              btn.secondary,
+              btn.small,
+              "w-fit list-none [&::-webkit-details-marker]:hidden",
+            )}
+          >
+            Edit
+          </summary>
+          <ActionForm action={approveDraft} quiet className="mt-2">
+            <input type="hidden" name="draft" value={draft.id} />
+            <label className="sr-only" htmlFor="draft-body">
+              Edit the draft
+            </label>
+            <textarea
+              id="draft-body"
+              name="body"
+              rows={3}
+              required
+              maxLength={10000}
+              defaultValue={draft.body}
+              className={input}
+            />
+            <div className="mt-2 flex justify-end">
+              <SubmitButton small pendingText="Sending…">
+                Send edited reply
+              </SubmitButton>
+            </div>
+          </ActionForm>
+        </details>
+        <ActionForm action={discardDraft} quiet>
+          <input type="hidden" name="draft" value={draft.id} />
+          <SubmitButton variant="ghost" small pendingText="Discarding…">
+            Discard
+          </SubmitButton>
+        </ActionForm>
+      </div>
+    </div>
+  );
+}
+
 function Thread({
   thread,
   members,
   timezone,
   back,
+  chatAgent,
 }: {
   thread: ConversationThread;
   members: Member[];
   timezone: string;
   back: string;
+  chatAgent: Agent | undefined;
 }) {
   const names = new Map(members.map((m) => [m.user_id, m.name || m.email]));
   const channel = CHANNEL_LABEL[thread.channel];
+  // A website chat is the one channel that is connected: replies reach the
+  // visitor. Everything else is still stored and marked "not delivered".
+  const chat = thread.widget_id !== null;
   return (
     <section className={cn(panel, "min-h-[480px] lg:h-[calc(100dvh-170px)]")}>
       <header className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-black/[0.06] px-4 py-2.5">
@@ -74,7 +203,7 @@ function Thread({
             </Link>
           </h2>
           <p className="truncate text-[11.5px] text-[#0B0B0C]/50">
-            {channel}
+            {chat ? "Website chat" : channel}
             {thread.lead.company && thread.lead.name
               ? ` · ${thread.lead.company}`
               : ""}
@@ -118,6 +247,7 @@ function Thread({
           </SubmitButton>
         </ActionForm>
       </header>
+      {chat && <ChatStatus thread={thread} agent={chatAgent} />}
 
       <div className="flex flex-1 flex-col gap-2 overflow-y-auto px-4 py-4">
         {thread.messages.length === 0 && (
@@ -169,8 +299,10 @@ function Thread({
         })}
       </div>
 
+      {/* Keyed, so a newer draft starts its fields afresh. */}
+      {chat && <Draft key={thread.draft?.id} thread={thread} />}
       <ActionForm
-        action={reply}
+        action={chat ? sendChatReply : reply}
         resetOnSuccess
         quiet
         className="border-t border-black/[0.06] p-3"
@@ -189,11 +321,21 @@ function Thread({
           className={input}
         />
         <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-          <p className="max-w-[440px] text-[11.5px] leading-[1.45] text-[#0B0B0C]/55">
-            Saved, not delivered: {channel} isn&apos;t connected yet, so your
-            reply is stored on this thread but not sent to the lead.
-          </p>
-          <SubmitButton small>Save reply</SubmitButton>
+          {chat ? (
+            <p className="max-w-[440px] text-[11.5px] leading-[1.45] text-[#0B0B0C]/55">
+              Your reply appears in the visitor&apos;s chat on your website.
+              {!thread.agent_paused &&
+                " Replying pauses the agent on this conversation."}
+            </p>
+          ) : (
+            <p className="max-w-[440px] text-[11.5px] leading-[1.45] text-[#0B0B0C]/55">
+              Saved, not delivered: {channel} isn&apos;t connected yet, so your
+              reply is stored on this thread but not sent to the lead.
+            </p>
+          )}
+          <SubmitButton small pendingText={chat ? "Sending…" : "Saving…"}>
+            {chat ? "Send reply" : "Save reply"}
+          </SubmitButton>
         </div>
       </ActionForm>
     </section>
@@ -209,16 +351,22 @@ async function InboxContent({
   const queue =
     QUEUES.find((q) => q.id === params.queue)?.id ?? ("waiting" as const);
   const selected = typeof params.c === "string" ? params.c : "";
-  const { repo, workspace } = await getAppContext();
-  const [list, thread, members] = await Promise.all([
+  const { repo, workspace, preview } = await getAppContext();
+  const [list, thread, members, agents] = await Promise.all([
     repo.conversations(queue),
     selected ? repo.conversation(selected) : null,
     repo.members(),
+    repo.agents(),
   ]);
+  const chatAgent = agents.find(
+    (a) => a.enabled && a.role === "inbound" && a.channel === "chat",
+  );
   const link = (c?: string) => `/app/inbox?queue=${queue}${c ? `&c=${c}` : ""}`;
 
   return (
     <>
+      {/* New chats, replies and drafts show up without a reload. */}
+      {!preview && <LiveRefresh />}
       <PageHead
         title="Inbox"
         note="Every conversation on every channel. Your agents' handoffs and new enquiries wait for you here."
@@ -263,8 +411,8 @@ async function InboxContent({
               }
             >
               {queue === "waiting"
-                ? "New form enquiries and handoffs from your agents will queue up here."
-                : "Conversations start when a lead fills in your form or, in later releases, when a channel is connected."}
+                ? "New chats, form enquiries, drafts to approve and handoffs from your agents queue up here."
+                : "Conversations start when a visitor writes in your website chat or fills in your form."}
             </Empty>
           ) : (
             <ul className="overflow-y-auto p-1.5">
@@ -292,6 +440,7 @@ async function InboxContent({
                             className="size-1.5 shrink-0 rounded-full bg-[#1F3BFF]"
                           />
                         )}
+                        {c.has_draft && <Badge tone="blue">Draft</Badge>}
                       </span>
                       <span className="block truncate text-[12px] text-[#0B0B0C]/50">
                         {c.preview ?? `New ${CHANNEL_LABEL[c.channel]} enquiry`}
@@ -313,6 +462,7 @@ async function InboxContent({
             members={members}
             timezone={workspace.timezone}
             back={link()}
+            chatAgent={chatAgent}
           />
         ) : (
           <section className={cn(panel, "hidden min-h-[360px] lg:flex")}>
