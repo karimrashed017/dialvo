@@ -67,5 +67,6 @@ export async function readChatBody(
 export const chatStartLimit = createLimiter({ windowMs: 60_000, max: 6 });
 /** Messages: 20 a minute from one address. */
 export const chatPostLimit = createLimiter({ windowMs: 60_000, max: 20 });
-/** Reads: the widget asks every few seconds; 90 a minute is plenty. */
-export const chatPollLimit = createLimiter({ windowMs: 60_000, max: 90 });
+/** Reads: an open widget asks every few seconds, and an office shares one
+ * address, so this one is generous: 240 a minute. */
+export const chatPollLimit = createLimiter({ windowMs: 60_000, max: 240 });

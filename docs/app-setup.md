@@ -174,7 +174,7 @@ Today.
 database functions): model `claude-haiku-4-5`, 700 output tokens and 1,500
 characters per reply, 300 agent replies per workspace per day, 60,000
 characters of knowledge per prompt, the last 40 messages of a chat; per
-address 6 new chats, 20 messages and 90 reads a minute; plus the database's
+address 6 new chats, 20 messages and 240 reads a minute; plus the database's
 own limits listed under Advisors. Card numbers are removed from a visitor's
 message before it is stored. Changing the model or a cap is a cost decision.
 

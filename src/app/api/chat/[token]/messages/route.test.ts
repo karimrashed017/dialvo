@@ -260,7 +260,7 @@ describe("POST /api/chat/[token]/poll", () => {
       error: null,
     });
     const body = { conversation: CONVERSATION, key: KEY };
-    for (let i = 0; i < 90; i++) await poll(body);
+    for (let i = 0; i < 240; i++) await poll(body);
     expect((await poll(body)).status).toBe(429);
   });
 });
