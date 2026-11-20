@@ -35,7 +35,7 @@ export async function listWorkspaces(
   const { data, error } = await supabase
     .from("workspace_members")
     .select(
-      "role, created_at, workspace:workspaces(id, name, slug, plan, timezone, website)",
+      "role, created_at, workspace:workspaces(id, name, slug, plan, timezone, website, trial_ends_at, billing_status)",
     )
     .eq("user_id", userId)
     .order("created_at");

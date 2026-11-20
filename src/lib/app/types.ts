@@ -61,7 +61,38 @@ export type Workspace = {
   plan: Plan;
   timezone: string;
   website: string | null;
+  /** When the free trial ends (see src/lib/billing/trial.ts). */
+  trial_ends_at: string;
+  billing_status: "trialing" | "active" | "past_due" | "canceled";
   role: Role;
+};
+
+/** The "Get started" checklist's memory: one row per workspace. */
+export type WorkspaceSetup = {
+  /** Reading the workspace's website into Knowledge. */
+  site_status: "none" | "reading" | "done" | "failed";
+  site_url: string | null;
+  site_started_at: string | null;
+  site_finished_at: string | null;
+  site_pages: number;
+  /** The first time the agent answered in "Try your agent". */
+  tried_agent_at: string | null;
+  dismissed_at: string | null;
+};
+
+/** One turn of a "Try your agent" chat. Never a lead or a conversation. */
+export type TestMessage = {
+  id: string;
+  session_id: string;
+  author: "user" | "agent";
+  body: string;
+  metadata: {
+    outcome?: "none" | ConversationOutcome;
+    summary?: string;
+    handoff?: boolean;
+    stop_contact?: boolean;
+  };
+  created_at: string;
 };
 
 export type Member = {
@@ -246,6 +277,11 @@ export type ChatWidget = {
   title: string;
   welcome: string;
   created_at: string;
+  /** The install check: the site the widget first and last loaded on. */
+  first_seen_at: string | null;
+  first_seen_origin: string | null;
+  last_seen_at: string | null;
+  last_seen_origin: string | null;
 };
 
 export type TodayData = {

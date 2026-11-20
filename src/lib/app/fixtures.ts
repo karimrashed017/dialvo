@@ -585,8 +585,29 @@ const repo: Repo = {
         title: "Chat with us",
         welcome: "Hi. How can we help?",
         created_at: minutesAgo(50000),
+        first_seen_at: minutesAgo(40000),
+        first_seen_origin: "https://northwind.example",
+        last_seen_at: minutesAgo(2),
+        last_seen_origin: "https://northwind.example",
       },
     ];
+  },
+  async setup() {
+    return {
+      site_status: "done",
+      site_url: "northwind.example",
+      site_started_at: minutesAgo(50000),
+      site_finished_at: minutesAgo(50000),
+      site_pages: 3,
+      tried_agent_at: null,
+      dismissed_at: null,
+    };
+  },
+  async testChat() {
+    return [];
+  },
+  async alertEmails() {
+    return true;
   },
 };
 
@@ -598,6 +619,8 @@ export function fixtureContext(): AppContext {
     plan: "scale" as const,
     timezone: "America/New_York",
     website: "northwind.example",
+    trial_ends_at: inHours(5 * 24 + 3),
+    billing_status: "trialing" as const,
     role: "owner" as const,
   };
   return {

@@ -23,8 +23,10 @@ import {
   type Member,
   type Message,
   type MessageDraft,
+  type TestMessage,
   type TodayData,
   type Workspace,
+  type WorkspaceSetup,
 } from "./types";
 
 // Everything the app's pages read, for one workspace. The pages only know
@@ -47,6 +49,12 @@ export interface Repo {
   invitations(): Promise<Invitation[]>;
   leadForms(): Promise<LeadForm[]>;
   chatWidgets(): Promise<ChatWidget[]>;
+  /** The "Get started" checklist's row. Null if the workspace has none. */
+  setup(): Promise<WorkspaceSetup | null>;
+  /** This person's latest "Try your agent" chat, oldest turn first. */
+  testChat(): Promise<TestMessage[]>;
+  /** Whether this person gets the team's email alerts. */
+  alertEmails(): Promise<boolean>;
 }
 
 const LEAD_COLUMNS =
@@ -429,11 +437,46 @@ export function createRepo(
     async chatWidgets() {
       return rows<ChatWidget>(
         await from("chat_widgets")
-          .select("id, name, token, enabled, title, welcome, created_at")
+          .select(
+            "id, name, token, enabled, title, welcome, created_at, first_seen_at, first_seen_origin, last_seen_at, last_seen_origin",
+          )
           .eq("workspace_id", ws)
           .order("created_at")
           .limit(20),
       );
+    },
+
+    async setup() {
+      return (
+        rows<WorkspaceSetup>(
+          await from("workspace_setup")
+            .select(
+              "site_status, site_url, site_started_at, site_finished_at, site_pages, tried_agent_at, dismissed_at",
+            )
+            .eq("workspace_id", ws)
+            .limit(1),
+        )[0] ?? null
+      );
+    },
+
+    async testChat() {
+      const recent = rows<TestMessage>(
+        await from("agent_test_messages")
+          .select("id, session_id, author, body, metadata, created_at")
+          .eq("workspace_id", ws)
+          .eq("user_id", userId)
+          .order("created_at", { ascending: false })
+          .limit(80),
+      );
+      const session = recent[0]?.session_id;
+      return recent.filter((m) => m.session_id === session).reverse();
+    },
+
+    async alertEmails() {
+      const mine = rows<{ alert_emails: boolean }>(
+        await from("profiles").select("alert_emails").eq("id", userId).limit(1),
+      );
+      return mine[0]?.alert_emails ?? true;
     },
   };
 }

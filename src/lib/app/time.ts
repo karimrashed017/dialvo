@@ -90,3 +90,36 @@ export function dateOnly(iso: string | null, timeZone: string): string {
     year: "numeric",
   });
 }
+
+/** "just now", "2 minutes ago", "3 hours ago", "5 days ago". */
+export function agoWords(iso: string | null, now: Date = new Date()): string {
+  if (!iso) return "";
+  const s = Math.max(
+    0,
+    Math.round((now.getTime() - new Date(iso).getTime()) / 1000),
+  );
+  const say = (n: number, unit: string) =>
+    `${n} ${unit}${n === 1 ? "" : "s"} ago`;
+  if (s < 60) return "just now";
+  if (s < 3600) return say(Math.floor(s / 60), "minute");
+  if (s < 86400) return say(Math.floor(s / 3600), "hour");
+  return say(Math.floor(s / 86400), "day");
+}
+
+/**
+ * The install check in words: "Seen on example.com, 2 minutes ago", or
+ * "Not seen yet" for a widget that has never loaded on a site.
+ */
+export function seenLine(
+  widget: { last_seen_at: string | null; last_seen_origin: string | null },
+  now: Date = new Date(),
+): string {
+  if (!widget.last_seen_at || !widget.last_seen_origin) return "Not seen yet";
+  let site = widget.last_seen_origin;
+  try {
+    site = new URL(widget.last_seen_origin).host;
+  } catch {
+    // Not an origin we can parse: show it as stored.
+  }
+  return `Seen on ${site}, ${agoWords(widget.last_seen_at, now)}`;
+}

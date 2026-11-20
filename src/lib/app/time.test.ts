@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ago, safeTimeZone, startOfDayInTz } from "./time";
+import { ago, agoWords, safeTimeZone, seenLine, startOfDayInTz } from "./time";
 
 describe("startOfDayInTz", () => {
   it("is midnight UTC for UTC", () => {
@@ -69,5 +69,41 @@ describe("ago", () => {
     expect(ago("2026-11-18T12:00:00Z", now)).toBe("2d");
     expect(ago("2026-10-01T12:00:00Z", now)).toBe("Oct 1");
     expect(ago(null, now)).toBe("");
+  });
+});
+
+describe("the install check in words", () => {
+  const now = new Date("2026-11-20T12:00:00Z");
+  const at = (secondsAgo: number) =>
+    new Date(now.getTime() - secondsAgo * 1000).toISOString();
+
+  it("says how long ago in whole units", () => {
+    expect(agoWords(at(5), now)).toBe("just now");
+    expect(agoWords(at(60), now)).toBe("1 minute ago");
+    expect(agoWords(at(125), now)).toBe("2 minutes ago");
+    expect(agoWords(at(3 * 3600 + 5), now)).toBe("3 hours ago");
+    expect(agoWords(at(86400), now)).toBe("1 day ago");
+    expect(agoWords(null, now)).toBe("");
+  });
+
+  it("names the site without the protocol", () => {
+    expect(
+      seenLine(
+        { last_seen_at: at(120), last_seen_origin: "https://example.com" },
+        now,
+      ),
+    ).toBe("Seen on example.com, 2 minutes ago");
+    expect(
+      seenLine(
+        { last_seen_at: at(10), last_seen_origin: "http://127.0.0.1:8080" },
+        now,
+      ),
+    ).toBe("Seen on 127.0.0.1:8080, just now");
+  });
+
+  it("says so when the widget has never loaded anywhere", () => {
+    expect(seenLine({ last_seen_at: null, last_seen_origin: null }, now)).toBe(
+      "Not seen yet",
+    );
   });
 });
