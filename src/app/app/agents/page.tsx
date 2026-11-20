@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { ActionForm, SubmitButton } from "../_ui/form";
 import {
   Badge,
+  btn,
   hint,
   input,
   labelCls,
@@ -337,7 +338,11 @@ async function Agents() {
       <PageHead
         title="Agents"
         note="Four agents, one per job. The inbound agent answers your website chat once you switch it on. The other three are settings only for now: they don't contact anyone yet."
-      />
+      >
+        <Link href="/app/agents/try" className={btn.primary}>
+          Try your agent
+        </Link>
+      </PageHead>
       <div className="flex flex-col gap-3">
         {agents.map((agent) => (
           <AgentCard
