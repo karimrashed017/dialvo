@@ -70,3 +70,32 @@ export const chatPostLimit = createLimiter({ windowMs: 60_000, max: 20 });
 /** Reads: an open widget asks every few seconds, and an office shares one
  * address, so this one is generous: 240 a minute. */
 export const chatPollLimit = createLimiter({ windowMs: 60_000, max: 240 });
+/** The install check: 30 a minute from one address, and per widget. */
+export const chatSeenLimit = createLimiter({ windowMs: 60_000, max: 30 });
+
+const ORIGIN = /^https?:\/\/[a-z0-9.-]{1,253}(:\d{1,5})?$/;
+
+/**
+ * The origin of the page a widget loaded on, from the browser's Origin
+ * header: "https://example.com". Null when there isn't a usable one, or when
+ * the page is one of Dialvo's own (the preview in Settings), which says
+ * nothing about a customer's site.
+ */
+export function pageOrigin(request: Request): string | null {
+  const origin = (request.headers.get("origin") ?? "").trim().toLowerCase();
+  if (!ORIGIN.test(origin)) return null;
+  let own: string;
+  try {
+    own = new URL(request.url).host.toLowerCase();
+  } catch {
+    return null;
+  }
+  const forwarded = (
+    request.headers.get("x-forwarded-host") ??
+    request.headers.get("host") ??
+    ""
+  ).toLowerCase();
+  const host = new URL(origin).host;
+  if (host === own || host === forwarded) return null;
+  return origin;
+}

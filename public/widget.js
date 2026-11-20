@@ -391,16 +391,35 @@
     if (script.hasAttribute("data-open")) toggle(true);
   }
 
+  // The install check: tell Dialvo this widget loaded, so the team can see
+  // their code works. The request carries nothing but the widget's id; the
+  // server reads this site's origin from the browser's own Origin header.
+  // No cookie, nothing about the visitor, and it never holds up the chat.
+  function seen() {
+    try {
+      fetch(api + "/seen", {
+        method: "POST",
+        headers: { "content-type": "text/plain" },
+        body: "{}",
+        credentials: "omit",
+        keepalive: true,
+      }).catch(function () {});
+    } catch {
+      // An old browser without fetch options: the chat still works.
+    }
+  }
+
   function start() {
     // The widget only appears if its id is known and switched on.
     call("")
       .then(function (info) {
-        if (info.ok && window.__dialvoChat[token] === true)
+        if (info.ok && window.__dialvoChat[token] === true) {
           mount({
             title: String(info.title || "Chat with us"),
             welcome: String(info.welcome || "Hi. How can we help?"),
           });
-        else if (!info.ok) delete window.__dialvoChat[token];
+          seen();
+        } else if (!info.ok) delete window.__dialvoChat[token];
       })
       .catch(function () {
         delete window.__dialvoChat[token];
