@@ -284,17 +284,42 @@ export type ChatWidget = {
   last_seen_origin: string | null;
 };
 
-export type TodayData = {
-  conversationsToday: number;
-  channelsToday: number;
-  qualifiedToday: number;
-  meetingsBookedToday: number;
-  waitingForYou: number;
-  draftsWaiting: number;
-  pipeline: Record<LeadStatus, number>;
-  upcoming: (Meeting & { lead: LeadRef | null })[];
+/** What Home reads: what needs a yes, and where each job stands. */
+export type HomeData = {
+  needs: {
+    /** First emails written and waiting for approval. */
+    emailDrafts: number;
+    /** Chat replies the agent drafted that wait for approval. */
+    chatDrafts: number;
+    /** Conversations waiting for a person, with no draft to approve. */
+    chatsWaiting: number;
+  };
+  find: {
+    /** Saved "who you sell to" descriptions. */
+    searches: number;
+    /** A search is running right now. */
+    running: boolean;
+    /** Companies found, in all. */
+    found: number;
+    /** Found, and neither kept nor removed yet. */
+    undecided: number;
+    /** Kept companies with an email address and no first email yet. */
+    toWrite: number;
+    /** First emails written (waiting or approved). */
+    drafted: number;
+    approved: number;
+  };
+  /** The last seven days. */
+  week: {
+    companiesFound: number;
+    emailsApproved: number;
+    /** Website chats that started. */
+    chats: number;
+    /** Website chats that got a reply. */
+    chatsAnswered: number;
+    leadsQualified: number;
+  };
   feed: FeedEvent[];
-  agentsOn: Agent["role"][];
 };
 
 export type LeadDetail = {

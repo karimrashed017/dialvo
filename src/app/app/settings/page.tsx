@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Suspense } from "react";
-import { agentRuntimeStatus } from "@/lib/agents/config";
 import { alertEmailStatus } from "@/lib/alerts/email";
 import { getAppContext } from "@/lib/app/context";
 import { dateOnly } from "@/lib/app/time";
@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { ActionForm, SubmitButton } from "../_ui/form";
 import {
   Badge,
+  btn,
   hint,
   Initial,
   input,
@@ -32,7 +33,6 @@ import {
   updateProfile,
   updateWorkspace,
 } from "./actions";
-import { ChatSection } from "./chat-section";
 import { CopyButton } from "./copy";
 import { captureUrl, fetchSnippet, formSnippet } from "./snippet";
 
@@ -47,16 +47,13 @@ function timezones(current: string): string[] {
 
 async function Settings() {
   const { repo, workspace, user } = await getAppContext();
-  const [members, invitations, forms, widgets, agents, origin, alertsOn] =
-    await Promise.all([
-      repo.members(),
-      repo.invitations(),
-      repo.leadForms(),
-      repo.chatWidgets(),
-      repo.agents(),
-      requestOrigin(),
-      repo.alertEmails(),
-    ]);
+  const [members, invitations, forms, origin, alertsOn] = await Promise.all([
+    repo.members(),
+    repo.invitations(),
+    repo.leadForms(),
+    requestOrigin(),
+    repo.alertEmails(),
+  ]);
   const trial = trialState(workspace);
   const alertsLive = alertEmailStatus().on;
   const admin = workspace.role !== "member";
@@ -73,7 +70,10 @@ async function Settings() {
         <section id="workspace" className={cn(panel, "scroll-mt-28")}>
           <h2 className={panelHead}>
             Workspace
-            <Badge>{PLANS[workspace.plan].name} plan</Badge>
+            {/* A trial isn't a plan: the line below says where it stands. */}
+            {trial.phase === "paid" && (
+              <Badge>{PLANS[workspace.plan].name} plan</Badge>
+            )}
           </h2>
           <p
             data-trial-line
@@ -390,15 +390,18 @@ async function Settings() {
           </div>
         </section>
 
-        <ChatSection
-          widgets={widgets}
-          origin={origin}
-          admin={admin}
-          agentOn={agents.some(
-            (a) => a.enabled && a.role === "inbound" && a.channel === "chat",
-          )}
-          runtime={agentRuntimeStatus().on}
-        />
+        <section id="chat" className={cn(panel, "scroll-mt-28 lg:col-span-2")}>
+          <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+            <p className="min-w-0 flex-1 text-[13px] leading-[1.5] text-[#0B0B0C]/70">
+              <span className="font-medium text-[#0B0B0C]">Website chat</span>{" "}
+              has its own page now: the code for your site, the install check
+              and your agent&apos;s settings are all there.
+            </p>
+            <Link href="/app/chat" className={cn(btn.secondary, btn.small)}>
+              Open Website chat
+            </Link>
+          </div>
+        </section>
 
         <section id="forms" className={cn(panel, "scroll-mt-28 lg:col-span-2")}>
           <h2 className={panelHead}>

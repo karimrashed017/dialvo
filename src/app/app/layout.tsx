@@ -12,15 +12,14 @@ import {
 import { MarkAvatar } from "@/components/brand/logo";
 import { getAppContext } from "@/lib/app/context";
 import { FIXTURES_ON } from "@/lib/app/fixture-flag";
-import { trialBanner, trialState } from "@/lib/billing/trial";
+import { planLine, trialBanner, trialState } from "@/lib/billing/trial";
 import { PLANS } from "@/lib/site";
 import { APP_CONFIGURED } from "@/lib/supabase/env";
 import { SetupNotice } from "../(auth)/frame";
 import { PAPER } from "../_site/theme";
-import { cn } from "@/lib/utils";
 import { Dropdown, menuItem } from "./_ui/dropdown";
 import { Badge, Initial } from "./_ui/kit";
-import { AppNav } from "./_ui/nav";
+import { AppNav, MobileNav } from "./_ui/nav";
 import { switchWorkspace } from "./workspace-actions";
 
 export const viewport = { themeColor: PAPER };
@@ -29,23 +28,18 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-const ROLE_WORDS = {
-  inbound: "Inbound",
-  outbound: "Outbound",
-  closing: "Closing",
-  expansion: "Expansion",
-} as const;
-
 /** The signed-in app's frame: sidebar, top bar, and the page. */
 async function Shell({ children }: { children: React.ReactNode }) {
   const { user, workspace, workspaces, repo, preview } = await getAppContext();
-  const [waiting, agents] = await Promise.all([
+  const [waiting, emails] = await Promise.all([
     repo.waitingCount(),
-    repo.agents(),
+    repo.emailDraftCount(),
   ]);
-  const on = agents.filter((a) => a.enabled).map((a) => ROLE_WORDS[a.role]);
   const displayName = user.name || user.email;
-  const banner = trialBanner(trialState(workspace));
+  const trial = trialState(workspace);
+  // A running trial is said once, under the workspace's name. Only a trial
+  // that has ended, which asks for something, gets the line across the top.
+  const banner = trial.phase === "ended" ? trialBanner(trial) : null;
 
   const switcher = (
     <Dropdown
@@ -58,8 +52,11 @@ async function Shell({ children }: { children: React.ReactNode }) {
             <span className="block truncate text-[13px] font-medium">
               {workspace.name}
             </span>
-            <span className="block text-[11px] text-[#0B0B0C]/45">
-              {PLANS[workspace.plan].name} plan
+            <span
+              data-plan-line={trial.phase}
+              className="block truncate text-[11px] text-[#0B0B0C]/50"
+            >
+              {planLine(trial, PLANS[workspace.plan].name)}
             </span>
           </span>
           <ChevronsUpDown
@@ -110,33 +107,16 @@ async function Shell({ children }: { children: React.ReactNode }) {
       <aside className="sticky top-0 hidden h-dvh w-[220px] shrink-0 flex-col border-r border-black/[0.07] bg-white/70 p-3 lg:flex">
         {switcher}
         <nav aria-label="App" className="mt-4">
-          <AppNav waiting={waiting} />
+          <AppNav waiting={waiting} emails={emails} />
         </nav>
-        <div className="mt-auto rounded-xl border border-black/[0.07] bg-white p-3">
-          <p className="text-[11px] text-[#0B0B0C]/45">Agents on</p>
-          <p className="mt-1 text-[12.5px] leading-[1.4]">
-            {on.length > 0 ? on.join(", ") : "None yet"}
-          </p>
-          <Link
-            href="/app/agents"
-            className="mt-1.5 inline-block text-[12px] text-[#0B0B0C]/55 underline decoration-black/20 underline-offset-2 hover:text-[#0B0B0C]"
-          >
-            {on.length > 0 ? "Manage agents" : "Set up your agents"}
-          </Link>
-        </div>
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
         {banner && (
           <p
             role="status"
-            data-trial={banner.ended ? "ended" : "running"}
-            className={cn(
-              "flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5 px-4 py-1.5 text-center text-[12.5px] leading-[1.4]",
-              banner.ended
-                ? "bg-[#0B0B0C] text-white"
-                : "border-b border-black/[0.07] bg-white text-[#0B0B0C]/70",
-            )}
+            data-trial="ended"
+            className="flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5 bg-[#0B0B0C] px-4 py-1.5 text-center text-[12.5px] leading-[1.4] text-white"
           >
             <span>{banner.text}</span>
             {banner.action && (
@@ -150,12 +130,17 @@ async function Shell({ children }: { children: React.ReactNode }) {
           </p>
         )}
         <header className="sticky top-0 z-30 border-b border-black/[0.07] bg-white/85 backdrop-blur-xl">
-          <div className="flex h-[52px] items-center gap-2 px-3 sm:px-5">
-            <div className="min-w-0 flex-1 lg:hidden">{switcher}</div>
+          <div className="flex h-[52px] items-center gap-1.5 px-2 sm:px-5 lg:gap-2">
+            <div className="lg:hidden">
+              <MobileNav waiting={waiting} emails={emails} />
+            </div>
+            <div className="min-w-0 flex-1 sm:max-w-[240px] lg:hidden">
+              {switcher}
+            </div>
             <form
               action="/app/leads"
               role="search"
-              className="hidden h-8 max-w-[340px] flex-1 items-center gap-2 rounded-lg bg-black/[0.045] px-3 text-[13px] focus-within:ring-2 focus-within:ring-[#1F3BFF]/25 sm:flex"
+              className="hidden h-8 max-w-[340px] flex-1 items-center gap-2 rounded-lg bg-black/[0.045] px-3 text-[13px] focus-within:ring-2 focus-within:ring-black/15 sm:flex"
             >
               <Search aria-hidden className="size-3.5 text-[#0B0B0C]/40" />
               <input
@@ -210,12 +195,6 @@ async function Shell({ children }: { children: React.ReactNode }) {
               </Dropdown>
             </div>
           </div>
-          <nav
-            aria-label="App"
-            className="border-t border-black/[0.05] lg:hidden"
-          >
-            <AppNav waiting={waiting} row />
-          </nav>
         </header>
         <main className="mx-auto w-full max-w-[1240px] flex-1 px-3 py-4 sm:px-5 sm:py-5">
           {children}

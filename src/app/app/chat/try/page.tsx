@@ -30,7 +30,7 @@ async function Try() {
 
   // Why the agent can't answer here, in the order a person can fix them.
   const disabled = !agent
-    ? "This workspace has no inbound agent on the Chat channel. Set one up on the Agents page."
+    ? "This workspace has no agent for the website chat, so there is nothing to try yet."
     : !runtime
       ? "The agent isn't switched on yet on Dialvo's side, so it can't answer here yet. Everything else is ready: your knowledge and instructions are saved."
       : locked
@@ -41,11 +41,11 @@ async function Try() {
     <>
       <PageHead
         title="Try your agent"
-        note="Talk to your inbound agent the way a visitor would. It answers with your real knowledge and instructions. Test chats are not leads, and they don't show in your Inbox or on Today."
+        note="Talk to your agent the way a visitor would. It answers with your real knowledge and instructions. Test chats are not leads, and they don't show in your Inbox or on Home."
       >
-        <Link href="/app/agents" className={cn(btn.secondary, btn.small)}>
+        <Link href="/app/chat" className={cn(btn.secondary, btn.small)}>
           <ArrowLeft aria-hidden className="size-3.5" />
-          Agents
+          Website chat
         </Link>
       </PageHead>
       <div className="grid items-start gap-3 lg:grid-cols-[1.6fr_1fr]">
@@ -115,7 +115,7 @@ async function Try() {
                 {agent?.qualifying_questions.trim()
                   ? "It works your qualifying questions in."
                   : "No qualifying questions yet."}{" "}
-                <Link href="/app/agents" className="underline">
+                <Link href="/app/chat#agent" className="underline">
                   Edit the agent
                 </Link>
               </dd>

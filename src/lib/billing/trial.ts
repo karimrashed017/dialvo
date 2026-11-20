@@ -61,6 +61,16 @@ export function trialState(
   return { phase: "ended", daysLeft: 0, locked: enforced };
 }
 
+/**
+ * Where the workspace stands, in a few words, for under its name:
+ * "Free trial · 6 days left", "Free trial ended", or the plan once it is paid.
+ */
+export function planLine(state: TrialState, planName: string): string {
+  if (state.phase === "paid") return `${planName} plan`;
+  if (state.phase === "ended") return "Free trial ended";
+  return `Free trial · ${state.daysLeft} ${state.daysLeft === 1 ? "day" : "days"} left`;
+}
+
 export type TrialBanner = {
   text: string;
   /** What to do about it, when there is something to do. */

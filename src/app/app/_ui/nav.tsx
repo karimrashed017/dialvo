@@ -1,61 +1,59 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  BarChart3,
   BookOpen,
-  Bot,
+  House,
   Inbox,
-  LayoutDashboard,
-  ListTree,
-  Phone,
+  Menu,
+  MessageCircle,
   Settings,
   Telescope,
   Users,
+  X,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+// The app's sections, in the order of the jobs Dialvo does: what it finds,
+// what it answers, then where the results land.
 const NAV: { href: string; icon: LucideIcon; label: string }[] = [
-  { href: "/app", icon: LayoutDashboard, label: "Today" },
+  { href: "/app", icon: House, label: "Home" },
   { href: "/app/prospects", icon: Telescope, label: "Find leads" },
+  { href: "/app/chat", icon: MessageCircle, label: "Website chat" },
   { href: "/app/inbox", icon: Inbox, label: "Inbox" },
   { href: "/app/leads", icon: Users, label: "Leads" },
-  { href: "/app/agents", icon: Bot, label: "Agents" },
-  { href: "/app/sequences", icon: ListTree, label: "Sequences" },
-  { href: "/app/calls", icon: Phone, label: "Calls" },
-  { href: "/app/analytics", icon: BarChart3, label: "Analytics" },
   { href: "/app/knowledge", icon: BookOpen, label: "Knowledge" },
   { href: "/app/settings", icon: Settings, label: "Settings" },
 ];
 
-/** The app's sections: a column in the sidebar, a scrolling row on phones. */
-export function AppNav({
-  waiting,
-  row,
-}: {
+export type NavCounts = {
   /** Conversations waiting for a person; shown on Inbox. */
   waiting: number;
-  row?: boolean;
-}) {
+  /** First emails waiting for approval; shown on Find leads. */
+  emails: number;
+};
+
+/** The app's sections as a column: in the sidebar, and in the phone's drawer. */
+export function AppNav({ waiting, emails }: NavCounts) {
   const pathname = usePathname();
   return (
-    <ul
-      className={cn(
-        row
-          ? "flex [scrollbar-width:none] gap-1 overflow-x-auto px-3 py-2 [&::-webkit-scrollbar]:hidden"
-          : "space-y-0.5",
-      )}
-    >
+    <ul className="space-y-0.5">
       {NAV.map((n) => {
         const active =
           n.href === "/app"
             ? pathname === "/app"
             : pathname === n.href || pathname.startsWith(`${n.href}/`);
-        const count = n.href === "/app/inbox" ? waiting : 0;
+        const count =
+          n.href === "/app/inbox"
+            ? waiting
+            : n.href === "/app/prospects"
+              ? emails
+              : 0;
         return (
-          <li key={n.href} className={cn(row && "shrink-0")}>
+          <li key={n.href}>
             <Link
               href={n.href}
               aria-current={active ? "page" : undefined}
@@ -70,11 +68,14 @@ export function AppNav({
               {n.label}
               {count > 0 && (
                 <span
-                  aria-label={`${count} waiting for you`}
+                  aria-label={
+                    n.href === "/app/inbox"
+                      ? `${count} waiting for you`
+                      : `${count} waiting for your approval`
+                  }
                   className={cn(
-                    "ml-auto rounded-full px-1.5 text-[11px] tabular-nums",
-                    active ? "bg-white/20" : "bg-[#1F3BFF] text-white",
-                    row && "ml-0.5",
+                    "ml-auto rounded-full px-1.5 text-[11px] font-medium tabular-nums",
+                    active ? "bg-white/20" : "bg-[#0B0B0C] text-white",
                   )}
                 >
                   {count}
@@ -85,5 +86,73 @@ export function AppNav({
         );
       })}
     </ul>
+  );
+}
+
+/** On phones: a menu button that opens the sections in a drawer. */
+export function MobileNav(counts: NavCounts) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  const pathname = usePathname();
+  const total = counts.waiting + counts.emails;
+
+  // Arriving on a page closes the drawer.
+  useEffect(() => {
+    dialog.current?.close();
+  }, [pathname]);
+
+  useEffect(() => {
+    const el = dialog.current;
+    if (!el) return;
+    // A tap on the backdrop, or on the section you are already in.
+    const click = (event: MouseEvent) => {
+      if (event.target === el || (event.target as HTMLElement).closest("a"))
+        el.close();
+    };
+    el.addEventListener("click", click);
+    return () => {
+      el.removeEventListener("click", click);
+      el.close();
+    };
+  }, []);
+
+  return (
+    <>
+      <button
+        type="button"
+        aria-label={total > 0 ? `Menu, ${total} waiting for you` : "Menu"}
+        onClick={() => dialog.current?.showModal()}
+        className="relative grid size-9 shrink-0 place-items-center rounded-lg text-[#0B0B0C]/75 hover:bg-black/[0.05] focus-visible:ring-2 focus-visible:ring-black/40 focus-visible:outline-none"
+      >
+        <Menu aria-hidden className="size-[18px]" />
+        {total > 0 && (
+          <span
+            aria-hidden
+            className="absolute top-1.5 right-1.5 size-2 rounded-full bg-[#0B0B0C] ring-2 ring-white"
+          />
+        )}
+      </button>
+      <dialog
+        ref={dialog}
+        aria-label="Menu"
+        className="m-0 h-dvh max-h-none w-[min(84vw,300px)] max-w-none border-r border-black/10 bg-white p-0 text-[#0B0B0C] backdrop:bg-black/30"
+      >
+        <div className="flex h-full flex-col p-3">
+          <div className="mb-2 flex items-center justify-between pl-2.5">
+            <p className="text-[12px] text-[#0B0B0C]/50">Menu</p>
+            <button
+              type="button"
+              aria-label="Close menu"
+              onClick={() => dialog.current?.close()}
+              className="grid size-9 place-items-center rounded-lg hover:bg-black/[0.05] focus-visible:ring-2 focus-visible:ring-black/40 focus-visible:outline-none"
+            >
+              <X aria-hidden className="size-4" />
+            </button>
+          </div>
+          <nav aria-label="App">
+            <AppNav {...counts} />
+          </nav>
+        </div>
+      </dialog>
+    </>
   );
 }
