@@ -4,6 +4,7 @@ import { MAIL_SECRET_TABLES, MAIL_TABLES } from "./mail-tables";
 import { CONTACT_TABLES } from "./contact-tables";
 import { CRM_TABLES } from "./crm-tables";
 import { OUTBOUND_TABLES } from "./outbound-tables";
+import { PLAYS_SECRET_TABLES, PLAYS_TABLES } from "./plays-tables";
 
 // The isolation rules, proved against the real migrations:
 //   * a member of workspace A cannot read or write any row of workspace B,
@@ -276,6 +277,7 @@ const ALL_TABLES = [
   ...MAIL_TABLES,
   ...CONTACT_TABLES,
   ...CRM_TABLES,
+  ...PLAYS_TABLES,
 ];
 
 /** A write that must change nothing: refused outright, or zero rows. */
@@ -304,7 +306,7 @@ describe("the migrations", () => {
        where n.nspname = 'public' and c.relkind = 'r'`,
     );
     expect(rows.map((r) => r.relname).sort()).toEqual(
-      [...ALL_TABLES, ...MAIL_SECRET_TABLES].sort(),
+      [...ALL_TABLES, ...MAIL_SECRET_TABLES, ...PLAYS_SECRET_TABLES].sort(),
     );
     for (const r of rows) expect(r.relrowsecurity, r.relname).toBe(true);
   });
