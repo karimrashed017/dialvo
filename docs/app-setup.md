@@ -24,6 +24,7 @@ Project Settings, API keys.
 | `SUPABASE_SECRET_KEY`                  | Vercel (Production and Preview) **only** | `sb_secret_...`. Server only. **The inbound agent needs it** (to read a workspace's knowledge and store replies). The lead form and the chat widget work without it. |
 | `ANTHROPIC_API_KEY`                    | Vercel (Production and Preview) **only** | An Anthropic API key. Server only. **The inbound agent needs it** to write replies. Never give it a `NEXT_PUBLIC_` name.                                             |
 
+| `FINDYMAIL_API_KEY` | Vercel (Production) **only** | Optional. A Findymail API key. Server only. With it, Find leads uses Findymail's contact database for companies, named decision-makers and verified work emails (see "Find leads with the contact database" at the end). Without it, Find leads searches the web as before. Never give it a `NEXT_PUBLIC_` name. |
 | `RESEND_API_KEY` | Vercel (Production and Preview) **only** | A Resend API key that may send from `trydialvo.com`. Server only. **Email alerts to the team need it**, together with `SUPABASE_SECRET_KEY`. Without it nothing is sent and Settings says so. |
 | `BILLING_ENFORCED` | Vercel, **leave unset for now** | Only the exact value `1` switches enforcement of the trial on (section 5). Set it when customers can pay, not before. |
 
@@ -66,6 +67,9 @@ already applied, under the same versions as the file names:
 
 9. `20261120150000_find_leads_and_first_emails.sql` (slice 3a, Find leads:
    see the section at the end of this page.)
+
+10. `20261120164840_contact_database.sql` (Find leads with Findymail:
+    see "Find leads with the contact database" at the end of this page.)
 
 For another project: `npx supabase link --project-ref <ref>` then
 `npx supabase db push`, or paste each file into the SQL editor in that order.
@@ -823,3 +827,121 @@ with one timeline entry; and three never-contact entries
 (`e2e-r1-bright.example` to `e2e-r3-bright.example`). The check removed,
 through the app, the one never-contact address it had added in each run;
 nothing else was deleted.
+
+## Find leads with the contact database (Findymail)
+
+**What changes.** When `FINDYMAIL_API_KEY` is set on the server, "Find
+leads" no longer searches the web for companies. Each run asks Findymail's
+Intellimatch for companies that match the saved search, each with one named
+decision-maker and the work email Findymail found and verified for them.
+Then, as before, Dialvo reads each company's own website for one to three
+sourced facts a first email can use. Without the key nothing changes: runs
+search the web exactly as before (`contactDatabaseStatus()` in
+`src/lib/prospects/config.ts`).
+
+**Search details.** Saving "who you sell to" now also writes the query and
+job titles the run will send (one `claude-haiku-4-5` call,
+`src/lib/prospects/contact-query.ts`; if the model isn't available, a plain
+query made from the search's own words). They show under the Find button as
+"Search details", where the team can edit them, or write them again from
+the description. A person's edit is never replaced without them asking.
+
+**A run, step by step** (`src/lib/prospects/contact-run.ts`, inside the same
+leased, resumable steps as before):
+
+1. `GET /api/credits` (free). Out of credits or paused: the run fails with
+   "the contact database is out of credits". Nobody else is alerted.
+2. The workspace's own exclusion list in the Findymail account ("Dialvo
+   workspace <id>", made on first use, its id kept in
+   `prospect_contact_settings`), sent the workspace's suppressed domains, its
+   prospects' domains and its leads' websites since the last sync (free).
+   The account's global exclusion list is never used, because every
+   workspace shares the account.
+3. The day's credit cap, reserved in the database before anything is spent
+   (`prospect_contact_reserve`).
+4. `POST /api/intellimatch/search` with `find_contact`, `find_email`,
+   `require_email`, `mode: "targeted"`, the title tiers, no phones, and
+   `limit` = the companies granted. This is the only paid call.
+5. `GET /api/intellimatch/status` every 5 seconds (or after the
+   `retry_after` Findymail asks for) until the export is ready; at most 180
+   questions (about 15 minutes) before the run stops.
+6. `GET /api/intellimatch/data`, page by page. Every field is checked and
+   cut to length (`findymail-parse.ts`). Companies the workspace already has
+   as a prospect or lead, and suppressed domains and addresses, are left
+   out. Reserved credits for companies that weren't returned go back to the
+   day.
+7. Each company's site is read for facts (robots.txt respected). That never
+   replaces Findymail's contact or email; an address printed on the site is
+   used only when Findymail returned none. A site that can't be read, or
+   asks not to be, still leaves the company in the results without facts.
+   A competitor or a site that isn't a business is left out.
+
+**Caps** (`src/lib/prospects/config.ts`, all cost decisions):
+`CONTACT_COMPANIES_PER_RUN` 25, `DAILY_CONTACT_CREDIT_CAP` 100 estimated
+credits per workspace per UTC day, `CONTACT_CREDITS_PER_COMPANY` 3 (1
+company in targeted mode + 1 contact + 1 email, from Findymail's docs),
+polls every 5 s, at most 180. The existing caps (4 runs a day, $3 of model
+spend a day) still apply. Estimated credits are counted on
+`prospect_runs.contact_credits` and `outbound_usage.contact_credits`.
+
+**Cost of one run of 25**, estimated: 75 Findymail credits (only companies
+with an email are charged). On the credit-based Starter plan ($99 a month for
+5,000 credits, findymail.com/pricing on 20 Nov 2026) that is about $1.49. On
+the usage-based plans (Individual $99, Team $399, Scale $999 a month) there
+are no credits: `has_capacity` from `/api/credits` decides, and the daily cap
+still counts estimated credits. Plus the model: about $0.01 to write the
+query and roughly $0.25 to read 25 sites.
+
+**Robots.txt.** The page reader now identifies as `DialvoBot
+(+https://trydialvo.com)` and, for Find leads, reads each host's robots.txt
+first (cached for an hour), following rules for `DialvoBot`, else for `*`.
+
+**Manual checklist for the first real run in production** (the API has
+never been called from this code):
+
+- [ ] `FINDYMAIL_API_KEY` is set in Vercel for Production only, then
+      redeploy. Never paste it anywhere else.
+- [ ] In Findymail, check the account's plan and credits before you start,
+      and note the balance.
+- [ ] Sign in as a test user, open Find leads, save a narrow search (for
+      example one city and one kind of business). Open "Search details": the
+      query should describe the buyers, not what the workspace sells. Fix it
+      if not.
+- [ ] Press Find leads. The status line says it is looking companies up in
+      Findymail. Within a few minutes, results appear with a name, a title,
+      an email and "Verified email".
+- [ ] In Findymail, an exclusion list "Dialvo workspace <id>" now exists and
+      holds the workspace's domains, and the balance went down by about 3
+      credits per result (no more than 75).
+- [ ] In Supabase, `prospect_runs.contact_credits` for the run and
+      `outbound_usage.contact_credits` for today match the number of results
+      times 3.
+- [ ] Run the same search again: none of the first run's companies come
+      back.
+- [ ] Spot-check three results: the person works there with that title, and
+      the email domain is the company's.
+- [ ] Check Vercel's logs for `[findymail]` lines: status codes only, never
+      the key or anyone's email.
+- [ ] If anything is wrong, remove `FINDYMAIL_API_KEY` and redeploy: Find
+      leads goes back to the web search, nothing else changes.
+
+**Migration.** `20261120164840_contact_database.sql`, applied to
+`qpvdafpdjxvlqecpjrim` on 20 Nov under that version. Additive: new columns
+on `prospect_searches`, `prospect_runs`, `prospects` and `outbound_usage`;
+one new table, `prospect_contact_settings` (RLS on, members read their own
+workspace's row, only the server writes); new server-only functions; and
+`prospect_save_research` replaced (unchanged for web prospects). The two
+email checks on `prospects` were replaced by equivalent ones that also allow
+`email_kind = 'person'` and an email with no web page when it came from
+Findymail. The security advisor shows no new entries.
+
+**What was tested, and what wasn't.** Tested: `npm run check` and
+`npm run build`; unit tests with Findymail, the model and the network faked
+(query building, the start, wait and read steps, retry_after, every error
+code, the daily cap checked before the paid call, out of credits, the
+exclusion list, the no-key fallback, robots.txt); PGlite tests of the
+migration (isolation, dedupe, suppression, credit reservation and refunds,
+the site never replacing Findymail's contact). **Not tested: the real
+Findymail API has never been called** (no key in development), so the exact
+shapes of real answers, how long an export takes, the real credit charges and
+the quality of the contacts are unknown until the first production run.
