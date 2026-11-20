@@ -10,8 +10,10 @@ import {
   DAILY_RUN_CAP,
   DAILY_SPEND_CAP_MICROS,
   MAX_COMPANIES_PER_RUN,
+  contactDatabaseStatus,
   prospectRuntimeStatus,
 } from "@/lib/prospects/config";
+import { contactQueryStale } from "@/lib/prospects/contact-search";
 import { prospectReads, type DraftWithProspect } from "@/lib/prospects/read";
 import type {
   Prospect,
@@ -46,6 +48,7 @@ import {
   startRun,
   stopRun,
 } from "./actions";
+import { ContactCell, ContactCompanyLine, SearchDetails } from "./contact-ui";
 import { DraftWriter, RunDriver } from "./drivers";
 import { SearchForm } from "./search-form";
 import { field } from "./ui";
@@ -66,6 +69,8 @@ const LEFT_OUT: Record<string, string> = {
   not_a_match: "didn't match your description",
   not_a_business: "not a business's own website",
   no_website: "no website of their own",
+  robots_disallowed: "site asks not to be read",
+  competitor: "sells what you sell",
   unreadable: "website couldn't be read",
   suppressed: "on your never-contact list",
   already_a_lead: "already one of your leads",
@@ -83,6 +88,22 @@ const STOPPED: Record<string, string> = {
     "Stopped: Dialvo couldn't reach its search service. This is on Dialvo's side; nothing is wrong with your search.",
   refused:
     "Stopped: this search couldn't be run as described. Try rewording it.",
+  contact_no_credits:
+    "Stopped: the contact database is out of credits. This is on Dialvo's side; nothing is wrong with your search.",
+  contact_daily_limit:
+    "Stopped: this workspace has used today's contact-database allowance. It resets at midnight UTC.",
+  contact_not_authorised:
+    "Stopped: Dialvo couldn't sign in to the contact database. This is on Dialvo's side; nothing is wrong with your search.",
+  contact_query_refused:
+    "Stopped: the contact database didn't accept this search. Check Search details and try again.",
+  contact_unavailable:
+    "Stopped: the contact database didn't answer in time. Try again in a few minutes.",
+  contact_failed:
+    "Stopped: the contact database couldn't finish this search. Try again, or reword Search details.",
+  contact_expired:
+    "Stopped: the contact database's results were no longer available. Run it again.",
+  contact_timeout:
+    "Stopped: the contact database took too long. Try again in a few minutes.",
 };
 
 const host = (url: string) => {
@@ -138,14 +159,16 @@ function RunStatus({
   const found = mine.filter((p) => p.research_status === "found").length;
   const active = run.status === "searching" || run.status === "researching";
   const words =
-    run.status === "searching"
-      ? `Searching the web for companies that match. ${mine.length} found so far.`
-      : run.status === "researching"
-        ? `Reading each company's own website. ${read} of ${mine.length} read.`
-        : run.status === "done" && !run.stop_reason
-          ? `Finished ${ago(run.finished_at)}. ${read} ${read === 1 ? "company" : "companies"} read, ${found} listed below.`
-          : (STOPPED[run.stop_reason ?? ""] ??
-            "This search stopped early. What was found is below.");
+    run.status === "searching" && run.source === "findymail"
+      ? "Looking up matching companies and the person to contact at each in Findymail's contact database. This can take a few minutes."
+      : run.status === "searching"
+        ? `Searching the web for companies that match. ${mine.length} found so far.`
+        : run.status === "researching"
+          ? `Reading each company's own website. ${read} of ${mine.length} read.`
+          : run.status === "done" && !run.stop_reason
+            ? `Finished ${ago(run.finished_at)}. ${read} ${read === 1 ? "company" : "companies"} read, ${found} listed below.`
+            : (STOPPED[run.stop_reason ?? ""] ??
+              "This search stopped early. What was found is below.");
   return (
     <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-t border-black/[0.06] bg-black/[0.02] px-4 py-2.5 text-[12.5px] leading-[1.45] text-[#0B0B0C]/70">
       <p role="status" className="flex min-w-0 flex-1 items-center gap-2">
@@ -212,56 +235,61 @@ function ProspectRow({ p }: { p: Prospect }) {
         {p.location && (
           <p className="mt-0.5 text-[12px] text-[#0B0B0C]/50">{p.location}</p>
         )}
+        {p.source === "findymail" && <ContactCompanyLine p={p} />}
       </div>
 
-      <div className="min-w-0 text-[12.5px] leading-[1.5]">
-        {p.email ? (
-          <Badge tone="ink">
-            <Mail aria-hidden className="size-3" />
-            Has email
-          </Badge>
-        ) : (
-          <Badge tone="outline">
-            <MailX aria-hidden className="size-3" />
-            No email found
-          </Badge>
-        )}
-        {p.contact_name && (
-          <p className="mt-1.5">
-            {p.contact_name}
-            {p.contact_role && (
-              <span className="text-[#0B0B0C]/55">, {p.contact_role}</span>
-            )}
-          </p>
-        )}
-        {p.email && (
-          <p className="mt-1 break-all">
-            {p.email}
-            <span className="block text-[12px] text-[#0B0B0C]/50">
-              {p.email_kind === "free_mail"
-                ? "A free mailbox the business lists as its contact. "
-                : ""}
-              Found on <Source url={p.email_source_url} />
-            </span>
-          </p>
-        )}
-        {p.phone && (
-          <p className="mt-1">
-            {p.phone}
-            {p.phone_source_url && (
+      {p.source === "findymail" ? (
+        <ContactCell p={p} />
+      ) : (
+        <div className="min-w-0 text-[12.5px] leading-[1.5]">
+          {p.email ? (
+            <Badge tone="ink">
+              <Mail aria-hidden className="size-3" />
+              Has email
+            </Badge>
+          ) : (
+            <Badge tone="outline">
+              <MailX aria-hidden className="size-3" />
+              No email found
+            </Badge>
+          )}
+          {p.contact_name && (
+            <p className="mt-1.5">
+              {p.contact_name}
+              {p.contact_role && (
+                <span className="text-[#0B0B0C]/55">, {p.contact_role}</span>
+              )}
+            </p>
+          )}
+          {p.email && (
+            <p className="mt-1 break-all">
+              {p.email}
               <span className="block text-[12px] text-[#0B0B0C]/50">
-                Found on <Source url={p.phone_source_url} />
+                {p.email_kind === "free_mail"
+                  ? "A free mailbox the business lists as its contact. "
+                  : ""}
+                Found on <Source url={p.email_source_url} />
               </span>
-            )}
-          </p>
-        )}
-        {!p.email && (
-          <p className="mt-1 text-[12px] text-[#0B0B0C]/50">
-            Their site doesn&apos;t print an address, and Dialvo never guesses
-            one.
-          </p>
-        )}
-      </div>
+            </p>
+          )}
+          {p.phone && (
+            <p className="mt-1">
+              {p.phone}
+              {p.phone_source_url && (
+                <span className="block text-[12px] text-[#0B0B0C]/50">
+                  Found on <Source url={p.phone_source_url} />
+                </span>
+              )}
+            </p>
+          )}
+          {!p.email && (
+            <p className="mt-1 text-[12px] text-[#0B0B0C]/50">
+              Their site doesn&apos;t print an address, and Dialvo never guesses
+              one.
+            </p>
+          )}
+        </div>
+      )}
 
       <div className="min-w-0 text-[12.5px] leading-[1.5]">
         {p.facts.length > 0 ? (
@@ -323,6 +351,7 @@ function FindView({
   prospects,
   usage,
   on,
+  contactOn = false,
 }: {
   searches: ProspectSearch[];
   search: ProspectSearch | null;
@@ -331,6 +360,8 @@ function FindView({
   prospects: Prospect[];
   usage: Usage;
   on: boolean;
+  /** Runs use the contact database (Findymail). */
+  contactOn?: boolean;
 }) {
   const active = runs.find(
     (r) => r.status === "searching" || r.status === "researching",
@@ -410,12 +441,22 @@ function FindView({
             2. Find
           </h2>
           <div className="p-4">
-            <p className="text-[13px] leading-[1.5] text-[#0B0B0C]/70">
-              Dialvo searches the web for companies that fit, then reads each
-              company&apos;s own website for what they do, how to reach them and
-              something specific to say. It only uses what a company publishes
-              itself, and it never guesses an email address.
-            </p>
+            {contactOn ? (
+              <p className="text-[13px] leading-[1.5] text-[#0B0B0C]/70">
+                Dialvo looks up companies that fit in Findymail&apos;s contact
+                database, each with a named person to contact and the work email
+                Findymail found and verified for them. Then it reads each
+                company&apos;s own website for something specific to say. It
+                never guesses an email address.
+              </p>
+            ) : (
+              <p className="text-[13px] leading-[1.5] text-[#0B0B0C]/70">
+                Dialvo searches the web for companies that fit, then reads each
+                company&apos;s own website for what they do, how to reach them
+                and something specific to say. It only uses what a company
+                publishes itself, and it never guesses an email address.
+              </p>
+            )}
             <ActionForm action={startRun} className="mt-3">
               <input type="hidden" name="search" value={search?.id ?? ""} />
               <SubmitButton
@@ -439,6 +480,13 @@ function FindView({
                       ? "This workspace has reached today's limit for finding leads. It resets at midnight UTC."
                       : `Each search looks at up to ${MAX_COMPANIES_PER_RUN} companies and takes a few minutes. ${runsLeft} of ${DAILY_RUN_CAP} searches left today.`}
             </p>
+            {contactOn && search && (
+              <SearchDetails
+                key={`${search.id}-${search.updated_at}`}
+                search={search}
+                stale={contactQueryStale(search)}
+              />
+            )}
           </div>
           {latest && <RunStatus run={latest} prospects={prospects} />}
         </section>
@@ -970,6 +1018,7 @@ async function Content({
           prospects={prospects}
           usage={usage}
           on={on}
+          contactOn={on && contactDatabaseStatus().on}
         />
       )}
       {view === "emails" && (
