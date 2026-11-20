@@ -14,6 +14,11 @@ export type ProspectSearch = Brief & {
   name: string;
   created_at: string;
   updated_at: string;
+  /** The contact database's query and job titles ("Search details"). */
+  contact_query: string;
+  contact_titles: string[][];
+  contact_query_for: string;
+  contact_query_edited: boolean;
 };
 
 export type RunStatus =
@@ -30,6 +35,8 @@ export type ProspectRun = {
   cost_micros: number;
   created_at: string;
   finished_at: string | null;
+  source: ProspectSourceName;
+  contact_phase: "start" | "wait" | "read" | null;
 };
 
 export type Fact = { fact: string; quote: string; source_url: string };
@@ -50,7 +57,7 @@ export type Prospect = {
   contact_source_url: string | null;
   email: string | null;
   email_source_url: string | null;
-  email_kind: "business" | "free_mail" | null;
+  email_kind: "business" | "free_mail" | "person" | null;
   phone: string | null;
   phone_source_url: string | null;
   facts: Fact[];
@@ -58,7 +65,21 @@ export type Prospect = {
   decision: "undecided" | "kept" | "removed";
   lead_id: string | null;
   created_at: string;
+} & ContactDetails;
+
+/** What the contact database adds to a prospect (all empty for web ones). */
+export type ContactDetails = {
+  source: ProspectSourceName;
+  size_range: string;
+  industries: string[];
+  country: string;
+  match_score: number | null;
+  contact_linkedin_url: string | null;
+  email_verified: boolean;
 };
+
+/** Where a run finds its companies. */
+export type ProspectSourceName = "web" | "findymail";
 
 export type DraftStatus =
   "drafting" | "draft" | "approved" | "discarded" | "failed";
@@ -143,6 +164,8 @@ export type SkipReason =
   | "not_a_business"
   | "not_a_match"
   | "no_website"
+  /** The site's robots.txt asks DialvoBot (or every robot) not to read it. */
+  | "robots_disallowed"
   | "unreadable"
   | "suppressed"
   | "already_a_lead";

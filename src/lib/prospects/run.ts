@@ -8,6 +8,11 @@ import {
   SEARCHES_PER_ROUND,
 } from "./config";
 import {
+  advanceContactRun,
+  defaultContactDeps,
+  type ContactDeps,
+} from "./contact-run";
+import {
   draftFirstEmail,
   findCompanies,
   researchCompany,
@@ -56,13 +61,19 @@ export type StepDeps = {
   client: ModelClient | null;
   /** For tests: reads a page without the network. */
   fetchSource?: FetchSource;
+  /** The contact database (Findymail), when its key is set. */
+  contacts?: ContactDeps | null;
 };
 
 /** The real database and model, or nulls when their keys aren't set. */
 export function defaultDeps(): StepDeps {
   if (!prospectRuntimeStatus().on) return { store: null, client: null };
   // Reads ANTHROPIC_API_KEY from the environment.
-  return { store: createProspectStore(), client: new Anthropic() };
+  return {
+    store: createProspectStore(),
+    client: new Anthropic(),
+    contacts: defaultContactDeps(),
+  };
 }
 
 export type StepResult = {
@@ -77,6 +88,12 @@ export async function advanceRun(
   const { store, client } = deps;
   if (!store || !client) return { status: "not_configured" };
   const { runId, workspaceId } = input;
+  // A run that uses the contact database finds its companies there (see
+  // contact-run.ts); from reading their sites on, it is like any other.
+  if (deps.contacts) {
+    const contact = await advanceContactRun(input, store, deps.contacts);
+    if (contact) return contact;
+  }
   const claim = await store.claim(runId, workspaceId);
   if (!claim) return { status: "not_found" };
   if (claim.status !== "searching" && claim.status !== "researching")
@@ -144,13 +161,15 @@ export async function advanceRun(
         const site = await readSite(company.website, deps.fetchSource);
         if (!site.ok) {
           // An unreachable site is tried once more on a later step; one
-          // that turns out not to be a company's site is not.
+          // that turns out not to be a company's site, or asks robots not
+          // to read it, is not.
           await store.saveResearch(
             runId,
             workspaceId,
             company.id,
-            site.problem === "no_website"
-              ? { status: "skipped", reason: "no_website" }
+            site.problem === "no_website" ||
+              site.problem === "robots_disallowed"
+              ? { status: "skipped", reason: site.problem }
               : { status: "retry" },
             NO_SPEND,
           );
