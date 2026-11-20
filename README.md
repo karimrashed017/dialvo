@@ -1,6 +1,6 @@
 # Dialvo
 
-The marketing site for Dialvo: inbound and outbound sales, run by AI agents.
+The marketing site and the signed-in app (slice 1, see "The app" below) for Dialvo: inbound and outbound sales, run by AI agents.
 They answer every lead within a minute, go out to find new business, follow up
 on every channel (voice, email, chat, social, SMS and WhatsApp), book the
 meetings and close simple sales; bigger deals go to the customer's team, and
@@ -59,6 +59,57 @@ npm test        # the tests alone (vitest)
   link to every page. Update it when the catalog changes.
 - `public/og.png`: the share image (1200x630).
 - `docs/feature-parity.md`: the capabilities the site has to cover, and where it differs on purpose.
+
+## The app (slice 1)
+
+The signed-in product, at `/app`. It needs a Supabase project: until
+`NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are set,
+`/login` and `/app` show "Dialvo's app is being set up" and the marketing site
+is unchanged. **`docs/app-setup.md` has the setup steps, the dashboard
+settings and the manual test checklist.**
+
+- **Auth** (`src/app/(auth)`, `src/app/auth/confirm`, `src/app/logout`):
+  sign-up, log-in by password or emailed link, password reset, cookie
+  sessions through `@supabase/ssr`. `getCurrentUser()` (`src/lib/auth/user.ts`)
+  is called by every page, action and route that needs a user; `src/proxy.ts`
+  only refreshes the session and redirects politely. `?next=` goes through
+  `safeNextPath()` and can only lead into the app.
+- **Onboarding** (`src/app/onboarding`): workspace name, what you sell (saved
+  as the first knowledge item), website, time zone. Invitations to the
+  signed-in address are offered here.
+- **The shell and pages** (`src/app/app`): Today (four tiles, activity,
+  waiting queue, pipeline, all counted from rows), Leads (search, filter, add,
+  CSV import, lead page with timeline, consent, notes, do not contact), Inbox
+  (queues, thread, reply, assign, close), Knowledge, Agents, Settings
+  (workspace, profile, members and invitations, lead-capture forms).
+  Sequences, Calls and Analytics say what's coming and show no data.
+- **Honest about what isn't live:** replies are stored and marked "Saved, not
+  delivered" (no channel is connected yet); agents are configuration only and
+  labelled "Not live yet"; URL knowledge items are "Not fetched yet";
+  invitations say no email is sent.
+- **Data access** (`src/lib/app`): `context.ts` resolves the user and their
+  current workspace per request, `repo.ts` holds every read, `action.ts`
+  wraps every Server Action in a session and membership check. The app talks
+  to Supabase as the signed-in person, so row-level security applies to
+  everything; each query also names the workspace.
+- **Lead capture** (`src/app/api/leads/capture/[token]`): the public form
+  endpoint, JSON or form-encoded, CORS open, validated
+  (`src/lib/leads/capture.ts`), rate-limited, written by the database
+  function `capture_lead()`. Consent is recorded only for the channels a
+  payload includes.
+- **Database** (`supabase/migrations`, tests in `supabase/tests`): tables
+  `profiles`, `workspaces`, `workspace_members`, `invitations`, `leads`,
+  `conversations`, `messages`, `agents`, `knowledge_items`, `meetings`,
+  `calls`, `activity_events`, `lead_forms`. Every table has row-level
+  security from its first migration, policies go through `private.*` helper
+  functions, and child tables use `(parent_id, workspace_id)` foreign keys.
+  `npm test` applies the migrations to an in-memory Postgres (PGlite) and
+  proves one workspace can't read or write another's rows.
+- **Design preview:** `DIALVO_DEV_FIXTURES=1 npm run dev` draws the shell
+  with made-up data and no database. Development only; it is compiled out of
+  production builds (`scripts/check-no-preview-data.mjs`).
+- **End-to-end check:** `scripts/e2e-app.mjs` drives a browser through the
+  app as two people and checks they can't see each other's data.
 
 ## Honesty rules for the site
 
