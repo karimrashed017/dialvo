@@ -53,6 +53,12 @@ export const MAPPING: Record<Provider, MappingRow[]> = {
       note: "One per lead",
     },
     {
+      dialvo:
+        "Enrichment: a work email found, a title filled, a job change, an email that stopped working (if write-back is on)",
+      crm: "Note on the contact and company",
+      note: "The contact's own fields are left as they are",
+    },
+    {
       dialvo: "Do not contact, unsubscribed",
       crm: "Unsubscribed from all email",
       note: "If the key may change subscriptions; otherwise a note",
@@ -93,6 +99,12 @@ export const MAPPING: Record<Provider, MappingRow[]> = {
       dialvo: "Qualified or meeting booked (if you switch it on)",
       crm: "Deal in the pipeline and stage you choose",
       note: "One per lead",
+    },
+    {
+      dialvo:
+        "Enrichment: a work email found, a title filled, a job change, an email that stopped working (if write-back is on)",
+      crm: "Note on the person and organization",
+      note: "The person's own fields are left as they are",
     },
     {
       dialvo: "Do not contact, unsubscribed",

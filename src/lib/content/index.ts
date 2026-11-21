@@ -4,6 +4,7 @@
 import type { FeatureSlug, PlaySlug } from "./catalog";
 import { ANALYTICS_RESEARCH_FEATURES } from "./platform-analytics-research";
 import { DATA_OUTREACH_FEATURES } from "./platform-data-outreach";
+import { DATA_TABLE_FEATURES } from "./platform-data-tables";
 import { INBOUND_INTEGRATION_FEATURES } from "./platform-inbound-integrations";
 import { EXPANSION_PLAYS } from "./plays-expansion";
 import { INBOUND_PLAYS } from "./plays-inbound";
@@ -20,6 +21,7 @@ export const FEATURE_PAGES = {
   ...DATA_OUTREACH_FEATURES,
   ...ANALYTICS_RESEARCH_FEATURES,
   ...INBOUND_INTEGRATION_FEATURES,
+  ...DATA_TABLE_FEATURES,
 } satisfies Record<FeatureSlug, FeatureContent>;
 
 export { MOTION_PAGES } from "./motions";

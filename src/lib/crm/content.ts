@@ -4,6 +4,7 @@ import { NOTE_MAX_CHARS } from "./config";
 import type {
   ChatDetail,
   EmailDetail,
+  EnrichmentDetail,
   JobLead,
   MeetingDetail,
   MeetingInput,
@@ -83,6 +84,34 @@ export function optOutNote(ref: string): string {
   return (
     "<p><strong>Do not contact (Dialvo)</strong></p>" +
     "<p>This person asked not to be contacted. Dialvo has stopped all outreach to them.</p>" +
+    footer(ref)
+  );
+}
+
+const ENRICHMENT_TITLE: Record<EnrichmentDetail["kind"], string> = {
+  filled: "Details filled in",
+  job_change: "Job change",
+  email_invalid: "Email no longer works",
+  work_email: "Work email found",
+};
+
+/**
+ * What Dialvo's enrichment found, as a note. The CRM's own fields are left
+ * as they are: the team decides whether to change them.
+ */
+export function enrichmentNote(detail: EnrichmentDetail, ref: string): string {
+  const changes = Object.entries(detail.changes ?? {})
+    .filter(([, c]) => c && (c.from || c.to))
+    .map(
+      ([field, c]) =>
+        `<li>${escape(field)}: ${escape(c.from || "(empty)")} &rarr; ${escape(c.to || "(empty)")}</li>`,
+    )
+    .join("");
+  return (
+    `<p><strong>${ENRICHMENT_TITLE[detail.kind] ?? "Updated"} (Dialvo)</strong></p>` +
+    `<p>${lines(detail.summary)}</p>` +
+    (changes ? `<ul>${changes}</ul>` : "") +
+    "<p>From Dialvo's contact database lookup.</p>" +
     footer(ref)
   );
 }

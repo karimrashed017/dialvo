@@ -365,6 +365,46 @@ export const APP_FEATURES: Record<FeatureSlug, AppFeature> = {
     href: "/app/settings/api",
     note: "A REST API with workspace keys: leads, conversations, plays, meetings and product events, plus signed webhooks for new leads, replies and meetings.",
   },
+  "lists-and-research": {
+    status: "live",
+    href: "/app/lists",
+    note: "Lists of companies or people from Find leads, a CSV, your leads or your CRM; research columns answered by the model with web search (with source and reason), lookups from the contact database, a cost estimate and daily limits, CSV export, and rows sent to Leads or a playbook.",
+  },
+  "market-sourcing": {
+    status: "live",
+    href: "/app/prospects/sourcing",
+    note: "A saved Find leads search runs on a schedule (weekly to start), adds only new companies to a list and can answer a recipe for each; capped per month on top of Find leads' daily limits.",
+  },
+  "crm-enrichment": {
+    status: "live",
+    href: "/app/settings/enrichment",
+    note: "Off until switched on. Fills missing work emails, titles and company details from the contact database (never guessed), re-checks emails, spots job changes, matches personal-email sign-ups, refreshes monthly within a credit cap, and writes changes to your CRM as notes, not into its fields.",
+  },
+  "saved-audiences": {
+    status: "live",
+    href: "/app/leads/audiences",
+    note: "Segments by stage, tier, scores, source, country, size, list, last activity and a recipe's answer, worked out each time they're used; start a playbook on one, use one in a playbook's filters, or export it.",
+  },
+  "saved-recipes": {
+    status: "live",
+    href: "/app/lists/recipes",
+    note: "Research questions and 0-100 scores saved by name, used on any list, on always-on searches, in lead scoring and in audience and playbook filters.",
+  },
+  "account-based-lists": {
+    status: "live",
+    href: "/app/accounts",
+    note: "Target accounts from a list or one at a time, a buying committee by job title from the contact database, one view of each company's leads, conversations and meetings, and a playbook for the whole account.",
+  },
+  "lead-scoring": {
+    status: "live",
+    href: "/app/leads/scoring",
+    note: "A fit score from your rules (written from your description if you like) and an engagement score from replies, chats, forms, visits, product events and meetings (never opens), giving tiers 1 to 3 on Leads, in routing rules, audiences and playbooks.",
+  },
+  "territory-planning": {
+    status: "live",
+    href: "/app/settings/territories",
+    note: "Territories by country, state or region and company size, with their reps; accounts shared out by count or by score, and new leads routed to the account's owner, then the territory's rep.",
+  },
 };
 
 /** The site's Platform menu, with each item's place in the app. */

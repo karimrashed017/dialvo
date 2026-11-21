@@ -6,6 +6,7 @@
 
 import {
   AudioLines,
+  Building2,
   BarChart3,
   BookOpen,
   CalendarCheck,
@@ -13,9 +14,12 @@ import {
   CalendarX,
   Code2,
   Database,
+  DatabaseZap,
   Eye,
   FileSearch,
   Filter,
+  FlaskConical,
+  Gauge,
   Globe,
   GraduationCap,
   Handshake,
@@ -27,11 +31,13 @@ import {
   ListTree,
   Mail,
   MailCheck,
+  Map as MapIcon,
   MessageCircle,
   MessageSquareReply,
   MessageSquareText,
   Phone,
   PhoneIncoming,
+  Radar,
   RefreshCw,
   Route,
   Search,
@@ -42,10 +48,12 @@ import {
   Sprout,
   Star,
   Swords,
+  Table2,
   Ticket,
   TrendingUp,
   UserCheck,
   Users,
+  UsersRound,
   Waypoints,
   Workflow,
   Zap,
@@ -418,6 +426,58 @@ export const FEATURES = {
     blurb:
       "Trigger agents from your own systems and pull every outcome back out.",
   },
+  "lists-and-research": {
+    title: "Lists and research columns",
+    group: "data",
+    icon: Table2,
+    blurb:
+      "A spreadsheet of companies or people, with a question researched for every row.",
+  },
+  "market-sourcing": {
+    title: "Always-on market sourcing",
+    group: "data",
+    icon: Radar,
+    blurb: "A saved search that keeps adding new companies on a schedule.",
+  },
+  "crm-enrichment": {
+    title: "CRM enrichment",
+    group: "data",
+    icon: DatabaseZap,
+    blurb:
+      "Missing emails, titles and company details filled in, and job changes spotted.",
+  },
+  "saved-audiences": {
+    title: "Saved audiences",
+    group: "outreach",
+    icon: UsersRound,
+    blurb: "Segments of your leads that keep themselves up to date.",
+  },
+  "saved-recipes": {
+    title: "Saved recipes",
+    group: "research",
+    icon: FlaskConical,
+    blurb:
+      "Research questions and scores you write once and use on any list or play.",
+  },
+  "account-based-lists": {
+    title: "Account-based target lists",
+    group: "research",
+    icon: Building2,
+    blurb:
+      "Target accounts with their buying committee, and one view per company.",
+  },
+  "lead-scoring": {
+    title: "Lead scoring and tiers",
+    group: "inbound-handling",
+    icon: Gauge,
+    blurb: "Fit and engagement scores, and a tier from 1 to 3 on every lead.",
+  },
+  "territory-planning": {
+    title: "Territory planning",
+    group: "inbound-handling",
+    icon: MapIcon,
+    blurb: "Territories and reps, with accounts shared out fairly.",
+  },
 } as const satisfies Record<string, FeatureEntry>;
 
 export type FeatureSlug = keyof typeof FEATURES;
@@ -450,6 +510,9 @@ export const GROUPS: {
       f("live-web-search-prospecting"),
       f("lead-qualification"),
       f("website-visitor-tracking"),
+      f("lists-and-research"),
+      f("market-sourcing"),
+      f("crm-enrichment"),
     ],
   },
   {
@@ -463,6 +526,7 @@ export const GROUPS: {
       f("sequence-builder"),
       f("smart-replies"),
       f("multilingual-outreach"),
+      f("saved-audiences"),
       p("event-registration"),
       p("event-follow-up"),
       p("event-no-show"),
@@ -489,6 +553,8 @@ export const GROUPS: {
       f("ai-personalisation"),
       f("playbooks"),
       f("knowledge-base"),
+      f("saved-recipes"),
+      f("account-based-lists"),
     ],
   },
   {
@@ -500,6 +566,8 @@ export const GROUPS: {
       f("ai-phone-agent"),
       f("inbound-lead-qualification"),
       f("intelligent-lead-routing"),
+      f("lead-scoring"),
+      f("territory-planning"),
     ],
   },
   {

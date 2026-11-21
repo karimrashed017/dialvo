@@ -1932,3 +1932,98 @@ Model calls count against the existing `DAILY_SPEND_CAP_MICROS`.
 `20261121100400_ad_audiences`. Isolation and behaviour tests:
 `supabase/tests/activation-features.test.ts` (tables listed in
 `activation-tables.ts` and the RLS test).
+
+## Lists, recipes, scoring, enrichment, sourcing, territories, accounts and audiences (21 Nov 2026)
+
+Eight features, all in the app's catalogue as Live. Caps and cost notes are
+in `src/lib/data/config.ts` (every number there is a cost decision).
+
+**Migrations** (additive): `20261121100000_data_lists.sql`,
+`20261121100100_scores_accounts_audiences.sql`,
+`20261121100200_enrichment_and_sourcing.sql`. **Not yet applied to
+`qpvdafpdjxvlqecpjrim`**: the apply call needed a confirmation that wasn't
+given in the session. Apply them in this order (Supabase MCP
+`apply_migration` or the SQL editor), then rename the local files to the
+versions the project records and check their md5 against what was applied.
+Until then the new pages fail to read their tables. They replace a few
+existing functions with a superset (same signatures): `private.route_lead`,
+`private.routing_match_ok`, `private.playbook_filters_ok`,
+`private.playbook_candidates` and `public.crm_jobs_claim`; and the check
+constraint on `crm_sync_jobs.kind` (adds `enrichment`). If another branch
+also replaces any of these, merge by hand.
+
+**The scheduler.** `private.data_cron_tick()` runs every minute (pg_cron,
+job `dialvo-data-steps`) and, only when there is work, calls
+`POST /api/data/step?job=cells|enrich|source` with the Vault token, as the
+other steps do. Lead scores refresh in the database itself every ten
+minutes (job `dialvo-lead-scores`, no app call).
+
+**Lists** (`/app/lists`). Rows from a CSV (under 900 KB), a Find leads
+search, all leads, a saved audience or the CRM-linked leads; up to 2,000
+rows and 20 added columns a list, 50 lists. A research column is a question
+answered per row by `claude-haiku-4-5` with up to two web searches; the
+answer is typed (yes/no, number, 0-100 score, one of the options, text),
+with the source (only a link the search returned) and a reason, or "Not
+found". Data columns: work email (Findymail name + domain, never guessed),
+email check, title (reverse email lookup), company size and industry
+(company lookup, cached on the row), technologies. "Estimate cost" shows a
+run's cost and what is left today; a run is refused over the day's caps
+(150 research answers, $5 of research, 200 contact credits), and the
+estimate is reserved before anything runs and corrected after. Rows go to
+Leads, to a playbook (adds them to Leads, then picks up to 50 with every
+playbook rule), or become target accounts; the list exports as CSV with
+each answer's source and reason.
+
+**Recipes** (`/app/lists/recipes`): saved questions and scores, added to
+any list, answered on always-on searches, counted in scoring, and used in
+audience and playbook filters (`recipe: { id, answer }`).
+
+**Lead scoring** (`/app/leads/scoring`): fit from rules (countries, size,
+titles, words describing the company, sources, optionally a recipe), which
+can be written from a Find leads description (one model call, counted with
+Find leads' 10 suggestions a day); engagement from the last 90 days (replies,
+chats, forms, pages and pricing read, product events, meetings; opens never
+count). Tiers 1-3 on Leads (column and filter), the lead page (with the
+reasons), routing rules, audiences and playbooks. A new lead is scored
+before it is routed.
+
+**Enrichment** (`/app/settings/enrichment`): off until an owner or admin
+switches it on. Per lead, at most 4 credits a check: email verify, profile
+from the email (title, job change, personal-email company), work email by
+name at the domain, company details. Only empty fields are filled; a job
+change replaces the title and is recorded; a personal address stays the
+lead's email and the work email goes in `custom_fields.work_email`.
+Refresh every 30 days by default, monthly credit cap 300 (up to 2,000).
+With write-back on, each change is a note on the CRM contact (new job kind
+`enrichment`); the CRM's own fields are not changed.
+
+**Always-on sourcing** (`/app/prospects/sourcing`): up to 3 schedules; a
+saved search runs as the person who set it up, weekly by default, as a
+normal Find leads run (its caps apply), at most 8 scheduled runs a month
+per workspace; new companies go into a list, optionally with a recipe.
+
+**Territories** (`/app/settings/territories`) and **accounts**
+(`/app/accounts`): territories by country, state or region and size, with
+reps; "Assign now" balances accounts by count or total fit. Routing order:
+the account's owner, then the territory's rep with the fewest open leads,
+then the rules. An account view groups leads, conversations and meetings;
+"Find people" looks up up to 3 people by title (about 6 credits, reserved
+from the day's data credits); a playbook can be started on a whole account.
+
+**Audiences** (`/app/leads/audiences`): filters over leads evaluated each
+time they are used; start a playbook on one, choose one in a playbook's
+filters, make a list from it or export it.
+
+**What was tested, and what wasn't.** `npm run check` and `npm run build`
+pass. PGlite tests (`supabase/tests/data.test.ts`): isolation for all 16
+new tables, dedupe and caps on lists, the day's caps checked and reserved
+before queuing, claim/finish/settle, recipes, rows to leads, fit and
+engagement scores and tiers, routing to the account owner, territory and
+tier rules, balancing, audiences, a playbook started on chosen leads,
+enrichment filling only empty fields and queuing a CRM note, the monthly
+cap, sourcing filing a finished run's companies, and the scheduler's due
+work. Unit tests (`src/lib/data/data.test.ts`) with Findymail, the model and
+fetch faked. **Not tested:** the migrations on the live project (not
+applied), any real Findymail or model call, the pages in a signed-in
+browser (no shared test login), and the CRM note against a real HubSpot or
+Pipedrive.

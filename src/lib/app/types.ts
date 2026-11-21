@@ -135,6 +135,16 @@ export type Lead = Consent & {
   custom_fields: Record<string, unknown>;
   created_at: string;
   updated_at: string;
+  /** Lead scoring (0-100) and tier (1 best, 3); null until scored. */
+  fit_score?: number | null;
+  engagement_score?: number | null;
+  tier?: number | null;
+  score_detail?: {
+    fit?: { label: string; met: boolean }[];
+    engagement?: { label: string; points: number }[];
+    combined?: number;
+  };
+  account_id?: string | null;
 };
 
 export type LeadRef = { id: string; name: string; company: string | null };

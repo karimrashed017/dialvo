@@ -1,3 +1,4 @@
+import type { LeadFilters } from "@/lib/data/filters";
 import "server-only";
 import { createServiceClient } from "@/lib/supabase/service";
 import type { Supabase } from "@/lib/supabase/server";
@@ -23,7 +24,10 @@ export type PlaybookFilters = {
   sources?: string[];
   inactive_days?: number | null;
   added_within_days?: number | null;
-};
+} & Pick<
+  LeadFilters,
+  "tiers" | "min_fit" | "min_engagement" | "list_id" | "audience_id" | "recipe"
+>;
 
 export type Playbook = {
   id: string;
@@ -105,6 +109,13 @@ export function describeFilters(f: PlaybookFilters): string {
     parts.push(`with nothing happening for ${f.inactive_days} days`);
   if (f.added_within_days)
     parts.push(`added in the last ${f.added_within_days} days`);
+  if (f.tiers?.length) parts.push(`in tier ${f.tiers.join(" or ")}`);
+  if (f.min_fit != null) parts.push(`with a fit score of ${f.min_fit}+`);
+  if (f.min_engagement != null)
+    parts.push(`with an engagement score of ${f.min_engagement}+`);
+  if (f.audience_id) parts.push("in a saved audience");
+  if (f.list_id) parts.push("on a list");
+  if (f.recipe) parts.push(`whose recipe answer is ${f.recipe.answer}`);
   return `${parts.join(", ")}.`;
 }
 

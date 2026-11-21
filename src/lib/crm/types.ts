@@ -12,7 +12,8 @@ export const PROVIDER_NAME: Record<Provider, string> = {
 export const isProvider = (value: unknown): value is Provider =>
   (PROVIDERS as readonly unknown[]).includes(value);
 
-export type JobKind = "contact" | "note" | "meeting" | "deal" | "opt_out";
+export type JobKind =
+  "contact" | "note" | "meeting" | "deal" | "opt_out" | "enrichment";
 
 export type JobLead = {
   id: string;
@@ -57,8 +58,20 @@ export type MeetingDetail = {
   status: "scheduled" | "completed" | "cancelled" | "no_show";
   booked_by: string;
 };
+/** What Dialvo's enrichment changed on a lead (enrichment_events). */
+export type EnrichmentDetail = {
+  type: "enrichment";
+  kind: "filled" | "job_change" | "email_invalid" | "work_email";
+  summary: string;
+  changes: Record<string, { from: string; to: string }>;
+  at: string;
+};
 export type JobDetail =
-  ChatDetail | EmailDetail | MeetingDetail | Record<string, never>;
+  | ChatDetail
+  | EmailDetail
+  | MeetingDetail
+  | EnrichmentDetail
+  | Record<string, never>;
 
 export type Job = {
   id: string;

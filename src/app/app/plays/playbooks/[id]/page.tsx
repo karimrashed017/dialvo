@@ -16,6 +16,7 @@ import { playReads } from "@/lib/plays/read";
 import { prospectRuntimeStatus } from "@/lib/prospects/config";
 import { listSequences } from "@/lib/sequences/server";
 import { createClient } from "@/lib/supabase/server";
+import { dataOptions } from "@/lib/data/read";
 import { cn } from "@/lib/utils";
 import { ActionForm, SubmitButton } from "../../../_ui/form";
 import {
@@ -44,6 +45,7 @@ async function Content({ id }: { id: string }) {
   const playbook = await getPlaybook(supabase, workspace.id, id);
   if (!playbook) notFound();
   const reads = playReads(supabase, workspace.id);
+  const options = await dataOptions(supabase, workspace.id);
   const [sequences, sources, counts, toWrite, campaigns] = await Promise.all([
     listSequences(supabase, workspace.id),
     leadSources(supabase, workspace.id),
@@ -173,6 +175,9 @@ async function Content({ id }: { id: string }) {
               sequences={sequences}
               sources={sources}
               admin={admin}
+              lists={options.lists}
+              audiences={options.audiences}
+              recipes={options.recipes}
             />
             {admin && (
               <ActionForm

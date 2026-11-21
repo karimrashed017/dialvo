@@ -11,6 +11,7 @@ import {
 } from "@/lib/plays/playbooks";
 import { listSequences } from "@/lib/sequences/server";
 import { createClient } from "@/lib/supabase/server";
+import { dataOptions } from "@/lib/data/read";
 import { cn } from "@/lib/utils";
 import {
   Badge,
@@ -52,6 +53,7 @@ async function Content() {
       </>
     );
   const supabase = await createClient();
+  const options = await dataOptions(supabase, workspace.id);
   const [playbooks, sequences, sources] = await Promise.all([
     listPlaybooks(supabase, workspace.id),
     listSequences(supabase, workspace.id),
@@ -117,6 +119,9 @@ async function Content() {
               sequences={sequences}
               sources={sources}
               admin={admin}
+              lists={options.lists}
+              audiences={options.audiences}
+              recipes={options.recipes}
             />
           </section>
         )}

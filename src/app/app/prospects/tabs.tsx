@@ -2,13 +2,15 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 // The ways into Find leads: describe who you sell to, bring a list of target
-// accounts, find companies like your best ones, or act on buying signals.
+// accounts, find companies like your best ones, act on buying signals, or
+// let a saved search keep finding new companies on a schedule.
 
 const TABS = [
   { id: "search", href: "/app/prospects", label: "Search" },
   { id: "accounts", href: "/app/prospects/accounts", label: "Target accounts" },
   { id: "lookalike", href: "/app/prospects/lookalike", label: "Lookalike" },
   { id: "signals", href: "/app/prospects/signals", label: "Signals" },
+  { id: "always", href: "/app/prospects/sourcing", label: "Always on" },
 ] as const;
 
 export function FindTabs({

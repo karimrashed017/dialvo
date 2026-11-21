@@ -411,3 +411,19 @@ health, and the human dialer from the site and the plans. The database
 refuses outbound calls too (`20261121012511_no_outbound_calls`). Texts stay,
 to people who agreed to them only. The 11x column above still lists their
 power dialer and phone steps; we deliberately don't offer them.
+
+## 18. Lists, research, scoring, enrichment and planning (21 Nov 2026)
+
+Built in our own words and names: lists with research columns (a plain
+question answered per row with web search, a typed answer, its source and
+reason), lookups from the contact database, saved recipes, lead scoring
+with tiers (fit and engagement; opens never count), enrichment with job
+changes and personal-email matching (never guessed emails; CRM write-back
+as notes only), always-on market sourcing, territory planning feeding lead
+routing, target accounts with buying committees, and saved audiences. Where
+it differs on purpose: CRM fields aren't overwritten (a note is written
+instead), every paid run shows an estimate and stops at a daily or monthly
+cap, and job changes are found by re-checking each lead's own profile
+rather than watching a whole market. Details: `docs/app-setup.md`, "Lists,
+recipes, scoring, enrichment, sourcing, territories, accounts and
+audiences".

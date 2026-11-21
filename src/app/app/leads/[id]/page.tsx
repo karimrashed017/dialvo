@@ -260,6 +260,55 @@ async function LeadPage({ params }: { params: Promise<{ id: string }> }) {
           <MarkMeetingBooked leadId={lead.id} timezone={workspace.timezone} />
 
           <section className={panel}>
+            <h2 className={panelHead}>
+              Score
+              <Link
+                href="/app/leads/scoring"
+                className="text-[12px] font-normal text-[#0B0B0C]/55 underline decoration-black/20 underline-offset-2"
+              >
+                How it works
+              </Link>
+            </h2>
+            {lead.tier ? (
+              <div className="space-y-2 p-4 text-[12.5px]">
+                <p className="flex items-center gap-2">
+                  <Badge tone={lead.tier === 1 ? "ink" : "outline"}>
+                    Tier {lead.tier}
+                  </Badge>
+                  <span className="text-[#0B0B0C]/65 tabular-nums">
+                    Fit {lead.fit_score ?? "not set"} · engagement{" "}
+                    {lead.engagement_score ?? 0}
+                  </span>
+                </p>
+                <ul className="space-y-0.5 text-[#0B0B0C]/65">
+                  {(lead.score_detail?.fit ?? []).map((x) => (
+                    <li key={x.label}>
+                      {x.met ? "Yes" : "No"}: {x.label}
+                    </li>
+                  ))}
+                  {(lead.score_detail?.engagement ?? []).map((x) => (
+                    <li key={x.label}>
+                      +{x.points}: {x.label}
+                    </li>
+                  ))}
+                </ul>
+                {lead.account_id && (
+                  <Link
+                    href={`/app/accounts/${lead.account_id}`}
+                    className="block underline decoration-black/25 underline-offset-2"
+                  >
+                    Open the account
+                  </Link>
+                )}
+              </div>
+            ) : (
+              <p className="p-4 text-[12.5px] text-[#0B0B0C]/55">
+                Not scored yet. Scores refresh every ten minutes.
+              </p>
+            )}
+          </section>
+
+          <section className={panel}>
             <h2 className={panelHead}>Profile</h2>
             <ActionForm action={updateLead} className="space-y-3 p-4">
               <input type="hidden" name="lead" value={lead.id} />

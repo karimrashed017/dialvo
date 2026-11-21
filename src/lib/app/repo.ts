@@ -38,7 +38,11 @@ export interface Repo {
   /** For the nav: chats waiting, and first emails waiting for a yes. */
   waitingCount(): Promise<number>;
   emailDraftCount(): Promise<number>;
-  leads(filter: { q?: string; status?: string }): Promise<Lead[]>;
+  leads(filter: {
+    q?: string;
+    status?: string;
+    tier?: number;
+  }): Promise<Lead[]>;
   lead(id: string): Promise<LeadDetail | null>;
   conversations(queue: InboxQueue): Promise<ConversationListItem[]>;
   conversation(id: string): Promise<ConversationThread | null>;
@@ -57,7 +61,7 @@ export interface Repo {
 }
 
 const LEAD_COLUMNS =
-  "id, name, email, phone, company, website, source, status, owner_id, consent_call, consent_call_at, consent_call_source, consent_sms, consent_sms_at, consent_sms_source, consent_whatsapp, consent_whatsapp_at, consent_whatsapp_source, consent_email, consent_email_at, consent_email_source, do_not_contact, do_not_contact_at, custom_fields, created_at, updated_at";
+  "id, name, email, phone, company, website, source, status, owner_id, consent_call, consent_call_at, consent_call_source, consent_sms, consent_sms_at, consent_sms_source, consent_whatsapp, consent_whatsapp_at, consent_whatsapp_source, consent_email, consent_email_at, consent_email_source, do_not_contact, do_not_contact_at, custom_fields, created_at, updated_at, fit_score, engagement_score, tier, score_detail, account_id";
 const CONVERSATION_COLUMNS =
   "id, lead_id, channel, status, assigned_to, last_message_at, created_at, widget_id, agent_paused, outcome, outcome_summary";
 const MESSAGE_COLUMNS =
@@ -296,7 +300,7 @@ export function createRepo(
       };
     },
 
-    async leads({ q, status }) {
+    async leads({ q, status, tier }) {
       let query = from("leads")
         .select(LEAD_COLUMNS)
         .eq("workspace_id", ws)
@@ -304,6 +308,8 @@ export function createRepo(
         .limit(200);
       if (status && (LEAD_STATUSES as readonly string[]).includes(status))
         query = query.eq("status", status);
+      if (tier === 1 || tier === 2 || tier === 3)
+        query = query.eq("tier", tier);
       const term = searchTerm(q);
       if (term)
         query = query.or(
