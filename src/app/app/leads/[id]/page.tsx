@@ -47,6 +47,7 @@ import {
   setLeadStatus,
   updateLead,
 } from "../actions";
+import { LeadTimeZone } from "../../calls/lead-time-zone";
 
 export const metadata: Metadata = { title: "Lead" };
 
@@ -127,7 +128,7 @@ function timeline(detail: LeadDetail, tz: string): Entry[] {
 
 async function LeadPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { repo, workspace } = await getAppContext();
+  const { repo, workspace, preview } = await getAppContext();
   const [detail, members] = await Promise.all([repo.lead(id), repo.members()]);
   if (!detail) notFound();
   const { lead } = detail;
@@ -369,6 +370,10 @@ async function LeadPage({ params }: { params: Promise<{ id: string }> }) {
               </ul>
             </div>
           </section>
+
+          {!preview && (
+            <LeadTimeZone leadId={lead.id} workspaceId={workspace.id} />
+          )}
 
           <section className={panel}>
             <h2 className={panelHead}>Do not contact</h2>
