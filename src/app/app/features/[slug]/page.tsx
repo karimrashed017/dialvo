@@ -12,7 +12,7 @@ import { BeingBuilt } from "../../plays/ui";
 // needs. A feature that works sends you to where it lives.
 
 export function generateStaticParams() {
-  return FEATURE_SLUGS.map((slug) => ({ slug }));
+  return FEATURE_SLUGS.filter(isFeatureSlug).map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
@@ -28,6 +28,7 @@ export default async function FeaturePage({
   const { slug } = await params;
   if (!isFeatureSlug(slug)) notFound();
   const feature = APP_FEATURES[slug];
+  if (!feature) notFound();
   if (
     feature.status !== "building" ||
     !feature.href.startsWith("/app/features")

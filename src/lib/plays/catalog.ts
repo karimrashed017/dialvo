@@ -254,7 +254,10 @@ export type AppFeature = {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const building = (slug: FeatureSlug) => `/app/features/${slug}`;
 
-export const APP_FEATURES: Record<FeatureSlug, AppFeature> = {
+// Partial on purpose: the site can list a feature (its page is written ahead
+// of the merge that adds it here) before the app has an entry for it. Pages
+// and menus read it through appFeature() and show nothing for a missing one.
+export const APP_FEATURES: Partial<Record<FeatureSlug, AppFeature>> = {
   "company-and-lead-database": {
     status: "live",
     href: "/app/prospects",
@@ -367,29 +370,51 @@ export const APP_FEATURES: Record<FeatureSlug, AppFeature> = {
   },
 };
 
-/** The site's Platform menu, with each item's place in the app. */
+/** What the app says about one feature, if it has an entry yet. */
+export const appFeature = (slug: FeatureSlug): AppFeature | undefined =>
+  APP_FEATURES[slug];
+
+/** One line of the app's feature list. */
+export type FeatureGroupItem = {
+  key: string;
+  title: string;
+  status: Status;
+  href: string;
+  note: string;
+};
+
+/**
+ * The site's Platform menu, with each item's place in the app. A feature
+ * the app has no entry for yet is left out.
+ */
 export function featureGroups() {
   return GROUPS.map((g) => ({
     id: g.id as GroupId,
     title: g.title,
     blurb: g.blurb,
-    items: g.items.map((item) =>
-      item.type === "feature"
-        ? {
-            key: `feature:${item.slug}`,
-            title: FEATURES[item.slug].title,
-            status: APP_FEATURES[item.slug].status,
-            href: APP_FEATURES[item.slug].href,
-            note: APP_FEATURES[item.slug].note,
-          }
-        : {
+    items: g.items.flatMap((item): FeatureGroupItem[] => {
+      if (item.type === "play")
+        return [
+          {
             key: `play:${item.slug}`,
             title: PLAYS[item.slug].title,
             status: APP_PLAYS[item.slug].status,
             href: `/app/plays/${item.slug}`,
             note: APP_PLAYS[item.slug].what.split(". ")[0] + ".",
           },
-    ),
+        ];
+      const feature = appFeature(item.slug);
+      if (!feature) return [];
+      return [
+        {
+          key: `feature:${item.slug}`,
+          title: FEATURES[item.slug].title,
+          status: feature.status,
+          href: feature.href,
+          note: feature.note,
+        },
+      ];
+    }),
   }));
 }
 
