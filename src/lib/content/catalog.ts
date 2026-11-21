@@ -328,21 +328,21 @@ export const FEATURES = {
     group: "outreach",
     icon: MessageSquareReply,
     blurb:
-      "Replies sorted and answered within minutes; meetings booked; opt-outs honoured.",
+      "Replies sorted within minutes, answers drafted, your booking link offered, opt-outs honoured.",
   },
   "multilingual-outreach": {
     title: "Multilingual outreach",
     group: "outreach",
     icon: Languages,
     blurb:
-      "Agents write and speak in your buyer's language, from knowledge you add per market.",
+      "Emails in your buyer's language, set per sequence or picked from their website.",
   },
   analytics: {
     title: "Analytics",
     group: "analytics",
     icon: BarChart3,
     blurb:
-      "Conversations, replies, qualified leads and meetings by channel and by play.",
+      "Leads found, emails sent, replies, meetings and chats, by play, search and mailbox.",
   },
   "deliverability-and-mailbox-health": {
     title: "Deliverability and mailbox health",
