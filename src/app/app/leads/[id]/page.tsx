@@ -48,6 +48,7 @@ import {
   updateLead,
 } from "../actions";
 import { LeadTimeZone } from "../../calls/lead-time-zone";
+import { LeadBriefs } from "../../briefs/lead-briefs";
 
 export const metadata: Metadata = { title: "Lead" };
 
@@ -178,6 +179,13 @@ async function LeadPage({ params }: { params: Promise<{ id: string }> }) {
               </div>
             </ActionForm>
           </section>
+
+          <LeadBriefs
+            workspaceId={workspace.id}
+            leadId={lead.id}
+            lost={lead.status === "lost"}
+            preview={preview}
+          />
 
           <section className={panel}>
             <h2 className={panelHead}>

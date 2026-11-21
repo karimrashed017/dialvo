@@ -141,6 +141,44 @@ export function slackMessage(
         link("/app/plays", "Open Plays", base),
       ].join("\n");
     }
+    case "account_brief": {
+      const closed = payload.kind === "closed_lost";
+      const at =
+        typeof payload.starts_at === "string"
+          ? new Date(payload.starts_at)
+          : null;
+      const when =
+        at && !Number.isNaN(at.getTime())
+          ? ` for the meeting at ${at.toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" })} UTC`
+          : "";
+      return [
+        closed
+          ? `*Why it was likely lost* in ${ws}: ${who(lead)}.`
+          : `*Account brief ready* in ${ws}: ${who(lead)}${when}.`,
+        summary && `> ${summary}`,
+        link(
+          typeof payload.lead_id === "string"
+            ? `/app/leads/${payload.lead_id}#brief`
+            : "/app/briefs",
+          "Read it in Dialvo",
+          base,
+        ),
+      ]
+        .filter(Boolean)
+        .join("\n");
+    }
+    case "workflow_post": {
+      const text = slackText(payload.text, 1000);
+      if (!text) return null;
+      return [
+        text,
+        `_From the workflow "${slackText(payload.workflow, 80)}" in ${ws}._`,
+        typeof payload.lead_id === "string" &&
+          link(`/app/leads/${payload.lead_id}`, "Open the lead", base),
+      ]
+        .filter(Boolean)
+        .join("\n");
+    }
     case "test":
       return `Dialvo is connected to this channel for ${ws}. Alerts you choose in Settings, Slack, will appear here.`;
     default:

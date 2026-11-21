@@ -219,7 +219,10 @@ function requestOnce(
   });
 }
 
-const DEFAULT_DEPS: PageDeps = { resolve: resolveHost, request: requestOnce };
+export const DEFAULT_DEPS: PageDeps = {
+  resolve: resolveHost,
+  request: requestOnce,
+};
 
 const ENTITIES: Record<string, string> = {
   amp: "&",

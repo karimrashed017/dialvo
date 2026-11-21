@@ -308,3 +308,37 @@ describe("reading an endpoint", () => {
     ).toMatchObject({ ok: false, field: "url" });
   });
 });
+
+describe("posts for briefs and workflows", () => {
+  it("say what happened, escaped, and link back", async () => {
+    const { slackMessage } = await import("./slack");
+    const brief = slackMessage(
+      "account_brief",
+      {
+        kind: "brief",
+        summary: "<!channel> wants 20 seats",
+        lead_id: "l1",
+        lead: { name: "Pat", company: "Acme" },
+        starts_at: "2026-11-22T15:00:00Z",
+      },
+      "Agency A",
+      "https://example.test",
+    )!;
+    expect(brief).toContain(
+      "*Account brief ready* in Agency A: Pat (Acme) for the meeting at",
+    );
+    expect(brief).toContain("&lt;!channel&gt;");
+    expect(brief).toContain(
+      "<https://example.test/app/leads/l1#brief|Read it in Dialvo>",
+    );
+    const wf = slackMessage(
+      "workflow_post",
+      { text: "Hot lead <@U1>", workflow: "Replies", lead_id: "l2" },
+      "A",
+      "https://example.test",
+    )!;
+    expect(wf).toContain("Hot lead &lt;@U1&gt;");
+    expect(wf).toContain('_From the workflow "Replies" in A._');
+    expect(slackMessage("workflow_post", { text: "" }, "A")).toBeNull();
+  });
+});
