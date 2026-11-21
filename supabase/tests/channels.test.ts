@@ -43,7 +43,6 @@ function zoneAt(hour: number) {
     : `Etc/GMT${offset > 0 ? "-" : "+"}${Math.abs(offset)}`;
 }
 const OPEN_ZONE = () => zoneAt(12);
-const CLOSED_ZONE = () => zoneAt(3);
 const EVERY_DAY = {
   days: [1, 2, 3, 4, 5, 6, 7],
   start: "09:00",
@@ -148,10 +147,7 @@ describe("one workspace and another", () => {
   it("can't read each other's phone, call, text or step rows", async () => {
     const number = await buyNumber(B, bob, "+14155550199");
     const leadB = await lead(B, { sms: true });
-    const batch = await db.user(bob)<{ id: string }>(
-      `select call_batch_create($1, 'B calls', 'Secret brief', array[$2]::uuid[], 200, 5) as id`,
-      [B, leadB],
-    );
+    expect(leadB).toBeTruthy();
     await db.user(bob)(
       `insert into phone_opt_outs (workspace_id, phone, channel, source, added_by) values ($1, '+14155550198', 'call', 'person', $2)`,
       [B, bob],
@@ -163,14 +159,20 @@ describe("one workspace and another", () => {
       `insert into sequence_channel_steps (workspace_id, channel, day_offset, message) values ($1, 'linkedin', 2, 'Hi {first_name}') returning id`,
       [B],
     );
-    expect(number && batch[0].id && step).toBeTruthy();
+    expect(number && step).toBeTruthy();
 
     for (const table of CHANNEL_TABLES) {
       const all = await db.admin(
         `select 1 from ${table} where workspace_id = $1`,
         [B],
       );
-      if (table !== "sequence_channel_runs")
+      // No call batches can exist any more (no outbound calls), and runs
+      // only appear once a sequence ticks.
+      if (
+        !["sequence_channel_runs", "call_batches", "call_batch_leads"].includes(
+          table,
+        )
+      )
         expect(all.length, table).toBeGreaterThan(0);
       for (const who of [alice, amy, adam]) {
         expect(
@@ -195,7 +197,7 @@ describe("one workspace and another", () => {
       ).rejects.toThrow(DENIED);
   });
 
-  it("can't write to the other's do-not-call list, settings, batches or steps", async () => {
+  it("can't write to the other's do-not-call list, settings or steps", async () => {
     await expect(
       db.user(alice)(
         `insert into phone_opt_outs (workspace_id, phone, channel, source, added_by) values ($1, '+14155550111', 'call', 'person', $2)`,
@@ -208,35 +210,6 @@ describe("one workspace and another", () => {
         settings({ outbound_on: false }),
       ]),
     ).rejects.toThrow(/only an owner or admin/);
-    const leadB = await lead(B);
-    await expect(
-      db.user(alice)(
-        `select call_batch_create($1, 'x', '', array[$2]::uuid[], 200, 5)`,
-        [B, leadB],
-      ),
-    ).rejects.toThrow(/not a member/);
-    // A's batch made with B's lead holds nothing of B's.
-    const [{ id }] = await db.user(alice)<{ id: string }>(
-      `select call_batch_create($1, 'x', '', array[$2]::uuid[], 200, 5) as id`,
-      [A, leadB],
-    );
-    expect(
-      await db.admin(`select 1 from call_batch_leads where batch_id = $1`, [
-        id,
-      ]),
-    ).toEqual([]);
-    const [batchB] = await db.admin<{ id: string }>(
-      `select id from call_batches where workspace_id = $1 limit 1`,
-      [B],
-    );
-    expect(
-      (
-        await db.user(alice)<{ r: boolean }>(
-          `select call_batch_decide($1, true) as r`,
-          [batchB.id],
-        )
-      )[0].r,
-    ).toBe(false);
     await expect(
       db.user(alice)(
         `select channel_step_save($1, null, 'sequences', 'sms', 1, 'Hi', '', 6)`,
@@ -474,170 +447,40 @@ describe("an incoming call", () => {
 });
 
 describe("outbound calls", () => {
-  const claim = () =>
-    service<{ call_id: string; workspace_id: string; to: string }[]>(
-      "call_claim(20, 20, 0.15)",
-    );
-
-  it("leave out anyone who can't be called, with the reason", async () => {
-    const ok = await lead(A);
-    const noConsent = await lead(A, { call: false });
-    const dnc = await lead(A, { dnc: true });
-    const noPhone = await lead(A, { phone: "call me" });
-    const unknownZone = await lead(A, { phone: "+8613800000000", tz: null });
-    const listed = await lead(A, { phone: "+14155557003" });
-    await db.user(amy)(
-      `insert into phone_opt_outs (workspace_id, phone, channel, source, added_by) values ($1, '+14155557003', 'call', 'person', $2)`,
-      [A, amy],
-    );
-    const [{ id }] = await db.user(amy)<{ id: string }>(
-      `select call_batch_create($1, 'Callbacks', 'Ask about the quote', $2::uuid[], 200, 5) as id`,
-      [A, [ok, noConsent, dnc, noPhone, unknownZone, listed]],
-    );
-    const items = await db.admin<{
-      lead_id: string;
-      status: string;
-      skip_reason: string | null;
-    }>(
-      `select lead_id, status, skip_reason from call_batch_leads where batch_id = $1`,
-      [id],
-    );
-    const by = Object.fromEntries(items.map((i) => [i.lead_id, i]));
-    expect(by[ok]).toMatchObject({ status: "waiting", skip_reason: null });
-    expect(by[noConsent].skip_reason).toBe("No recorded consent to be called");
-    expect(by[dnc].skip_reason).toBe("Marked do not contact");
-    expect(by[noPhone].skip_reason).toMatch(/international form/);
-    expect(by[unknownZone].skip_reason).toMatch(/Time zone unknown/);
-    expect(by[listed].skip_reason).toBe("On the do-not-call list");
-    // A member can't approve; nothing is dialled before approval.
+  it("can't be made at all: no batches, no claims, no outbound rows, no call tasks", async () => {
+    const leadA = await lead(A, { call: true });
+    await expect(
+      db.user(alice)(
+        `select call_batch_create($1, 'Callbacks', '', array[$2]::uuid[], 200, 5)`,
+        [A, leadA],
+      ),
+    ).rejects.toThrow(/does not make outbound calls/);
+    await expect(
+      db.admin(
+        `insert into call_batches (workspace_id, name) values ($1, 'x')`,
+        [A],
+      ),
+    ).rejects.toThrow(/call_batches_none/);
     expect(
       (
-        await db.user(amy)<{ r: boolean }>(
-          `select call_batch_decide($1, true) as r`,
-          [id],
+        await db.user(alice)<{ r: boolean }>(
+          `select call_batch_decide(gen_random_uuid(), true) as r`,
         )
       )[0].r,
     ).toBe(false);
-    expect((await claim()).filter((c) => c.workspace_id === A)).toEqual([]);
-    expect(
-      (
-        await db.user(adam)<{ r: boolean }>(
-          `select call_batch_decide($1, true) as r`,
-          [id],
-        )
-      )[0].r,
-    ).toBe(true);
-    const placed = (await claim()).filter((c) => c.workspace_id === A);
-    expect(placed.length).toBe(1);
-    expect(placed[0].to).toMatch(/^\+1415555/);
-    // Claimed once only.
-    expect((await claim()).filter((c) => c.workspace_id === A)).toEqual([]);
-    // Twilio accepted it; it rang out.
-    const sid = callSid();
-    await service("call_placed($1, $2, $3, null)", [placed[0].call_id, A, sid]);
-    await service("call_status($1, 'no-answer', 0, null, null)", [sid]);
-    expect(
-      await db.admin(`select status, outcome from calls where id = $1`, [
-        placed[0].call_id,
-      ]),
-    ).toEqual([{ status: "missed", outcome: "no_answer" }]);
-    expect(
-      await db.admin(`select status from call_batches where id = $1`, [id]),
-    ).toEqual([{ status: "done" }]);
-  });
-
-  it("wait for the call window in the lead's time zone, and for the switch", async () => {
-    const night = await lead(A, { tz: CLOSED_ZONE() });
-    const day = await lead(A);
-    const [{ id }] = await db.user(alice)<{ id: string }>(
-      `select call_batch_create($1, 'Window', '', $2::uuid[], 200, 5) as id`,
-      [A, [night, day]],
-    );
-    await db.user(alice)(`select call_batch_decide($1, true)`, [id]);
-    await db.user(alice)(`select phone_settings_save($1, $2::jsonb)`, [
-      A,
-      settings({ outbound_on: false }),
-    ]);
-    expect((await claim()).filter((c) => c.workspace_id === A)).toEqual([]);
-    await db.user(alice)(`select phone_settings_save($1, $2::jsonb)`, [
-      A,
-      settings(),
-    ]);
-    const placed = (await claim()).filter((c) => c.workspace_id === A);
-    expect(placed.length).toBe(1);
-    const items = await db.admin<{
-      lead_id: string;
-      status: string;
-      next_try_at: Date;
-    }>(
-      `select lead_id, status, next_try_at from call_batch_leads where batch_id = $1`,
-      [id],
-    );
-    const nightItem = items.find((i) => i.lead_id === night)!;
-    expect(nightItem.status).toBe("waiting");
-    expect(new Date(nightItem.next_try_at).getTime()).toBeGreaterThan(
-      Date.now(),
-    );
-    // Withdrawn consent is checked again at the moment of the call.
-    await db.admin(
-      `update call_batch_leads set next_try_at = now() where batch_id = $1`,
-      [id],
-    );
-    await db.admin(
-      `update leads set time_zone = $2, consent_call = false where id = $1`,
-      [night, OPEN_ZONE()],
-    );
-    expect((await claim()).filter((c) => c.workspace_id === A)).toEqual([]);
-    expect(
-      await db.admin(
-        `select status, skip_reason from call_batch_leads where lead_id = $1`,
-        [night],
+    expect(await service("call_claim(20, 20, 0.15)")).toEqual([]);
+    await expect(
+      db.admin(
+        `insert into calls (workspace_id, lead_id, direction) values ($1, $2, 'outbound')`,
+        [A, leadA],
       ),
-    ).toEqual([
-      { status: "skipped", skip_reason: "No recorded consent to be called" },
-    ]);
-  });
-
-  it("stop at the workspace's daily cap and never use a flagged number", async () => {
-    await db
-      .user(alice)(`select phone_settings_save($1, $2::jsonb)`, [B, settings()])
-      .catch(() => undefined);
-    await db.user(bob)(`select phone_settings_save($1, $2::jsonb)`, [
-      B,
-      settings({ daily_call_cap: 1 }),
-    ]);
-    const leads = [await lead(B), await lead(B)];
-    const [{ id }] = await db.user(bob)<{ id: string }>(
-      `select call_batch_create($1, 'Cap', '', $2::uuid[], 200, 5) as id`,
-      [B, leads],
-    );
-    await db.user(bob)(`select call_batch_decide($1, true)`, [id]);
-    // B's earlier batch already used the one call of the day? It wasn't
-    // approved, so none was made: one call now, then the cap.
-    expect((await claim()).filter((c) => c.workspace_id === B).length).toBe(1);
-    await db.admin(
-      `update call_batch_leads set next_try_at = now() where batch_id = $1`,
-      [id],
-    );
-    expect((await claim()).filter((c) => c.workspace_id === B)).toEqual([]);
-    // A flagged number is never dialled from.
-    await db.user(bob)(`select phone_settings_save($1, $2::jsonb)`, [
-      B,
-      settings({ daily_call_cap: 50 }),
-    ]);
-    await db.admin(
-      `update phone_numbers set spam_status = 'flagged' where workspace_id = $1`,
-      [B],
-    );
-    await db.admin(
-      `update call_batch_leads set next_try_at = now() where batch_id = $1`,
-      [id],
-    );
-    expect((await claim()).filter((c) => c.workspace_id === B)).toEqual([]);
-    await db.admin(
-      `update phone_numbers set spam_status = 'clean' where workspace_id = $1`,
-      [B],
-    );
+    ).rejects.toThrow(/calls_inbound_only/);
+    await expect(
+      db.user(adam)(
+        `select channel_step_save($1, null, 'sequences', 'call_task', 2, '', 'Ask about timing', 6)`,
+        [A],
+      ),
+    ).rejects.toThrow(/sequence_channel_steps_no_calls|call_task/);
   });
 });
 
@@ -760,10 +603,6 @@ describe("sequence steps on other channels", () => {
       `select channel_step_save($1, null, 'sequences', 'sms', 1, 'Quick note from Sam.', '', 6)`,
       [A],
     );
-    await db.user(adam)(
-      `select channel_step_save($1, null, 'sequences', 'call_task', 2, '', 'Ask about timing', 6)`,
-      [A],
-    );
   });
 
   it("are scheduled per sequence, with the reason when one can't run", async () => {
@@ -778,7 +617,6 @@ describe("sequence steps on other channels", () => {
     expect((await runs(t1)).map((r) => [r.channel, r.status])).toEqual([
       ["linkedin", "due"],
       ["sms", "scheduled"],
-      ["call_task", "scheduled"],
     ]);
     const first = (await runs(t1))[0];
     expect(first.body).toBe("Hi Kim, saw Parkworks.");
@@ -861,7 +699,6 @@ describe("sequence steps on other channels", () => {
     expect((await runs(thread)).map((r) => r.status)).toEqual([
       "stopped",
       "stopped",
-      "stopped",
     ]);
     expect(
       await db.admin(
@@ -881,7 +718,6 @@ describe("sequence steps on other channels", () => {
     ]);
     expect((await runs(thread)).map((r) => r.status)).toEqual([
       "done",
-      "stopped",
       "stopped",
     ]);
     expect(

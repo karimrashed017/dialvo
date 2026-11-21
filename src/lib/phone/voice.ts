@@ -8,7 +8,7 @@ import {
   MAX_TURNS,
   WEBHOOK_PATHS,
 } from "./config";
-import { inboundOpening, outboundOpening, unavailableLine } from "./prompt";
+import { inboundOpening, unavailableLine } from "./prompt";
 import type { PhoneStore } from "./store";
 import type { Twilio } from "./twilio";
 import { twiml, type Verb } from "./twiml";
@@ -191,29 +191,6 @@ export async function handleIncoming(
   }
   const opening = inboundOpening(c);
   await deps.store.answered(c.call.id, p.CallSid ?? "", false);
-  await deps.store.commitTurn(c.call.id, "", opening, { outcome: "none" });
-  return twiml([gather(deps, c, opening)]);
-}
-
-/** One of our outbound calls was answered. */
-export async function handleAnswer(
-  deps: VoiceDeps,
-  callId: string,
-  p: Params,
-): Promise<string> {
-  const c = await deps.store.context(callId);
-  if (!c || c.call.direction !== "outbound") return hangup();
-  if (c.call.provider_sid && c.call.provider_sid !== p.CallSid) return hangup();
-  const answeredBy = p.AnsweredBy ?? "";
-  const machine = /^(machine|fax)/.test(answeredBy);
-  await deps.store.answered(c.call.id, p.CallSid ?? "", machine);
-  // An answering machine is not left a message.
-  if (machine) return hangup();
-  if (!deps.model) {
-    await deps.store.commitTurn(c.call.id, "", "", { outcome: "needs_human" });
-    return hangup();
-  }
-  const opening = outboundOpening(c);
   await deps.store.commitTurn(c.call.id, "", opening, { outcome: "none" });
   return twiml([gather(deps, c, opening)]);
 }

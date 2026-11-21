@@ -98,8 +98,6 @@ export function fakeStore(
     commitTurn: rec("commitTurn", { status: "ok", alert_to: o.alertTo ?? [] }),
     transferResult: rec("transferResult", undefined),
     status: rec("status", undefined),
-    claimCalls: rec("claimCalls", []),
-    placed: rec("placed", undefined),
     smsInbound: rec("smsInbound", { kind: "message" }),
     smsBookingLink: rec("smsBookingLink", {
       status: "ok",
@@ -170,7 +168,6 @@ export function fakeTwilio(over: Partial<Twilio> = {}) {
     }),
     buyNumber: rec("buyNumber", { sid: "PN" + "2".repeat(32) }),
     releaseNumber: rec("releaseNumber", undefined),
-    createCall: rec("createCall", { sid: "CA" + "3".repeat(32) }),
     startRecording: rec("startRecording", undefined),
     sendSms: rec("sendSms", { sid: "SM" + "4".repeat(32) }),
     recordingAudio: rec("recordingAudio", new Response("")),

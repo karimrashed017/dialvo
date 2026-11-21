@@ -8,7 +8,6 @@ import {
   turn,
 } from "./testing/fakes";
 import {
-  handleAnswer,
   handleIncoming,
   handleStatus,
   handleTransfer,
@@ -254,38 +253,6 @@ describe("a turn", () => {
     );
     expect(xml).toContain("I need to wrap up now");
     expect(model.requests).toEqual([]);
-  });
-});
-
-describe("an outbound call", () => {
-  it("opens by saying who is calling, why, and that it is transcribed", async () => {
-    const c = context({
-      call: { direction: "outbound", provider_sid: null },
-      lead: { name: "Pat Lee" },
-    });
-    const { store } = fakeStore(c);
-    const xml = await handleAnswer(
-      deps({ store, model: fakeModel(turn()).client }),
-      c.call.id,
-      { CallSid: SID, AnsweredBy: "human" },
-    );
-    expect(xml).toContain(
-      "Hi, this is the AI assistant for Northwind, calling for Pat, because you asked to hear from us by phone. This call is transcribed",
-    );
-  });
-
-  it("hangs up on an answering machine without leaving a message", async () => {
-    const c = context({ call: { direction: "outbound" } });
-    const { store, calls } = fakeStore(c);
-    const xml = await handleAnswer(
-      deps({ store, model: fakeModel(turn()).client }),
-      c.call.id,
-      { CallSid: SID, AnsweredBy: "machine_start" },
-    );
-    expect(xml).toBe(
-      '<?xml version="1.0" encoding="UTF-8"?><Response><Hangup/></Response>',
-    );
-    expect(calls("answered")[0].args[2]).toBe(true);
   });
 });
 

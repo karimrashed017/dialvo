@@ -22,7 +22,7 @@ export type CallContext = {
     turns: number;
     outcome: string | null;
     transcript: TranscriptEntry[];
-    /** For an outbound batch: what the team wants from the call. */
+    /** Unused since outbound calls were removed; always empty. */
     purpose: string;
   };
   workspace: { name: string; website: string | null; timezone: string };

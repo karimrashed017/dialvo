@@ -147,13 +147,6 @@ export function inboundOpening(c: Opening) {
   return `${disclosure(c)} ${c.phone.greeting.trim() || defaultGreeting(c.workspace.name)}`;
 }
 
-/** The agent's first words on a call it makes. */
-export function outboundOpening(c: Opening & { lead: { name: string } }) {
-  const first = c.lead.name.trim().split(/\s+/)[0];
-  const who = first ? `for ${first}, ` : "";
-  return `Hi, this is the AI assistant for ${c.workspace.name}, calling ${who}because you asked to hear from us by phone. ${disclosure(c)} Is now a good time?`;
-}
-
 /** When the agent can't answer at all. */
 export function unavailableLine(name: string, transfer: boolean) {
   return transfer

@@ -55,14 +55,6 @@ export interface Twilio {
     label: string,
   ): Promise<{ sid: string }>;
   releaseNumber(sid: string): Promise<void>;
-  createCall(o: {
-    to: string;
-    from: string;
-    url: string;
-    statusUrl: string;
-    record: boolean;
-    timeLimitSeconds: number;
-  }): Promise<{ sid: string }>;
   startRecording(callSid: string, statusUrl: string): Promise<void>;
   sendSms(o: {
     to: string;
@@ -219,31 +211,6 @@ export function createTwilio(
         "DELETE",
         `${account}/IncomingPhoneNumbers/${encodeURIComponent(sid)}.json`,
       );
-    },
-
-    async createCall(o) {
-      const data = await request<{ sid?: string }>(
-        "POST",
-        `${account}/Calls.json`,
-        {
-          To: o.to,
-          From: o.from,
-          Url: o.url,
-          Method: "POST",
-          StatusCallback: o.statusUrl,
-          StatusCallbackMethod: "POST",
-          StatusCallbackEvent: "completed",
-          // An answering machine is hung up on, not spoken to.
-          MachineDetection: "Enable",
-          Timeout: "25",
-          TimeLimit: String(o.timeLimitSeconds),
-          Record: o.record ? "true" : undefined,
-          RecordingStatusCallback: o.record ? o.statusUrl : undefined,
-        },
-      );
-      if (!data.sid || !/^CA[0-9a-f]{32}$/.test(data.sid))
-        throw new TwilioError("Twilio didn't return the call.", 502, null);
-      return { sid: data.sid };
     },
 
     async startRecording(callSid, statusUrl) {

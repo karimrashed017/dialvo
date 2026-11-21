@@ -560,7 +560,6 @@ export const MOTION_PAGES: Record<MotionId, MotionContent> = {
       ],
     },
     features: [
-      "consented-outbound-calling",
       "crm-integration",
       "api",
       "knowledge-base",

@@ -4,7 +4,7 @@ import { phoneRuntime, webhookBase } from "@/lib/phone/config";
 import { createPhoneStore } from "@/lib/phone/store";
 import { createTwilio, twilioCredentials } from "@/lib/phone/twilio";
 
-// The scheduler's door for calls and texts. Once a minute, when there is
+// The scheduler's door for texts (Dialvo never places calls). Once a minute, when there is
 // work, the database calls this (pg_cron + pg_net, see
 // 20261121004956_sequence_channel_steps) with the scheduler's random token
 // from Supabase Vault, checked by asking the database. A call without the

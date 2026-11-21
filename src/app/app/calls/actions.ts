@@ -8,20 +8,14 @@ import {
   type ActionResult,
 } from "@/lib/app/action";
 import { isUuid } from "@/lib/leads/fields";
-import {
-  BATCH_MAX_LEADS,
-  MAX_OPEN_BATCHES,
-  phoneRuntime,
-  VOICES,
-  webhookBase,
-} from "@/lib/phone/config";
+import { phoneRuntime, VOICES, webhookBase } from "@/lib/phone/config";
 import { buyNumber, releaseNumber } from "@/lib/phone/numbers";
 import { createPhoneStore } from "@/lib/phone/store";
 import { createTwilio, twilioCredentials } from "@/lib/phone/twilio";
 
-// The Calls pages' actions. Settings, number health and approving a batch
-// are for owners and admins; buying and releasing numbers for the owner
-// alone. The database's functions check the same again.
+// The Calls pages' actions. Settings and number details are for owners and
+// admins; buying and releasing numbers for the owner alone. The database's
+// functions check the same again. There is no outbound calling.
 
 const admin = { admin: true } as const;
 const NOT_ON =
@@ -29,7 +23,6 @@ const NOT_ON =
 const E164 = /^\+[1-9]\d{6,14}$/;
 const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
 const REG = ["not_started", "submitted", "approved", "rejected"];
-const STEPS = ["not_started", "submitted", "approved"];
 
 const phone = (value: FormDataEntryValue | null) =>
   String(value ?? "")
@@ -75,7 +68,7 @@ export async function savePhoneSettings(form: FormData): Promise<ActionResult> {
       end > "21:00"
     )
       throw new ActionProblem(
-        "The call window must be inside 08:00 to 21:00 and end after it starts.",
+        "The texting window must be inside 08:00 to 21:00 and end after it starts.",
         "start",
       );
     const brand = String(form.get("a2p_brand_status") ?? "not_started");
@@ -101,9 +94,10 @@ export async function savePhoneSettings(form: FormData): Promise<ActionResult> {
       language: v.language,
       transfer_number: transfer,
       recording_on: form.get("recording_on") === "on",
-      outbound_on: form.get("outbound_on") === "on",
+      // The database's texting switch: texts need it on. It no longer
+      // allows any call (Dialvo makes no outbound calls).
+      outbound_on: form.get("sms_on") === "on",
       call_window: { days: [...new Set(days)].sort(), start, end },
-      daily_call_cap: int(form.get("daily_call_cap"), 1, 300, "daily_call_cap"),
       max_call_minutes: int(
         form.get("max_call_minutes"),
         1,
@@ -194,35 +188,6 @@ export async function releaseNumberAction(
   });
 }
 
-export async function updateNumberAction(
-  form: FormData,
-): Promise<ActionResult> {
-  return inWorkspace(async ({ supabase }) => {
-    const id = form.get("number");
-    if (!isUuid(id)) throw new ActionProblem("That number doesn't exist.");
-    const spam = String(form.get("spam_status") ?? "");
-    const cnam = String(form.get("cnam_status") ?? "");
-    const shaken = String(form.get("shaken_status") ?? "");
-    if (
-      !["unknown", "clean", "flagged"].includes(spam) ||
-      !STEPS.includes(cnam) ||
-      !STEPS.includes(shaken)
-    )
-      throw new ActionProblem("Choose a status.");
-    const { data, error } = await supabase.rpc("phone_number_update", {
-      p_number_id: id,
-      p_daily_cap: int(form.get("daily_call_cap"), 1, 200, "daily_call_cap"),
-      p_spam: spam,
-      p_cnam: cnam,
-      p_shaken: shaken,
-    });
-    mustSucceed({ error }, "update number");
-    if (!data) throw new ActionProblem("You don't have permission to do that.");
-    refresh();
-    return { ok: true, message: "Saved." };
-  }, admin);
-}
-
 export async function addDoNotCall(form: FormData): Promise<ActionResult> {
   return inWorkspace(async ({ supabase, user, workspace }) => {
     const number = phone(form.get("phone"));
@@ -247,7 +212,7 @@ export async function addDoNotCall(form: FormData): Promise<ActionResult> {
       return { ok: true, message: "That number is already on the list." };
     mustSucceed({ error }, "add opt-out");
     refresh();
-    return { ok: true, message: "Added. That number won't be called." };
+    return { ok: true, message: "Added. That number won't be contacted." };
   });
 }
 
@@ -269,60 +234,6 @@ export async function removeDoNotCall(form: FormData): Promise<ActionResult> {
       );
     refresh();
     return { ok: true };
-  }, admin);
-}
-
-export async function createBatch(form: FormData): Promise<ActionResult> {
-  return inWorkspace(async ({ supabase, workspace }) => {
-    const leads = [...new Set(form.getAll("lead").filter(isUuid))];
-    const name = String(form.get("name") ?? "").trim();
-    if (!name) throw new ActionProblem("Give the batch a name.", "name");
-    if (!leads.length)
-      throw new ActionProblem("Choose at least one lead to call.");
-    if (leads.length > BATCH_MAX_LEADS)
-      throw new ActionProblem(`A batch can hold ${BATCH_MAX_LEADS} leads.`);
-    const { error } = await supabase.rpc("call_batch_create", {
-      p_workspace_id: workspace.id,
-      p_name: name.slice(0, 120),
-      p_purpose: String(form.get("purpose") ?? "")
-        .trim()
-        .slice(0, 2000),
-      p_lead_ids: leads,
-      p_max_leads: BATCH_MAX_LEADS,
-      p_max_open: MAX_OPEN_BATCHES,
-    });
-    if (error?.code === "DV429")
-      throw new ActionProblem(
-        `A workspace can have ${MAX_OPEN_BATCHES} open batches. Finish or cancel one first.`,
-      );
-    mustSucceed({ error }, "create batch");
-    refresh();
-    return {
-      ok: true,
-      message:
-        "Batch made. It waits for an owner or admin to approve it before any call is made.",
-    };
-  });
-}
-
-export async function decideBatch(form: FormData): Promise<ActionResult> {
-  return inWorkspace(async ({ supabase }) => {
-    const id = form.get("batch");
-    if (!isUuid(id)) throw new ActionProblem("That batch doesn't exist.");
-    const approve = form.get("decision") === "approve";
-    const { data, error } = await supabase.rpc("call_batch_decide", {
-      p_batch_id: id,
-      p_approve: approve,
-    });
-    mustSucceed({ error }, "decide batch");
-    if (!data) throw new ActionProblem("That batch can't be changed now.");
-    refresh();
-    return {
-      ok: true,
-      message: approve
-        ? "Approved. Calls start inside the call window, within the daily caps."
-        : "Cancelled. Nobody else in it will be called.",
-    };
   }, admin);
 }
 

@@ -2,13 +2,14 @@
 // also written into the scheduler (private.channel_cron_tick in
 // 20261121004956_sequence_channel_steps.sql): change both together.
 
-export const STEP_CHANNELS = ["linkedin", "sms", "call_task"] as const;
+// No call steps: Dialvo makes no outbound calls of any kind (the database
+// refuses call_task steps too, 20261121012511_no_outbound_calls).
+export const STEP_CHANNELS = ["linkedin", "sms"] as const;
 export type StepChannel = (typeof STEP_CHANNELS)[number];
 
 export const STEP_CHANNEL_LABEL: Record<StepChannel, string> = {
   linkedin: "LinkedIn message (you send it)",
   sms: "Text message",
-  call_task: "Call task (you call)",
 };
 
 /** Extra steps a workspace may have at once. */

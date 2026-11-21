@@ -64,7 +64,7 @@ async function Content({
   const head = (
     <PageHead
       title="Calls"
-      note="Calls your AI phone agent answered and made, with what was said and what came of it. Every call starts by telling the person it is transcribed."
+      note="Calls your AI phone agent answered, with what was said and what came of it. Every call starts by telling the caller it is transcribed. Dialvo never makes outbound calls."
     />
   );
   if (preview)
@@ -107,7 +107,6 @@ async function Content({
   const tz = workspace.timezone;
   const stats = [
     ["Incoming", recent.filter((c) => c.direction === "inbound").length],
-    ["Outbound", recent.filter((c) => c.direction === "outbound").length],
     ["Answered", recent.filter((c) => c.status === "completed").length],
     ["Qualified", recent.filter((c) => c.outcome === "qualified").length],
     ["Transferred", recent.filter((c) => c.outcome === "transferred").length],
@@ -119,7 +118,7 @@ async function Content({
       {head}
       <CallsTabs current="calls" />
       <SetupNotice />
-      <dl className="mb-3 grid grid-cols-3 gap-px overflow-hidden rounded-xl border border-black/[0.07] bg-black/[0.07] sm:grid-cols-6">
+      <dl className="mb-3 grid grid-cols-3 gap-px overflow-hidden rounded-xl border border-black/[0.07] bg-black/[0.07] sm:grid-cols-5">
         {stats.map(([label, n]) => (
           <div key={label} className="bg-white px-3 py-2.5">
             <dt className="text-[11.5px] leading-tight text-[#0B0B0C]/50">
@@ -132,8 +131,7 @@ async function Content({
       {calls.length === 0 ? (
         <section className={panel}>
           <Empty icon={PhoneIncoming} title="No calls yet">
-            Calls show here once a number is set up and someone calls it, or an
-            approved batch starts calling.
+            Calls show here once a number is set up and someone calls it.
           </Empty>
           <div className="flex justify-center gap-2 pb-8">
             <Link
@@ -213,7 +211,7 @@ function CallDetail({ call, tz }: { call: Call; tz: string }) {
     <section className={panel} aria-label="Call">
       <h2 className={panelHead}>
         <span>
-          {call.direction === "inbound" ? "Incoming call" : "Outbound call"}
+          Incoming call
           {call.lead?.name ? ` · ${call.lead.name}` : ""}
         </span>
         <Badge>{CALL_STATUS[call.status] ?? call.status}</Badge>

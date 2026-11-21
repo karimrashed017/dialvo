@@ -6,15 +6,6 @@ import type { CallContext, TurnResult } from "./types";
 // in the database that scopes itself (20261121004616_phone_and_sms and
 // 20261121004956_sequence_channel_steps). Faked in the unit tests.
 
-export type ClaimedCall = {
-  call_id: string;
-  workspace_id: string;
-  from: string;
-  to: string;
-  max_minutes: number;
-  recording_on: boolean;
-};
-
 export type PreparedSms = {
   status: "ok" | "later" | "skipped" | "off";
   reason?: string;
@@ -51,17 +42,6 @@ export interface PhoneStore {
     status: string | null,
     duration: number | null,
     recordingSid: string | null,
-    error: string | null,
-  ): Promise<void>;
-  claimCalls(
-    limit: number,
-    restMinCalls: number,
-    restMinRate: number,
-  ): Promise<ClaimedCall[]>;
-  placed(
-    callId: string,
-    workspaceId: string,
-    sid: string | null,
     error: string | null,
   ): Promise<void>;
   smsInbound(
@@ -145,19 +125,6 @@ export function createPhoneStore(): PhoneStore | null {
         p_status: status,
         p_duration: duration,
         p_recording_sid: recordingSid,
-        p_error: error,
-      }),
-    claimCalls: async (limit, restMinCalls, restMinRate) =>
-      (await rpc<ClaimedCall[] | null>("call_claim", {
-        p_limit: limit,
-        p_rest_min_calls: restMinCalls,
-        p_rest_min_rate: restMinRate,
-      })) ?? [],
-    placed: (callId, workspaceId, sid, error) =>
-      rpc("call_placed", {
-        p_call_id: callId,
-        p_workspace_id: workspaceId,
-        p_sid: sid,
         p_error: error,
       }),
     smsInbound: (to, from, body, sid) =>

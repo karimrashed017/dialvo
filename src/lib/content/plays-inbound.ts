@@ -288,7 +288,6 @@ export const INBOUND_PLAYS = {
     channels: ["voice", "messages", "email", "chat"],
     features: [
       "ai-phone-agent",
-      "consented-outbound-calling",
       "knowledge-base",
       "intelligent-lead-routing",
       "crm-integration",

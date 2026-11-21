@@ -51,8 +51,6 @@ export async function saveStep(form: FormData): Promise<ActionResult> {
           `Write the message, up to ${LINKEDIN_MAX_CHARS} characters.`,
           "message",
         );
-      if (channel === "call_task" && !note)
-        throw new ActionProblem("Say what the call is about.", "note");
       if (/https?:\/\//i.test(message) && channel === "sms")
         throw new ActionProblem(
           "Leave links out of texts: carriers filter them, and STOP wording is added for you.",
@@ -64,7 +62,7 @@ export async function saveStep(form: FormData): Promise<ActionResult> {
         p_applies_to: appliesTo,
         p_channel: channel,
         p_day_offset: day,
-        p_message: channel === "call_task" ? "" : message,
+        p_message: message,
         p_note: note,
         p_max_steps: MAX_STEPS,
       });

@@ -43,6 +43,18 @@ const nextConfig: NextConfig = {
         destination: "/app/chat/try",
         permanent: false,
       },
+      // Dialvo makes no outbound calls (founder, 21 Nov 2026): the old
+      // platform page goes to the phone agent, which only answers calls.
+      {
+        source: "/platform/consented-outbound-calling",
+        destination: "/platform/ai-phone-agent",
+        permanent: true,
+      },
+      {
+        source: "/app/calls/outbound",
+        destination: "/app/calls",
+        permanent: false,
+      },
     ];
   },
   async headers() {

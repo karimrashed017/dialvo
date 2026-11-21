@@ -139,7 +139,7 @@ for (const [label, width] of [
     await page.goto(`${BASE}/app/features`);
     ok(
       "features page lists every menu item",
-      (await page.locator("[data-feature]").count()) === 27,
+      (await page.locator("[data-feature]").count()) === 26,
     );
   } else {
     await page.goto(`${BASE}/app/plays`);

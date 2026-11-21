@@ -1,11 +1,12 @@
-// The browser check for Calls (calls, outbound, numbers, settings) and
+// The browser check for Calls (calls, numbers, settings) and
 // Sequences, channels: signs in with a test account, visits every new page
 // at desktop (1440) and phone (390) width, saving a full-page screenshot of
 // each and failing on a page error, a 404 or a 500. Then, on desktop, it
 // uses the forms that only write to the test workspace: saves the call
-// settings, adds a number to the do-not-call list, makes a call batch and
-// approves it, adds a LinkedIn step, and sets a lead's time zone. Nothing
-// is dialled or texted: without Twilio's keys nothing can be.
+// settings, adds a number to the do-not-call list, checks the outbound
+// page is gone, adds a LinkedIn step, and sets a lead's time zone. Nothing
+// is texted: without Twilio's keys nothing can be, and Dialvo never makes
+// outbound calls.
 //
 //   E2E_BASE=http://localhost:3000 E2E_USER=... E2E_PASSWORD=... \
 //   E2E_SHOTS=screenshots node scripts/e2e-channels.mjs
@@ -23,7 +24,6 @@ mkdirSync(SHOTS, { recursive: true });
 
 const PAGES = [
   ["calls", "/app/calls"],
-  ["calls-outbound", "/app/calls/outbound"],
   ["calls-numbers", "/app/calls/numbers"],
   ["calls-settings", "/app/calls/settings"],
   ["sequence-channels", "/app/sequences/channels"],
@@ -107,7 +107,7 @@ for (const [label, width] of [
     // A window past 9 at night is refused, by the browser first.
     await page.fill('input[name="end"]', "22:00");
     ok(
-      "refuses a call window past 9 pm",
+      "refuses a texting window past 9 pm",
       await page.$eval('input[name="end"]', (el) => !el.checkValidity()),
     );
     await page.reload();
@@ -115,30 +115,20 @@ for (const [label, width] of [
     // Do-not-call list.
     await page.fill('#do-not-call input[name="phone"]', "+15005550008");
     await page.click('#do-not-call button:has-text("Add")');
-    await page.waitForSelector("text=/won't be called/", { timeout: 15000 });
+    await page.waitForSelector(
+      "text=/won't be contacted|already on the list/",
+      {
+        timeout: 15000,
+      },
+    );
     ok("adds to the do-not-call list", true);
 
-    // A batch, then approval.
-    await page.goto(`${BASE}/app/calls/outbound`);
-    await page.fill('input[name="name"]', "E2E batch");
-    await page.check('input[name="lead"]');
-    await page.click('button:has-text("Make the batch")');
-    await page.waitForSelector("text=/waits for an owner or admin/", {
-      timeout: 15000,
-    });
-    await page.reload();
-    await page
-      .waitForSelector("text=Waiting for approval", { timeout: 15000 })
-      .catch(() => null);
+    // No outbound calling anywhere.
+    const gone = await page.goto(`${BASE}/app/calls/outbound`);
     ok(
-      "batch waits for approval",
-      (await page.locator("text=Waiting for approval").count()) === 1,
+      "the outbound calls page is gone",
+      new URL(page.url()).pathname === "/app/calls" && gone?.status() === 200,
     );
-    await page.click('button:has-text("Approve")');
-    await page.waitForSelector("text=/Approved. Calls start/", {
-      timeout: 15000,
-    });
-    ok("batch approved", true);
 
     // A LinkedIn step.
     await page.goto(`${BASE}/app/sequences/channels`);

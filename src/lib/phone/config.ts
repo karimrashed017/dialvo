@@ -38,21 +38,8 @@ export const MAX_MONTHLY_PRICE_USD = 5;
 export const BUYABLE_COUNTRIES = ["US", "CA"] as const;
 export type BuyableCountry = (typeof BUYABLE_COUNTRIES)[number];
 
-/** Outbound calls one scheduler step places, across all workspaces. */
-export const CALL_CLAIM_LIMIT = 10;
 /** Texts one scheduler step sends. */
 export const SMS_CLAIM_LIMIT = 20;
-/** Leads in one call batch, and open batches per workspace. */
-export const BATCH_MAX_LEADS = 200;
-export const MAX_OPEN_BATCHES = 5;
-/**
- * A number "rests" (isn't used for outbound calls) while, over three days,
- * at least REST_MIN_CALLS of its calls ended and fewer than REST_MIN_RATE
- * of them were answered for 10 seconds or more: the usual sign carriers are
- * labelling it as spam.
- */
-export const REST_MIN_CALLS = 20;
-export const REST_MIN_RATE = 0.15;
 
 /** The voices a workspace can choose (Amazon Polly neural voices on Twilio). */
 export const VOICES = [
@@ -83,7 +70,6 @@ export const VOICE_IDS: readonly string[] = VOICES.map((v) => v.id);
 /** What Twilio charges, as shown in the app (USD, United States). */
 export const TWILIO_PRICES = {
   localNumberMonth: "$1.15 a month per local number",
-  outboundMinute: "$0.014 a minute for outbound calls",
   inboundMinute: "$0.0085 a minute for incoming calls",
   speech: "$0.02 per speech recognition (one per caller turn)",
   voice: "$0.0032 per 100 characters spoken (neural voice)",

@@ -68,13 +68,7 @@ export const EXPANSION_PLAYS = {
       foot: "Sample transcript with a made-up business.",
     },
     channels: ["voice", "email", "messages"],
-    features: [
-      "consented-outbound-calling",
-      "crm-integration",
-      "api",
-      "knowledge-base",
-      "analytics",
-    ],
+    features: ["crm-integration", "api", "knowledge-base", "analytics"],
     setup: [
       "Connect your CRM and send usage events through the API.",
       "Define the triggers: seat usage, limits reached, days to renewal.",
@@ -178,7 +172,6 @@ export const EXPANSION_PLAYS = {
       "lead-qualification",
       "ai-personalisation",
       "intelligent-lead-routing",
-      "consented-outbound-calling",
     ],
     setup: [
       "Send signup and usage events to Dialvo through the API.",

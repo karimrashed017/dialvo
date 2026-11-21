@@ -8,8 +8,6 @@ import {
   MAX_MONTHLY_PRICE_USD,
   MAX_NUMBERS_PER_WORKSPACE,
   phoneRuntime,
-  REST_MIN_CALLS,
-  REST_MIN_RATE,
 } from "@/lib/phone/config";
 import { formatPrice, isBuyableCountry } from "@/lib/phone/numbers";
 import {
@@ -34,11 +32,7 @@ import {
   panel,
   panelHead,
 } from "../../_ui/kit";
-import {
-  buyNumberAction,
-  releaseNumberAction,
-  updateNumberAction,
-} from "../actions";
+import { buyNumberAction, releaseNumberAction } from "../actions";
 import { CallsTabs, daysAgo, SetupNotice } from "../ui";
 
 export const metadata: Metadata = { title: "Phone numbers" };
@@ -52,23 +46,7 @@ type NumberRow = {
   country: string;
   monthly_price_micros: number | null;
   currency: string;
-  daily_call_cap: number;
-  spam_status: string;
-  spam_checked_at: string | null;
-  cnam_status: string;
-  shaken_status: string;
   bought_at: string;
-};
-
-const STEP: Record<string, string> = {
-  not_started: "Not started",
-  submitted: "Submitted",
-  approved: "Approved",
-};
-const SPAM: Record<string, string> = {
-  unknown: "Not checked",
-  clean: "Checked: not labelled",
-  flagged: "Labelled as spam",
 };
 
 async function Search({ country, area }: { country: string; area: string }) {
@@ -164,11 +142,10 @@ async function Content({
   const { workspace, preview } = await getAppContext();
   const params = await searchParams;
   const owner = workspace.role === "owner";
-  const admin = workspace.role !== "member";
   const head = (
     <PageHead
       title="Calls"
-      note={`Your business's phone numbers. Calls and texts to them reach your agent; outbound calls go out from them. Up to ${MAX_NUMBERS_PER_WORKSPACE} per workspace.`}
+      note={`Your business's phone numbers. Calls and texts to them reach your agent. Dialvo never makes outbound calls from them. Up to ${MAX_NUMBERS_PER_WORKSPACE} per workspace.`}
     />
   );
   if (preview)
@@ -186,9 +163,7 @@ async function Content({
   const [rows, calls] = await Promise.all([
     supabase
       .from("phone_numbers")
-      .select(
-        "id, e164, country, monthly_price_micros, currency, daily_call_cap, spam_status, spam_checked_at, cnam_status, shaken_status, bought_at",
-      )
+      .select("id, e164, country, monthly_price_micros, currency, bought_at")
       .eq("workspace_id", workspace.id)
       .eq("status", "active")
       .order("bought_at"),
@@ -198,6 +173,7 @@ async function Content({
         "phone_number_id, direction, status, duration_seconds, created_at, ended_at",
       )
       .eq("workspace_id", workspace.id)
+      .eq("direction", "inbound")
       .gte("created_at", since)
       .not("phone_number_id", "is", null)
       .limit(5000),
@@ -222,7 +198,6 @@ async function Content({
     runtime.on &&
     params.search === "1" &&
     numbers.length < MAX_NUMBERS_PER_WORKSPACE;
-  const threeDays = daysAgo(3).getTime();
 
   return (
     <>
@@ -246,70 +221,32 @@ async function Content({
           <ul className="divide-y divide-black/[0.06]">
             {numbers.map((n) => {
               const mine = log.filter((c) => c.phone_number_id === n.id);
-              const out = mine.filter(
-                (c) => c.direction === "outbound" && c.ended_at,
-              );
-              const answered = out.filter(
-                (c) =>
-                  c.status === "completed" && (c.duration_seconds ?? 0) >= 10,
-              );
-              const short = out.filter(
-                (c) =>
-                  c.status === "completed" && (c.duration_seconds ?? 0) < 10,
-              );
               const today = mine.filter(
                 (c) =>
-                  c.direction === "outbound" &&
                   new Date(c.created_at).toDateString() ===
-                    new Date().toDateString(),
+                  new Date().toDateString(),
               ).length;
-              const recent = out.filter(
-                (c) => Date.parse(c.created_at) > threeDays,
-              );
-              const recentAnswered = recent.filter(
-                (c) =>
-                  c.status === "completed" && (c.duration_seconds ?? 0) >= 10,
-              );
-              const resting =
-                recent.length >= REST_MIN_CALLS &&
-                recentAnswered.length / recent.length < REST_MIN_RATE;
+              const finished = mine.filter(
+                (c) => c.status === "completed" && c.ended_at,
+              ).length;
               return (
                 <li key={n.id} className="space-y-3 px-4 py-3">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="text-[15px] font-medium tabular-nums">
                       {n.e164}
                     </span>
-                    {n.spam_status === "flagged" ? (
-                      <Badge tone="warn">
-                        Labelled as spam: not used for outbound calls
-                      </Badge>
-                    ) : resting ? (
-                      <Badge tone="warn">Resting: answer rate too low</Badge>
-                    ) : (
-                      <Badge>In use</Badge>
-                    )}
+                    <Badge>In use</Badge>
                     <span className="text-[12px] text-[#0B0B0C]/50">
                       Since {dateOnly(n.bought_at, workspace.timezone)}
                       {n.monthly_price_micros != null &&
                         ` · ${formatPrice(n.monthly_price_micros / 1_000_000, n.currency)} a month`}
                     </span>
                   </div>
-                  <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-black/[0.07] bg-black/[0.07] sm:grid-cols-4">
+                  <dl className="grid grid-cols-3 gap-px overflow-hidden rounded-xl border border-black/[0.07] bg-black/[0.07]">
                     {[
-                      ["Outbound calls, 7 days", String(out.length)],
-                      [
-                        "Answered (10s or more)",
-                        out.length
-                          ? `${Math.round((answered.length / out.length) * 100)}%`
-                          : "No calls yet",
-                      ],
-                      [
-                        "Hung up within 10s",
-                        out.length
-                          ? `${Math.round((short.length / out.length) * 100)}%`
-                          : "No calls yet",
-                      ],
-                      ["Today", `${today} of ${n.daily_call_cap}`],
+                      ["Incoming calls, 7 days", String(mine.length)],
+                      ["Finished calls, 7 days", String(finished)],
+                      ["Today", String(today)],
                     ].map(([label, value]) => (
                       <div key={label} className="bg-white px-3 py-2">
                         <dt className="text-[11.5px] text-[#0B0B0C]/50">
@@ -321,72 +258,6 @@ async function Content({
                       </div>
                     ))}
                   </dl>
-                  <ActionForm
-                    action={updateNumberAction}
-                    className="grid gap-2 sm:grid-cols-5 sm:items-end"
-                  >
-                    <fieldset disabled={!admin} className="contents">
-                      <input type="hidden" name="number" value={n.id} />
-                      <label>
-                        <span className={labelCls}>Calls a day</span>
-                        <input
-                          type="number"
-                          name="daily_call_cap"
-                          min={1}
-                          max={200}
-                          defaultValue={n.daily_call_cap}
-                          className={cn(input, "mt-1")}
-                        />
-                      </label>
-                      <label>
-                        <span className={labelCls}>Spam label</span>
-                        <select
-                          name="spam_status"
-                          defaultValue={n.spam_status}
-                          className={cn(input, "mt-1")}
-                        >
-                          {Object.entries(SPAM).map(([k, v]) => (
-                            <option key={k} value={k}>
-                              {v}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                      <label>
-                        <span className={labelCls}>Caller name (CNAM)</span>
-                        <select
-                          name="cnam_status"
-                          defaultValue={n.cnam_status}
-                          className={cn(input, "mt-1")}
-                        >
-                          {Object.entries(STEP).map(([k, v]) => (
-                            <option key={k} value={k}>
-                              {v}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                      <label>
-                        <span className={labelCls}>STIR/SHAKEN</span>
-                        <select
-                          name="shaken_status"
-                          defaultValue={n.shaken_status}
-                          className={cn(input, "mt-1")}
-                        >
-                          {Object.entries(STEP).map(([k, v]) => (
-                            <option key={k} value={k}>
-                              {v}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                      {admin && (
-                        <SubmitButton variant="secondary" small>
-                          Save
-                        </SubmitButton>
-                      )}
-                    </fieldset>
-                  </ActionForm>
                   {owner && (
                     <ActionForm
                       action={releaseNumberAction}
@@ -456,8 +327,8 @@ async function Content({
                 </form>
                 <p className={hint}>
                   Local numbers only, in the US and Canada; elsewhere Twilio
-                  needs identity documents first. A local number near your leads
-                  is answered more often.
+                  needs identity documents first. A local number is easy for the
+                  people who call you to recognise.
                 </p>
                 {searching && (
                   <Suspense fallback={<p className={hint}>Asking Twilio…</p>}>
@@ -469,49 +340,6 @@ async function Content({
           </div>
         </section>
       )}
-
-      <section className={cn(panel, "mt-3")}>
-        <h2 className={panelHead}>Keeping calls from being marked as spam</h2>
-        <div className="space-y-2 p-4 text-[13px] leading-[1.55] text-[#0B0B0C]/75">
-          <p>
-            <strong className="text-[#0B0B0C]">
-              Call signing (STIR/SHAKEN).
-            </strong>{" "}
-            Carriers trust signed calls with full attestation more. In
-            Twilio&apos;s console, Trust Hub: create a Business Profile for your
-            company, then a SHAKEN/STIR trust product, and add these numbers to
-            it. No extra charge from Twilio.
-          </p>
-          <p>
-            <strong className="text-[#0B0B0C]">Caller name (CNAM).</strong> So
-            people see your business&apos;s name rather than a city. In Trust
-            Hub, a CNAM trust product with the name (up to 15 characters) on the
-            same Business Profile, then assign the numbers. Carriers can take a
-            few days to show it.
-          </p>
-          <p>
-            <strong className="text-[#0B0B0C]">
-              Voice Integrity and branded calling.
-            </strong>{" "}
-            Twilio&apos;s Voice Integrity registers the numbers with the
-            analytics engines carriers use to label calls. Branded calling (a
-            logo and reason on the screen) costs {"$0.12"} a call on Twilio.
-          </p>
-          <p>
-            <strong className="text-[#0B0B0C]">Watch the answer rate.</strong>{" "}
-            Above, from your real calls. When at least {REST_MIN_CALLS} calls in
-            three days are answered less than {Math.round(REST_MIN_RATE * 100)}%
-            of the time, the number rests: Dialvo stops dialling from it until
-            the rate recovers. To check a label, call one of your own phones
-            from the number on each carrier, or look the number up on the
-            carriers&apos; free caller registry, and record what you find here.
-          </p>
-          <p>
-            Record each step&apos;s status on the number above once Twilio shows
-            it.
-          </p>
-        </div>
-      </section>
     </>
   );
 }

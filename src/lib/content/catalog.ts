@@ -32,7 +32,6 @@ import {
   MessageSquareText,
   Phone,
   PhoneCall,
-  PhoneForwarded,
   PhoneIncoming,
   RefreshCw,
   Route,
@@ -326,13 +325,6 @@ export const FEATURES = {
     blurb:
       "Agents write and speak in your buyer's language, from knowledge you add per market.",
   },
-  "consented-outbound-calling": {
-    title: "Consented outbound calling",
-    group: "outreach",
-    icon: PhoneForwarded,
-    blurb:
-      "AI voice calls to customers and leads who said yes to them. Nobody else.",
-  },
   analytics: {
     title: "Analytics",
     group: "analytics",
@@ -476,7 +468,6 @@ export const GROUPS: {
       f("sequence-builder"),
       f("smart-replies"),
       f("multilingual-outreach"),
-      f("consented-outbound-calling"),
       p("event-registration"),
       p("event-follow-up"),
       p("event-no-show"),

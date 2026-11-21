@@ -8,7 +8,6 @@ import { panel, panelHead } from "../_ui/kit";
 
 const TABS = [
   { id: "calls", href: "/app/calls", label: "Calls" },
-  { id: "outbound", href: "/app/calls/outbound", label: "Outbound" },
   { id: "numbers", href: "/app/calls/numbers", label: "Numbers" },
   { id: "settings", href: "/app/calls/settings", label: "Settings" },
 ] as const;
@@ -91,7 +90,6 @@ export function SetupNotice({ prices = false }: { prices?: boolean }) {
           <ul className="mt-1 list-disc space-y-0.5 pl-5 text-[#0B0B0C]/60">
             <li>{TWILIO_PRICES.localNumberMonth}</li>
             <li>{TWILIO_PRICES.inboundMinute}</li>
-            <li>{TWILIO_PRICES.outboundMinute}</li>
             <li>{TWILIO_PRICES.speech}</li>
             <li>{TWILIO_PRICES.voice}</li>
             <li>{TWILIO_PRICES.recording}</li>

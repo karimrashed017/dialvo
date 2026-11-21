@@ -136,16 +136,14 @@ async function Content() {
         </h2>
         {due.length === 0 ? (
           <Empty icon={ListChecks} title="Nothing to do right now">
-            LinkedIn and call steps show here on the day they are due.
+            LinkedIn steps show here on the day they are due.
           </Empty>
         ) : (
           <ul className="divide-y divide-black/[0.06]">
             {due.map((r) => (
               <li key={r.id} className="space-y-2 px-4 py-3">
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge>
-                    {r.channel === "linkedin" ? "LinkedIn" : "Call"}
-                  </Badge>
+                  <Badge>LinkedIn</Badge>
                   {r.lead && (
                     <Link
                       href={`/app/leads/${r.lead.id}`}
@@ -185,14 +183,6 @@ async function Content() {
                       <ExternalLink aria-hidden className="size-3.5" />
                     </a>
                   )}
-                  {r.channel === "call_task" && r.lead?.phone && (
-                    <a
-                      href={`tel:${r.lead.phone}`}
-                      className={cn(btn.secondary, btn.small)}
-                    >
-                      Call {r.lead.phone}
-                    </a>
-                  )}
                   <ActionForm
                     action={finishTask}
                     quiet
@@ -200,7 +190,7 @@ async function Content() {
                   >
                     <input type="hidden" name="run" value={r.id} />
                     <SubmitButton small name="outcome" value="done">
-                      {r.channel === "linkedin" ? "I sent it" : "I called"}
+                      I sent it
                     </SubmitButton>
                     <SubmitButton
                       small
@@ -334,15 +324,6 @@ async function Content() {
                   &ldquo;Reply STOP to opt out.&rdquo;
                 </span>
               </label>
-              <label className="block">
-                <span className={labelCls}>Talking points (call task)</span>
-                <input
-                  name="note"
-                  maxLength={500}
-                  placeholder="Ask whether the proposal landed and offer a call"
-                  className={cn(input, "mt-1")}
-                />
-              </label>
               <SubmitButton variant="secondary">Add step</SubmitButton>
             </ActionForm>
           )}
@@ -367,13 +348,9 @@ async function Content() {
               many invitations an account sends each week.
             </p>
             <p className="mt-1">
-              <strong>Call tasks</strong> are calls you make yourself, with the
-              talking points. For AI calls to people who agreed to be called,
-              use{" "}
-              <Link href="/app/calls/outbound" className="underline">
-                Calls, Outbound
-              </Link>
-              .
+              <strong>Calls</strong> are never a step: Dialvo doesn&apos;t make
+              outbound calls. Its phone agent only answers calls people make to
+              your number.
             </p>
           </div>
         </div>
@@ -391,11 +368,7 @@ async function Content() {
                 className="flex flex-wrap items-center gap-2 px-4 py-2 text-[12.5px]"
               >
                 <Badge tone="outline">
-                  {r.channel === "linkedin"
-                    ? "LinkedIn"
-                    : r.channel === "sms"
-                      ? "Text"
-                      : "Call"}
+                  {r.channel === "sms" ? "Text" : "LinkedIn"}
                 </Badge>
                 <span className="min-w-0 flex-1 truncate">
                   {r.lead?.name || r.lead?.phone || "Lead"}

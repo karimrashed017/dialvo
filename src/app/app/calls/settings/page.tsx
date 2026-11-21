@@ -104,7 +104,7 @@ async function Content() {
   const head = (
     <PageHead
       title="Calls"
-      note="How the phone agent answers, when outbound calls and texts may reach people, and who must never be called."
+      note="How the phone agent answers calls to your number, when texts may go out, and who must never be contacted. Dialvo never makes outbound calls."
     />
   );
   if (preview)
@@ -217,22 +217,11 @@ async function Content() {
           </section>
 
           <section className={panel}>
-            <h2 className={panelHead}>
-              Outbound calls and texts
-              <Badge tone={s.outbound_on ? "ink" : "outline"}>
-                {s.outbound_on ? "On" : "Off"}
-              </Badge>
-            </h2>
+            <h2 className={panelHead}>Window and limits</h2>
             <div className="space-y-4 p-4">
-              <Check
-                name="outbound_on"
-                on={s.outbound_on}
-                label="Allow approved call batches to dial"
-                note="Only leads with recorded consent to be called, never anyone marked do not contact or on the list below, and only after an owner or admin approves the batch."
-              />
               <div>
                 <span className={labelCls}>
-                  Call window, in each lead&apos;s own time zone
+                  Texting window, in each lead&apos;s own time zone
                 </span>
                 <div className="mt-1.5 flex flex-wrap gap-1.5">
                   {DAYS.map((d, i) => (
@@ -274,24 +263,13 @@ async function Content() {
                 </div>
                 <p className={cn(hint, "mt-1")}>
                   Never before 8 in the morning or after 9 at night. A lead with
-                  no time zone is called only when the window is open in every
+                  no time zone is texted only when the window is open in every
                   zone their number could be in (for a US number, from New York
                   to Los Angeles). Set a lead&apos;s zone on the lead&apos;s
                   page.
                 </p>
               </div>
-              <div className="grid gap-3 sm:grid-cols-3">
-                <label className="block">
-                  <span className={labelCls}>Calls a day, whole workspace</span>
-                  <input
-                    type="number"
-                    name="daily_call_cap"
-                    min={1}
-                    max={300}
-                    defaultValue={s.daily_call_cap}
-                    className={cn(input, "mt-1")}
-                  />
-                </label>
+              <div className="grid gap-3 sm:grid-cols-2">
                 <label className="block">
                   <span className={labelCls}>Longest call, minutes</span>
                   <input
@@ -315,9 +293,6 @@ async function Content() {
                   />
                 </label>
               </div>
-              <p className={hint}>
-                Each number also has its own daily call cap, on Numbers.
-              </p>
             </div>
           </section>
 
@@ -343,7 +318,7 @@ async function Content() {
                 name="sms_on"
                 on={s.sms_on}
                 label="Send text steps in sequences"
-                note="Only to leads with recorded consent to be texted, inside the call window. The first text says who it's from and ends with &ldquo;Reply STOP to opt out.&rdquo; STOP, UNSUBSCRIBE, CANCEL, END, QUIT and the like stop all texts at once; START allows them again."
+                note="Only to leads with recorded consent to be texted, inside the texting window. The first text says who it's from and ends with &ldquo;Reply STOP to opt out.&rdquo; STOP, UNSUBSCRIBE, CANCEL, END, QUIT and the like stop all texts at once; START allows them again."
               />
               <div className="rounded-xl border border-black/[0.07] p-3 text-[13px] leading-[1.5]">
                 <p className="font-medium">

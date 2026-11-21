@@ -277,11 +277,7 @@ export const ANALYTICS_RESEARCH_FEATURES = {
         body: "Carriers decide how calls are labelled. Dialvo monitors and responds; it can't guarantee how a given network will display a call.",
       },
     ],
-    related: [
-      "ai-phone-agent",
-      "consented-outbound-calling",
-      "deliverability-and-mailbox-health",
-    ],
+    related: ["ai-phone-agent", "deliverability-and-mailbox-health"],
     plays: ["speed-to-lead", "customer-expansion"],
   },
 

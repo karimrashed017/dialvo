@@ -186,7 +186,7 @@ const TABLES: {
     table: "calls",
     id: () => b.call,
     insert: () => [
-      `insert into calls (workspace_id, lead_id, direction) values ($1, $2, 'outbound')`,
+      `insert into calls (workspace_id, lead_id, direction) values ($1, $2, 'inbound')`,
       [B, b.lead],
     ],
     touch: "summary = 'Changed'",

@@ -295,11 +295,6 @@ export const APP_FEATURES: Record<FeatureSlug, AppFeature> = {
     href: "/app/sequences",
     note: "Choose a language per sequence, play or playbook, or leave it on auto (the company's own website language); first emails and follow-ups follow it, and the chat replies in the visitor's language.",
   },
-  "consented-outbound-calling": {
-    status: "live",
-    href: "/app/calls/outbound",
-    note: "AI calls only to leads with recorded call consent, after an approval, inside their local call window, with the do-not-call list, daily caps and a transcription notice (Twilio).",
-  },
   analytics: {
     status: "live",
     href: "/app/analytics",

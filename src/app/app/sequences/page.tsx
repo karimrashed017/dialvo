@@ -200,7 +200,7 @@ async function Content() {
         href="/app/sequences/channels"
         className={cn(btn.secondary, btn.small)}
       >
-        Text, LinkedIn and call steps
+        Text and LinkedIn steps
       </Link>
     </PageHead>
   );
