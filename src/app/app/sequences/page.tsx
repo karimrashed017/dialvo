@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { ActionForm, SubmitButton } from "../_ui/form";
 import {
   Badge,
+  btn,
   Empty,
   hint,
   input,
@@ -192,7 +193,14 @@ async function Content() {
     <PageHead
       title="Sequences"
       note="A sequence is a first email and up to five follow-ups in the same thread, from the same mailbox, each with its own wait and its own instructions. A reply, an unsubscribe or a bounce stops it."
-    />
+    >
+      <Link
+        href="/app/sequences/channels"
+        className={cn(btn.secondary, btn.small)}
+      >
+        Text, LinkedIn and call steps
+      </Link>
+    </PageHead>
   );
   if (preview)
     return (

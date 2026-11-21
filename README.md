@@ -145,6 +145,11 @@ settings and the manual test checklist.**
   functions, and child tables use `(parent_id, workspace_id)` foreign keys.
   `npm test` applies the migrations to an in-memory Postgres (PGlite) and
   proves one workspace can't read or write another's rows.
+- **Calls, numbers, texts and multi-channel steps** (`/app/calls`,
+  `/app/sequences/channels`, `src/lib/phone`, `src/lib/channels`): the AI
+  phone agent and consented outbound calls on Twilio, number buying and
+  health, SMS with STOP handling, and LinkedIn (done by a person), text and
+  call steps that stop on a reply anywhere. See `docs/app-setup.md`, "Calls".
 - **Design preview:** `DIALVO_DEV_FIXTURES=1 npm run dev` draws the shell
   with made-up data and no database. Development only; it is compiled out of
   production builds (`scripts/check-no-preview-data.mjs`).

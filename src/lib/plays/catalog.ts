@@ -115,7 +115,7 @@ export const APP_PLAYS: Record<PlaySlug, AppPlay> = {
   "lead-nurture": {
     slug: "lead-nurture",
     status: "live",
-    what: "For leads whose first emails ran their course without a reply, a slow email nurture: a useful, value-first email from your Knowledge, then a few more weeks apart. A reply or an unsubscribe ends it.",
+    what: "For leads whose first emails ran their course without a reply, a slow nurture: a useful, value-first email from your Knowledge, then a few more weeks apart. Add text, LinkedIn or call steps under Sequences, channels; a reply anywhere ends it.",
     who: "New, engaged or qualified leads whose last sequence finished more than N days ago with no reply, who never replied and never said no.",
     needs: [
       "Leads you've emailed before",
@@ -272,9 +272,9 @@ export const APP_FEATURES: Record<FeatureSlug, AppFeature> = {
     ],
   },
   "multi-channel-sequences": {
-    status: "partly",
-    href: "/app/sequences",
-    note: "Email sequences work: a first email and up to two follow-ups. LinkedIn, SMS and calls in a sequence aren't built.",
+    status: "live",
+    href: "/app/sequences/channels",
+    note: "Email steps plus texts (consented leads, via Twilio), LinkedIn messages you send from your own profile, and call tasks; a reply on any channel stops every step.",
   },
   "sequence-builder": {
     status: "live",
@@ -292,10 +292,9 @@ export const APP_FEATURES: Record<FeatureSlug, AppFeature> = {
     note: "Choose a language per sequence, play or playbook, or leave it on auto (the company's own website language); first emails and follow-ups follow it, and the chat replies in the visitor's language.",
   },
   "consented-outbound-calling": {
-    status: "building",
-    href: "/app/calls",
-    note: "Calls to people who agreed to be called. No phone provider is connected yet.",
-    needs: ["A phone provider for calls and numbers"],
+    status: "live",
+    href: "/app/calls/outbound",
+    note: "AI calls only to leads with recorded call consent, after an approval, inside their local call window, with the do-not-call list, daily caps and a transcription notice (Twilio).",
   },
   analytics: {
     status: "live",
@@ -308,10 +307,9 @@ export const APP_FEATURES: Record<FeatureSlug, AppFeature> = {
     note: "DNS checks per mailbox (SPF, DKIM, DMARC, MX) with plain fixes, daily limits and a ramp-up, and automatic pausing when bounces or unsubscribes run high. No inbox-placement tests.",
   },
   "call-deliverability-and-number-management": {
-    status: "building",
-    href: "/app/calls",
-    note: "Phone numbers and caller reputation. No phone provider is connected yet.",
-    needs: ["A phone provider for calls and numbers"],
+    status: "live",
+    href: "/app/calls/numbers",
+    note: "Buy and release Twilio numbers (owner only, price shown first, capped), per-number daily caps, answer-rate and spam-label health, and caller name and STIR/SHAKEN steps.",
   },
   "deep-research": {
     status: "live",
@@ -334,10 +332,9 @@ export const APP_FEATURES: Record<FeatureSlug, AppFeature> = {
     note: "What every agent and email is written from: your pages, notes and answers.",
   },
   "ai-phone-agent": {
-    status: "building",
+    status: "live",
     href: "/app/calls",
-    note: "An agent that answers and makes calls. There is a voice demo on the website; calls from your own number aren't built.",
-    needs: ["A phone provider for calls and numbers"],
+    note: "Answers your Twilio number from your Knowledge, qualifies, texts your booking link, transfers to a person, and logs the transcript and summary on the lead.",
   },
   "inbound-lead-qualification": {
     status: "live",
