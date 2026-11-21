@@ -80,6 +80,7 @@ function fakeStore(o: Partial<MailStore> = {}): FakeStore {
     replyCommit: vi.fn(async () => "interested"),
     claimAlerts: vi.fn(async () => null),
     finishAlert: vi.fn(async () => {}),
+    healthCheck: vi.fn(async () => 0),
     ...o,
   };
   return store as unknown as FakeStore;
@@ -393,6 +394,57 @@ describe("the send step", () => {
     expect(store.finishAlert.mock.calls).toEqual([
       ["a1", true, 1],
       ["a2", true, 1],
+    ]);
+  });
+
+  it("sends a routed lead's alert only to that person, and checks mailbox health before sending", async () => {
+    const send = vi.fn(async () => new Response("{}", { status: 200 }));
+    const store = fakeStore({
+      alertWorkList: vi.fn(async () => [WS]),
+      claimAlerts: vi.fn(async () => ({
+        workspace: "Agency",
+        recipients: ["alice@agency.example", "amy@agency.example"],
+        alerts: [
+          {
+            id: "a3",
+            kind: "lead_assigned",
+            summary: 'Routed to you by the rule "UK".',
+            conversation_id: null,
+            lead_id: "lead-9",
+            lead: "Dana",
+            to: ["amy@agency.example"],
+          },
+          {
+            id: "a4",
+            kind: "mailbox_health",
+            summary: "3 of the last 10 emails bounced.",
+            conversation_id: null,
+            lead: "",
+            to: ["alice@agency.example", "amy@agency.example"],
+          },
+        ],
+      })),
+    });
+    await sendStep({
+      ...deps(store),
+      alerts: { fetch: send as unknown as typeof fetch, apiKey: "test-key" },
+    });
+    expect(store.healthCheck).toHaveBeenCalledWith(WS);
+    const bodies = send.mock.calls.map(
+      (c) =>
+        JSON.parse((c as unknown as [string, { body: string }])[1].body) as {
+          subject: string;
+          text: string;
+          to: string[];
+        },
+    );
+    expect(bodies[0].to).toEqual(["amy@agency.example"]);
+    expect(bodies[0].subject).toContain("A lead was routed to you: Dana");
+    expect(bodies[0].text).toContain("https://trydialvo.com/app/leads/lead-9");
+    expect(bodies[1].subject).toContain("protect its reputation");
+    expect(store.finishAlert.mock.calls).toEqual([
+      ["a3", true, 1],
+      ["a4", true, 2],
     ]);
   });
 });

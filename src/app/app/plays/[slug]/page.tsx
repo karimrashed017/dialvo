@@ -46,6 +46,9 @@ import {
   stopCampaign,
 } from "../actions";
 import { BeingBuilt, CountStrip, GoLink, StatusPill, sumCounts } from "../ui";
+import { SequenceFields } from "../sequence-fields";
+import { listSequences } from "@/lib/sequences/server";
+import { PURPOSE_SEQUENCES } from "@/lib/sequences/steps";
 
 /** The plays that start on the workspace's own leads, and their kind. */
 const LEAD_PLAY: Partial<Record<PlaySlug, LeadPlay>> = {
@@ -188,17 +191,27 @@ async function Content({ slug }: { slug: PlaySlug }) {
       : slug === "speed-to-lead"
         ? ["speed_to_lead"]
         : [];
-  const [counts, boxes, sending, campaignsAll, toWrite, widgets, speed, keys] =
-    await Promise.all([
-      reads.counts(),
-      mail.mailboxes(),
-      mail.settings(),
-      campaignKinds.length ? reads.campaigns(campaignKinds) : [],
-      reads.toWrite(),
-      slug === "speed-to-lead" ? repo.chatWidgets() : [],
-      slug === "speed-to-lead" ? reads.speedSettings() : null,
-      slug === "plg-conversion" ? reads.apiKeys() : [],
-    ]);
+  const [
+    counts,
+    boxes,
+    sending,
+    campaignsAll,
+    toWrite,
+    widgets,
+    speed,
+    keys,
+    sequences,
+  ] = await Promise.all([
+    reads.counts(),
+    mail.mailboxes(),
+    mail.settings(),
+    campaignKinds.length ? reads.campaigns(campaignKinds) : [],
+    reads.toWrite(),
+    slug === "speed-to-lead" ? repo.chatWidgets() : [],
+    slug === "speed-to-lead" ? reads.speedSettings() : null,
+    slug === "plg-conversion" ? reads.apiKeys() : [],
+    leadKind || audience ? listSequences(supabase, workspace.id) : [],
+  ]);
   const campaigns = audience
     ? campaignsAll.filter((c) => c.settings.audience === audience)
     : campaignsAll;
@@ -229,6 +242,27 @@ async function Content({ slug }: { slug: PlaySlug }) {
 
   const takeouts =
     slug === "competitive-takeout" ? await reads.takeoutSearches() : [];
+
+  // The chat's booking links: how often offered, opened and used.
+  let bookings: { offered: number; opened: number; booked: number } | null =
+    null;
+  if (slug === "automated-meeting-scheduling") {
+    const { data } = await supabase
+      .from("booking_links")
+      .select("opened_at, booked_at")
+      .eq("workspace_id", workspace.id)
+      .order("created_at", { ascending: false })
+      .limit(1000);
+    const list = (data ?? []) as {
+      opened_at: string | null;
+      booked_at: string | null;
+    }[];
+    bookings = {
+      offered: list.length,
+      opened: list.filter((b) => b.opened_at).length,
+      booked: list.filter((b) => b.booked_at).length,
+    };
+  }
 
   return (
     <>
@@ -270,6 +304,18 @@ async function Content({ slug }: { slug: PlaySlug }) {
                     />
                   </label>
                 )}
+                <SequenceFields
+                  sequences={sequences}
+                  single={leadKind === "expansion"}
+                  purpose={
+                    leadKind === "onboarding" || leadKind === "nurture"
+                      ? {
+                          key: leadKind,
+                          label: `The ${PURPOSE_SEQUENCES[leadKind].name.toLowerCase()} steps: ${(sequences.find((q) => q.purpose === leadKind)?.steps ?? PURPOSE_SEQUENCES[leadKind].steps).length} follow-ups (edit them in Sequences)`,
+                        }
+                      : null
+                  }
+                />
                 <p className="text-[13px] text-[#0B0B0C]/70">
                   {preview_count === null
                     ? "Starting it picks the leads that fit right now."
@@ -356,6 +402,7 @@ async function Content({ slug }: { slug: PlaySlug }) {
                     your never-contact list is left out.
                   </span>
                 </label>
+                <SequenceFields sequences={sequences} single />
                 <SubmitButton disabled={!on} pendingText="Reading the list…">
                   Use this list
                 </SubmitButton>
@@ -420,10 +467,10 @@ async function Content({ slug }: { slug: PlaySlug }) {
           {slug === "automated-meeting-scheduling" && (
             <section className={panel}>
               <h2 className={panelHead}>Your booking link</h2>
-              <div className="space-y-3 p-4 text-[13px]">
+              <div className="space-y-3 p-4 text-[13px] leading-[1.5]">
                 {sending.booking_url ? (
                   <p>
-                    Offered in email replies:{" "}
+                    Offered in email replies and in the website chat:{" "}
                     <span className="font-medium break-all">
                       {sending.booking_url}
                     </span>
@@ -431,9 +478,27 @@ async function Content({ slug }: { slug: PlaySlug }) {
                 ) : (
                   <p>
                     No booking link yet. Until there is one, replies ask which
-                    days and times suit them.
+                    days and times suit them, and the chat hands the visitor to
+                    your team.
                   </p>
                 )}
+                {bookings && (
+                  <p className="tabular-nums">
+                    In the website chat: offered {bookings.offered}{" "}
+                    {bookings.offered === 1 ? "time" : "times"}, opened{" "}
+                    {bookings.opened}, booked {bookings.booked}.
+                  </p>
+                )}
+                <p className={hint}>
+                  To record bookings made from the chat, set your scheduling
+                  page&apos;s &ldquo;redirect after booking&rdquo; to{" "}
+                  <span className="font-medium break-all text-[#0B0B0C]/75">
+                    https://trydialvo.com/api/book/done
+                  </span>
+                  . The lead is then marked meeting booked, with the meeting and
+                  its time when your scheduling page passes it, and your team is
+                  told.
+                </p>
                 <GoLink href="/app/settings/mailboxes#follow-ups" primary>
                   {sending.booking_url
                     ? "Change the booking link"

@@ -23,7 +23,12 @@ const oneLine = (text: string, max: number) =>
     .trim()
     .slice(0, max);
 
-export type MailAlertKind = "reply_interested" | "mailbox_paused";
+export type MailAlertKind =
+  | "reply_interested"
+  | "mailbox_paused"
+  | "lead_assigned"
+  | "meeting_booked"
+  | "mailbox_health";
 
 const COPY: Record<
   MailAlertKind,
@@ -39,6 +44,21 @@ const COPY: Record<
     next: "Open Mailboxes, connect it again with a new app password, then resume it. Emails waiting for that mailbox are held until you do.",
     button: "Open Mailboxes",
   },
+  mailbox_health: {
+    headline: "Dialvo paused a mailbox to protect its reputation",
+    next: "Open Mailboxes to see why. Emails waiting for that mailbox are held until you resume it.",
+    button: "Open Mailboxes",
+  },
+  lead_assigned: {
+    headline: "A lead was routed to you",
+    next: "Open the lead to see who they are and what has happened so far.",
+    button: "Open the lead",
+  },
+  meeting_booked: {
+    headline: "A visitor booked a meeting from your website chat",
+    next: "Open the conversation to read the chat before you meet.",
+    button: "Open the conversation",
+  },
 };
 
 /**
@@ -51,15 +71,19 @@ export function buildMailAlert(alert: {
   lead: string;
   summary: string;
   conversationId: string | null;
+  leadId?: string | null;
 }): AlertEmail {
   const copy = COPY[alert.kind];
   const workspace = oneLine(alert.workspace, 120);
   const lead = oneLine(alert.lead, 80);
   const summary = alert.summary.replace(/\s+/g, " ").trim().slice(0, 600);
   const link =
-    alert.kind === "reply_interested" && alert.conversationId
+    (alert.kind === "reply_interested" || alert.kind === "meeting_booked") &&
+    alert.conversationId
       ? `${SITE_URL}/app/inbox?c=${encodeURIComponent(alert.conversationId)}`
-      : `${SITE_URL}/app/settings/mailboxes`;
+      : alert.kind === "lead_assigned" && alert.leadId
+        ? `${SITE_URL}/app/leads/${encodeURIComponent(alert.leadId)}`
+        : `${SITE_URL}/app/settings/mailboxes`;
   const settings = `${SITE_URL}/app/settings#alerts`;
   const subject = oneLine(
     `${copy.headline}${lead ? `: ${lead}` : ""} (${workspace})`,
@@ -92,7 +116,7 @@ export function buildMailAlert(alert: {
 }
 
 const isKind = (kind: string): kind is MailAlertKind =>
-  kind === "reply_interested" || kind === "mailbox_paused";
+  Object.hasOwn(COPY, kind);
 
 /** Never throws: an alert that can't be sent must not disturb a step. */
 export async function sendMailAlerts(
@@ -105,7 +129,11 @@ export async function sendMailAlerts(
       const claimed = await store.claimAlerts(workspaceId);
       if (!claimed) continue;
       for (const alert of claimed.alerts) {
+        // A personal alert (a lead routed to someone) goes to that person
+        // only; the rest to everyone with alerts on.
+        const to = alert.to ?? claimed.recipients;
         const ok =
+          to.length > 0 &&
           isKind(alert.kind) &&
           (await sendEmail(
             {
@@ -115,17 +143,14 @@ export async function sendMailAlerts(
                 lead: alert.lead,
                 summary: alert.summary,
                 conversationId: alert.conversation_id,
+                leadId: alert.lead_id ?? null,
               }),
-              to: claimed.recipients,
+              to,
               idempotencyKey: `dialvo-alert-${alert.id}`,
             },
             send,
           ));
-        await store.finishAlert(
-          alert.id,
-          ok,
-          ok ? claimed.recipients.length : 0,
-        );
+        await store.finishAlert(alert.id, ok, ok ? to.length : 0);
         if (ok) sent += 1;
       }
     }

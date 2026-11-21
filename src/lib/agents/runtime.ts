@@ -6,6 +6,8 @@ import {
   MODEL_TIMEOUT_MS,
 } from "./config";
 import { trialState } from "@/lib/billing/trial";
+import { SITE_URL } from "@/lib/site";
+import { BOOKING_PATH, mentionsLink, placeBookingLink } from "./booking";
 import { asksToStop } from "./guard";
 import { generateReply, type ReplyFailure } from "./reply";
 import { createChatAgentStore } from "./store";
@@ -77,12 +79,33 @@ export async function runChatAgent(
     )
       return { status: "stale" };
 
+    // The booking page, if the team has one: the prompt offers it.
+    context.booking_url = await store
+      .bookingUrl(token, conversationId)
+      .catch(() => null);
+
     const generated = await generateReply(client, context);
     if (!generated.ok) return { status: "failed", reason: generated.reason };
 
     const result = { ...generated.result, model: generated.model };
     // An opt-out is honoured even if the model missed it.
     if (asksToStop(latest.body)) result.stop_contact = true;
+    const booking = context.booking_url;
+    if (result.stop_contact || !booking) result.offer_booking = false;
+    else if (result.offer_booking || mentionsLink(result.reply, booking)) {
+      // Dialvo's own link for this chat, so a booking can be recorded; the
+      // booking page itself if that can't be made.
+      const link = await store
+        .offerBooking(token, conversationId)
+        .catch(() => null);
+      result.offer_booking = true;
+      result.handoff = true;
+      result.reply = placeBookingLink(
+        result.reply,
+        booking,
+        link ? `${SITE_URL}${BOOKING_PATH}/${link}` : booking,
+      );
+    }
     const stored = await store.commit(token, conversationId, latest.id, result);
     return { status: stored?.status ?? "no_conversation" };
   } catch (error) {

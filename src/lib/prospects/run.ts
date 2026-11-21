@@ -28,6 +28,8 @@ import { createPlaysFindymail } from "@/lib/plays/findymail";
 import { takeoutLines } from "@/lib/plays/prompt";
 import { createPlayStore, type PlayStore } from "@/lib/plays/store";
 import { readTakeout, type TakeoutInfo } from "@/lib/plays/takeout";
+import { readDraftExtras, type ReadExtras } from "@/lib/plays/extras";
+import { languageLine } from "@/lib/mail/languages";
 import { createProspectStore, type ProspectStore } from "./store";
 import { NO_SPEND, type RunStatus } from "./types";
 
@@ -76,6 +78,8 @@ export type StepDeps = {
   campaigns?: CampaignDeps | null;
   /** The plays' drafts (src/lib/plays), written after Find leads' own. */
   plays?: PlayStore | null;
+  /** Each draft's language (from its search's sequence). */
+  extras?: ReadExtras;
   /** Which drafts are competitive takeout, and what was confirmed. */
   takeout?: (
     workspaceId: string,
@@ -93,6 +97,7 @@ export function defaultDeps(): StepDeps {
     contacts: defaultContactDeps(),
     plays: createPlayStore(),
     takeout: readTakeout,
+    extras: readDraftExtras,
     campaigns: campaignDeps(),
   };
 }
@@ -269,7 +274,11 @@ export async function advanceDrafts(
   if (claim.drafts.length === 0) {
     // Find leads' drafts are done for now: write the plays' next ones.
     const plays = deps.plays
-      ? await advancePlayDrafts(input, { store: deps.plays, client })
+      ? await advancePlayDrafts(input, {
+          store: deps.plays,
+          client,
+          extras: deps.extras,
+        })
       : null;
     if (
       plays &&
@@ -295,16 +304,28 @@ export async function advanceDrafts(
         )
         .catch(() => new Map<string, TakeoutInfo>())
     : new Map<string, TakeoutInfo>();
+  const extras = deps.extras
+    ? await deps
+        .extras(
+          input.workspaceId,
+          claim.drafts.map((d) => d.draft_id),
+        )
+        .catch(() => new Map<string, { language: string }>())
+    : new Map<string, { language: string }>();
   const results = await Promise.all(
     claim.drafts.map(async ({ draft_id, prospect }) => {
       try {
         const info = takeout.get(draft_id);
+        const extra = [
+          info ? takeoutLines(info.competitor, info.confirmed) : null,
+          languageLine(extras.get(draft_id)?.language),
+        ]
+          .filter(Boolean)
+          .join("\n");
         const written = await draftFirstEmail(client, {
           context: claim.context,
           prospect,
-          extra: info
-            ? (takeoutLines(info.competitor, info.confirmed) ?? undefined)
-            : undefined,
+          extra: extra || undefined,
         });
         await store.saveDraft(
           input.workspaceId,

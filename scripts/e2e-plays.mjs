@@ -49,6 +49,9 @@ const PAGES = [
   ["find-emails", "/app/prospects?view=emails"],
   ["settings-api", "/app/settings/api"],
   ["settings", "/app/settings"],
+  ["playbooks", "/app/plays/playbooks"],
+  ["settings-routing", "/app/settings/routing"],
+  ["settings-mailboxes", "/app/settings/mailboxes"],
 ];
 
 const results = [];

@@ -36,6 +36,22 @@ export function createChatAgentStore(): ChatAgentStore | null {
         (data as { status: CommitStatus; handoff?: boolean } | null) ?? null
       );
     },
+    async bookingUrl(token, conversationId) {
+      const { data, error } = await supabase.rpc("chat_booking_url", {
+        p_token: token,
+        p_conversation_id: conversationId,
+      });
+      if (error) throw new Error(`chat_booking_url: ${error.message}`);
+      return (data as string | null) ?? null;
+    },
+    async offerBooking(token, conversationId) {
+      const { data, error } = await supabase.rpc("chat_booking_offer", {
+        p_token: token,
+        p_conversation_id: conversationId,
+      });
+      if (error) throw new Error(`chat_booking_offer: ${error.message}`);
+      return (data as string | null) ?? null;
+    },
   };
 }
 
@@ -69,6 +85,17 @@ export function createTestChatStore(): TestChatStore | null {
       });
       if (error) throw new Error(`agent_test_commit: ${error.message}`);
       return (data as { status: "sent" | "silent" | "stale" } | null) ?? null;
+    },
+    async bookingUrl(workspaceId) {
+      // The secret key skips row-level security: the query names the
+      // workspace, which the caller has checked the person belongs to.
+      const { data, error } = await supabase
+        .from("workspace_sending")
+        .select("booking_url")
+        .eq("workspace_id", workspaceId)
+        .maybeSingle();
+      if (error) throw new Error(`booking url: ${error.message}`);
+      return (data?.booking_url as string | null | undefined) ?? null;
     },
   };
 }

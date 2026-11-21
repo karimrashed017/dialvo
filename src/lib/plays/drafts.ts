@@ -3,6 +3,7 @@ import type { ModelClient } from "@/lib/prospects/model";
 import { writeEmail } from "@/lib/prospects/model";
 import { DRAFTS_PER_STEP } from "@/lib/prospects/config";
 import type { PlayKind } from "./catalog";
+import { readDraftExtras, type ReadExtras } from "./extras";
 import { linksAllowed, playSystem, playUser } from "./prompt";
 import type { PlayStore } from "./store";
 
@@ -24,6 +25,7 @@ const LEAD_PLAYS = new Set<string>([
   "event_registration",
   "event_followup",
   "event_no_show",
+  "playbook",
 ]);
 
 export type PlayDraftResult = {
@@ -35,7 +37,7 @@ export type PlayDraftResult = {
 
 export async function advancePlayDrafts(
   input: { workspaceId: string; userId: string; limit?: number },
-  deps: { store: PlayStore; client: ModelClient },
+  deps: { store: PlayStore; client: ModelClient; extras?: ReadExtras },
 ): Promise<PlayDraftResult> {
   const { store, client } = deps;
   const claim = await store.claimDrafts(
@@ -52,16 +54,23 @@ export async function advancePlayDrafts(
       failed: 0,
       remaining: claim.remaining,
     };
+  // The language each is set to, and a playbook's goal.
+  const extras = await (deps.extras ?? readDraftExtras)(
+    input.workspaceId,
+    claim.drafts.map((d) => d.draft_id),
+  ).catch(() => new Map());
   const results = await Promise.all(
     claim.drafts.map(async ({ draft_id, play, lead, event }) => {
       try {
         if (!LEAD_PLAYS.has(play)) throw new Error(`unknown play ${play}`);
+        const extra = extras.get(draft_id);
         const written = await writeEmail(client, {
           system: playSystem(claim.context),
           user: playUser(
             play as Exclude<PlayKind, "takeout">,
             lead,
             event && event.name ? event : null,
+            { guidance: extra?.guidance, language: extra?.language },
           ),
         });
         // A link we didn't give it is thrown away, never shown.
@@ -95,6 +104,17 @@ export async function advancePlayDrafts(
     }),
   );
   const written = results.filter(Boolean).length;
+  // A playbook an owner set to send on its own: its new drafts are approved
+  // with the same checks as a person's approval.
+  if (written && store.playbookAutoApprove)
+    await store
+      .playbookAutoApprove(input.workspaceId)
+      .catch((error) =>
+        console.error(
+          "[plays] playbook approval failed:",
+          (error as Error).message,
+        ),
+      );
   return {
     status: "ok",
     written,

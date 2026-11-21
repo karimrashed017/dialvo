@@ -186,6 +186,16 @@ export async function sendStep(
   for (const workspaceId of await store.workList()) {
     if (!within(started, now)) break;
     try {
+      // A mailbox with too many bounces or stop requests is paused before
+      // anything else goes from it.
+      await store
+        .healthCheck(workspaceId)
+        .catch((error) =>
+          console.error(
+            "[mail] health check failed:",
+            (error as Error).message,
+          ),
+        );
       const context = await store.scheduleContext(workspaceId);
       if (context?.on && context.waiting.length && context.mailboxes.length) {
         const plans = planSchedule({

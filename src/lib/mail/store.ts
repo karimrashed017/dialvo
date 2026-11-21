@@ -5,6 +5,11 @@ import type { ClaimedEmail } from "./compose";
 import {
   AUTH_FAILURES_BEFORE_PAUSE,
   DAILY_MAIL_WRITE_CAP,
+  HEALTH_BOUNCE_PCT,
+  HEALTH_MIN_BOUNCES,
+  HEALTH_MIN_STOPS,
+  HEALTH_STOP_PCT,
+  HEALTH_WINDOW_DAYS,
   IMAP_POLL_INTERVAL_SECONDS,
   IMAP_POLL_LEASE_SECONDS,
   MAILBOXES_PER_POLL_STEP,
@@ -62,7 +67,11 @@ export type MailAlerts = {
     kind: string;
     summary: string;
     conversation_id: string | null;
+    /** The lead, for an alert about a lead rather than a conversation. */
+    lead_id?: string | null;
     lead: string;
+    /** Who this one goes to (a personal alert goes to one person only). */
+    to?: string[];
   }[];
 };
 
@@ -115,6 +124,11 @@ export interface MailStore {
     costMicros: number,
   ): Promise<string>;
   claimAlerts(workspaceId: string): Promise<MailAlerts | null>;
+  /**
+   * Pauses the workspace's mailboxes whose bounces or stop requests are over
+   * the limits in config.ts. Returns how many were paused.
+   */
+  healthCheck(workspaceId: string): Promise<number>;
   finishAlert(
     alertId: string,
     sent: boolean,
@@ -230,6 +244,15 @@ export function createMailStore(): MailStore | null {
         p_ok: result !== null,
         p_result: result ?? {},
         p_cost_micros: costMicros,
+      }),
+    healthCheck: (workspaceId) =>
+      rpc<number>("mail_health_check", {
+        p_workspace_id: workspaceId,
+        p_days: HEALTH_WINDOW_DAYS,
+        p_min_bounces: HEALTH_MIN_BOUNCES,
+        p_bounce_pct: HEALTH_BOUNCE_PCT,
+        p_min_stops: HEALTH_MIN_STOPS,
+        p_stop_pct: HEALTH_STOP_PCT,
       }),
     claimAlerts: (workspaceId) =>
       rpc<MailAlerts | null>("mail_claim_team_alerts", {

@@ -40,7 +40,8 @@ export type PlayKind =
   | "event_no_show"
   | "onboarding"
   | "expansion"
-  | "plg";
+  | "plg"
+  | "playbook";
 
 export type AppPlay = {
   slug: PlaySlug;
@@ -74,11 +75,15 @@ export const APP_PLAYS: Record<PlaySlug, AppPlay> = {
   },
   "automated-meeting-scheduling": {
     slug: "automated-meeting-scheduling",
-    status: "partly",
-    what: "Add your booking link once. When someone replies to an email wanting to talk, the reply Dialvo drafts offers that link, written out exactly. Meetings you mark as booked show on the lead and in Analytics.",
-    who: "People who reply to your emails and want to meet.",
-    needs: ["A booking link (any scheduling page)", "A connected mailbox"],
-    note: "Email replies offer your booking link today. In the website chat, someone who wants to book is handed to your team instead; offering the link in the chat is being built. Booking straight into a calendar isn't built.",
+    status: "live",
+    what: "Add your booking link once. When someone replies to an email wanting to talk, or a visitor in your website chat wants to meet, Dialvo offers that link and tells your team. Bookings made from the chat are recorded on the lead.",
+    who: "People who reply to your emails, and website chat visitors who want to meet.",
+    needs: [
+      "A booking link (any scheduling page)",
+      "Your scheduling page's redirect after booking set to Dialvo's link",
+      "A connected mailbox for email replies",
+    ],
+    note: "Visitors pick a time on your own scheduling page; Dialvo doesn't read your calendar. A meeting is added with its time when your scheduling page passes the time back; otherwise the lead is marked meeting booked.",
     kinds: [],
     elsewhere: {
       href: "/app/settings/mailboxes#follow-ups",
@@ -87,15 +92,15 @@ export const APP_PLAYS: Record<PlaySlug, AppPlay> = {
   },
   "customer-onboarding-operations": {
     slug: "customer-onboarding-operations",
-    status: "partly",
-    what: "A check-in email to each new customer: how to get started and where to get help, written from your Knowledge. One email per customer, no follow-ups, waiting for your approval.",
+    status: "live",
+    what: "A welcome email to each new customer, then check-ins on the days you set: getting started, a useful tip, whether anything is in their way. Written from your Knowledge, each waiting for your approval unless you choose otherwise.",
     who: "Leads marked won (or marked as a customer) in the last N days who agreed to hear from you by email or have written to you before.",
     needs: [
       "Customers marked won on Leads",
       "Their email consent, or a conversation with them",
       "A connected mailbox",
     ],
-    note: "Onboarding check-in emails work. Onboarding calls and a step-by-step onboarding plan aren't built.",
+    note: "Starts with a ready-made welcome and three check-ins (days 3, 10 and 24), which you can change in Sequences. A reply ends the check-ins for that customer.",
     kinds: ["onboarding"],
   },
   "outbound-lead-generation": {
@@ -109,15 +114,15 @@ export const APP_PLAYS: Record<PlaySlug, AppPlay> = {
   },
   "lead-nurture": {
     slug: "lead-nurture",
-    status: "partly",
-    what: "For leads whose first emails ran their course without a reply, one useful, value-first email from your Knowledge after a long gap. At most two per lead, ever.",
+    status: "live",
+    what: "For leads whose first emails ran their course without a reply, a slow email nurture: a useful, value-first email from your Knowledge, then a few more weeks apart. A reply or an unsubscribe ends it.",
     who: "New, engaged or qualified leads whose last sequence finished more than N days ago with no reply, who never replied and never said no.",
     needs: [
       "Leads you've emailed before",
       "Something useful in Knowledge",
       "A connected mailbox",
     ],
-    note: "Nurture by email works. LinkedIn and SMS touches aren't built.",
+    note: "Email nurture: a ready-made sequence of a first email and three more, 2, 3 and 4 weeks apart, which you can change in Sequences. At most two nurture runs per lead.",
     kinds: ["nurture"],
   },
   "lead-reactivation": {
@@ -148,7 +153,7 @@ export const APP_PLAYS: Record<PlaySlug, AppPlay> = {
   },
   "competitive-takeout": {
     slug: "competitive-takeout",
-    status: "partly",
+    status: "live",
     what: "Name a competitor. Dialvo searches for companies that use it, checks each company's technology data for that product, and drafts a first email that mentions switching honestly: no criticism of the competitor and no claims you can't back.",
     who: "Companies that fit who you sell to and are found to use the competitor you name.",
     needs: [
@@ -272,9 +277,9 @@ export const APP_FEATURES: Record<FeatureSlug, AppFeature> = {
     note: "Email sequences work: a first email and up to two follow-ups. LinkedIn, SMS and calls in a sequence aren't built.",
   },
   "sequence-builder": {
-    status: "partly",
+    status: "live",
     href: "/app/sequences",
-    note: "Set how many follow-ups (none, one or two), the gaps between them and whether they wait for approval. Custom steps per sequence aren't built.",
+    note: "Build sequences of a first email and up to five follow-ups: add, remove and reorder steps, each with its own wait and instructions, a language and an approval setting.",
   },
   "smart-replies": {
     status: "live",
@@ -282,9 +287,9 @@ export const APP_FEATURES: Record<FeatureSlug, AppFeature> = {
     note: "Replies are read and sorted (interested, question, not now, not interested, unsubscribe) and an answer is drafted for you in the Inbox.",
   },
   "multilingual-outreach": {
-    status: "partly",
-    href: "/app/prospects?view=emails",
-    note: "First emails are written in the language of the company's own website, and the chat replies in the visitor's language. Choosing a language per sequence isn't built.",
+    status: "live",
+    href: "/app/sequences",
+    note: "Choose a language per sequence, play or playbook, or leave it on auto (the company's own website language); first emails and follow-ups follow it, and the chat replies in the visitor's language.",
   },
   "consented-outbound-calling": {
     status: "building",
@@ -298,9 +303,9 @@ export const APP_FEATURES: Record<FeatureSlug, AppFeature> = {
     note: "Leads found, emails sent, replies, meetings and chats over 7, 30 or 90 days, by play, search and mailbox.",
   },
   "deliverability-and-mailbox-health": {
-    status: "partly",
-    href: "/app/settings/mailboxes",
-    note: "Daily limits per mailbox, a slow ramp-up for new ones, pausing after login failures, and bounce and unsubscribe rates in Analytics. Inbox-placement tests and DNS checks aren't built.",
+    status: "live",
+    href: "/app/settings/mailboxes#deliverability",
+    note: "DNS checks per mailbox (SPF, DKIM, DMARC, MX) with plain fixes, daily limits and a ramp-up, and automatic pausing when bounces or unsubscribes run high. No inbox-placement tests.",
   },
   "call-deliverability-and-number-management": {
     status: "building",
@@ -319,9 +324,9 @@ export const APP_FEATURES: Record<FeatureSlug, AppFeature> = {
     note: "Every first email opens with a fact from that company's research, and you approve it before it is sent.",
   },
   playbooks: {
-    status: "partly",
-    href: "/app/plays",
-    note: "Ready-made plays you can start from Plays. Writing your own playbook isn't built.",
+    status: "live",
+    href: "/app/plays/playbooks",
+    note: "Ready-made plays, and your own playbooks: pick leads by stage, inactivity and source, set the first email's goal, the sequence and whether it waits for you.",
   },
   "knowledge-base": {
     status: "live",
@@ -340,9 +345,9 @@ export const APP_FEATURES: Record<FeatureSlug, AppFeature> = {
     note: "The website chat answers from your Knowledge, asks your qualifying questions and hands the right visitors to your team.",
   },
   "intelligent-lead-routing": {
-    status: "partly",
-    href: "/app/settings#alerts",
-    note: "Your team is alerted when a chat needs a person or someone replies interested. Routing to a particular teammate by rules isn't built.",
+    status: "live",
+    href: "/app/settings/routing",
+    note: "Rules by country, company size, source or play give each new lead and its conversations to one teammate or several in turn, and alert that person.",
   },
   "crm-integration": {
     status: "live",

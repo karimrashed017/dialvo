@@ -1,9 +1,11 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import {
+  FOLLOWUP_MAX_WORDS,
   FOLLOWUP_TARGET_WORDS,
   KNOWLEDGE_CHARS,
   REPLY_MAX_WORDS,
 } from "./config";
+import { languageName } from "./languages";
 
 // The prompts for the two things the outbound agent writes after a first
 // email: a follow-up when nobody answered, and what to make of a reply
@@ -17,7 +19,7 @@ import {
 // thread's own address (mail_reply_commit).
 
 const TAGS =
-  /<(\/?)(knowledge|item|team_instructions|business|their_reply|earlier_email|our_emails|about_them|booking_link)\b/gi;
+  /<(\/?)(knowledge|item|team_instructions|business|their_reply|earlier_email|our_emails|about_them|booking_link|step_instructions)\b/gi;
 
 /** Stops text from closing our tags and posing as part of the prompt. */
 export const inert = (text: string) => text.replace(TAGS, "&lt;$1$2");
@@ -80,12 +82,14 @@ const cached = (text: string): Anthropic.TextBlockParam[] => [
 
 // --- Follow-ups ---------------------------------------------------------------------
 
-const FOLLOWUP_RULES = `You write a follow-up email for a salesperson at a business. They wrote to a company a few days ago and have had no answer. Your follow-up is sent as a reply in the same email thread, so the earlier email is right below it for the reader.
+const FOLLOWUP_RULES = `You write the next email in a sequence for a salesperson at a business. It is sent as a reply in the same email thread, so the earlier emails are right below it for the reader. Who the reader is, and what this email is for, are given with it: usually a company that hasn't answered a first email, sometimes one of the business's own customers or leads on a planned series of emails.
 
 ## What a good follow-up is
-It is shorter than the email before it, and it gives the reader a reason to answer that the earlier email didn't: one more specific, true thing about how the business could help a company like theirs, or one easy question. It does not repeat the earlier email, and it does not say "just following up", "bumping this", "circling back" or "did you see my email". It never makes the reader feel chased: no guilt, no pressure, no false urgency, no "last chance".
+It is shorter than the email before it, and it gives the reader a reason to answer that the earlier emails didn't: one more specific, true thing about how the business could help a company like theirs, or one easy question. It does not repeat an earlier email, and it does not say "just following up", "bumping this", "circling back" or "did you see my email". It never makes the reader feel chased: no guilt, no pressure, no false urgency, no "last chance".
 
-If this is the second follow-up, it is the last email in the sequence. Keep it to two or three sentences, say plainly that you won't keep writing, and leave the door open.
+When the team gave instructions for this step, follow them where they don't conflict with these rules: they say what this email should be about. The rules here always win.
+
+If this is the last follow-up in the sequence, keep it to two or three sentences, say plainly that you won't keep writing, and leave the door open. A planned series to a customer doesn't need that line.
 
 ${HONEST}
 
@@ -102,6 +106,14 @@ export function followupSystem(
 export type FollowupItem = {
   email_id: string;
   step: number;
+  /** How many follow-ups the sequence has (1 to 5). Older rows: 2. */
+  total?: number;
+  /** The team's instructions for this step, if any. */
+  angle?: string;
+  /** 'auto' or a two-letter language code. */
+  language?: string;
+  /** The play the first email came from, if any. */
+  play?: string | null;
   subject: string;
   sender_name: string;
   lead: { name: string; company: string } | null;
@@ -109,8 +121,28 @@ export type FollowupItem = {
   sent: { step: number; body: string }[];
 };
 
+/**
+ * How long a follow-up should be: each shorter than the one before, and the
+ * last one of a sequence always the shortest (so an old two-step sequence
+ * keeps its 70 then 45 words).
+ */
+export function followupWords(
+  step: number,
+  total: number,
+): { target: number; max: number } {
+  const last = step >= total;
+  const i = Math.min(Math.max(step, 1), FOLLOWUP_TARGET_WORDS.length) - 1;
+  return {
+    target: last ? FOLLOWUP_TARGET_WORDS.at(-1)! : FOLLOWUP_TARGET_WORDS[i],
+    max: last ? FOLLOWUP_MAX_WORDS.at(-1)! : FOLLOWUP_MAX_WORDS[i],
+  };
+}
+
 export function followupUser(item: FollowupItem): string {
-  const words = FOLLOWUP_TARGET_WORDS[item.step - 1] ?? 45;
+  const total = Math.max(item.total ?? 2, item.step);
+  const words = followupWords(item.step, total).target;
+  const angle = (item.angle ?? "").trim().slice(0, 600);
+  const language = item.language ? languageName(item.language) : null;
   const facts = (item.prospect?.facts ?? [])
     .slice(0, 6)
     .map((f) => `- ${inert(String(f.fact ?? ""))}`)
@@ -129,11 +161,49 @@ export function followupUser(item: FollowupItem): string {
     ),
     "</our_emails>",
     `Sender's name: ${inert(item.sender_name)}`,
-    `Write follow-up ${item.step} of 2. Stay under ${words} words, and shorter than the last email above.`,
+    `Who this is to: ${AUDIENCE[audienceOf(item.play)]}`,
+    angle &&
+      `The team's instructions for this step:\n<step_instructions>\n${inert(angle)}\n</step_instructions>`,
+    language
+      ? `Write it in ${language}.`
+      : "Write it in the same language as the earlier emails above.",
+    `Write follow-up ${item.step} of ${total}${item.step >= total ? " (the last one)" : ""}. Stay under ${words} words, and shorter than the last email above.`,
   ]
     .filter(Boolean)
     .join("\n");
 }
+
+/** Plays whose emails go to people who already know the business. */
+const KNOWN = new Set([
+  "onboarding",
+  "expansion",
+  "nurture",
+  "reactivation",
+  "closed_lost",
+  "plg",
+  "speed_to_lead",
+  "event_registration",
+  "event_followup",
+  "event_no_show",
+  "playbook",
+]);
+const CUSTOMER = new Set(["onboarding", "expansion"]);
+
+type Audience = "cold" | "known" | "customer";
+const audienceOf = (play: string | null | undefined): Audience =>
+  play && CUSTOMER.has(play)
+    ? "customer"
+    : play && KNOWN.has(play)
+      ? "known"
+      : "cold";
+
+const AUDIENCE: Record<Audience, string> = {
+  cold: "a company the business wrote to for the first time, which hasn't answered.",
+  known:
+    "someone who already knows the business (one of its own leads). Write as the next email in a planned series, not as a chaser.",
+  customer:
+    "one of the business's own customers. Write as the next check-in of a planned series: helpful, about getting value from what they have, and not a sales chaser.",
+};
 
 // --- Replies ------------------------------------------------------------------------
 

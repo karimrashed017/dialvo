@@ -30,6 +30,11 @@ const REPLY_SCHEMA = {
       type: "boolean",
       description: "True when the visitor asked not to be contacted again.",
     },
+    offer_booking: {
+      type: "boolean",
+      description:
+        "True when this reply offers the team's booking link. Always false when no booking link is given.",
+    },
     visitor_name: {
       type: "string",
       description: "The visitor's name if they gave it, else empty.",
@@ -45,6 +50,7 @@ const REPLY_SCHEMA = {
     "summary",
     "handoff",
     "stop_contact",
+    "offer_booking",
     "visitor_name",
     "visitor_email",
   ],
@@ -87,6 +93,7 @@ export function readResult(raw: string): AgentResult | null {
     summary: redactCardNumbers(text(data.summary, 1000)),
     handoff: data.handoff === true,
     stop_contact: data.stop_contact === true,
+    offer_booking: data.offer_booking === true,
     visitor_name: text(data.visitor_name, 200),
     visitor_email: text(data.visitor_email, 254).toLowerCase(),
   };

@@ -11,6 +11,7 @@ import {
   UNTRUSTED,
   type DraftContext,
 } from "@/lib/prospects/prompt";
+import { languageLine } from "@/lib/mail/languages";
 import type { PlayKind } from "./catalog";
 
 // The prompts for a play's email to one of the workspace's own leads
@@ -24,7 +25,8 @@ import type { PlayKind } from "./catalog";
 // every email before it is sent, unless an owner chose otherwise for speed
 // to lead.
 
-const OUR_TAGS = /<(\/?)(lead|event|their_words|booking_link)\b/gi;
+const OUR_TAGS =
+  /<(\/?)(lead|event|their_words|booking_link|playbook_goal)\b/gi;
 
 /** Stops text from closing our tags and posing as part of the prompt. */
 export const inert = (text: string) =>
@@ -61,7 +63,7 @@ Plain text, under ${EMAIL_TARGET_WORDS} words, in short paragraphs. The subject 
 - Write to them by first name if a name is given ("Hi Dana,"); otherwise "Hello,".
 - End with one short line that makes it easy to say no or to stop hearing from you, then the sign-off you are given, exactly as given.
 - Plain text only: no HTML, no markdown, no images, no tracking, no placeholders like [Name]. No links except, when given below, the business's website, the booking link or the event link, written out exactly.
-- Write in English, unless what they wrote to the team is clearly in another language: then in that language.
+- Write in English, unless what they wrote to the team is clearly in another language: then in that language. When a language is set for this email below, write in that language instead.
 
 ${UNTRUSTED}`;
 
@@ -86,6 +88,8 @@ const PURPOSE: Record<Exclude<PlayKind, "takeout">, string> = {
     "They attended the event below. Thank them for coming, share the event link if one is given (for example the replay or the slides), and ask one short question about whether the topic is relevant to them now.",
   event_no_show:
     "They registered for the event below but didn't attend. Don't make them feel bad about it. Share the event link if one is given (the replay or the next date) and keep it short.",
+  playbook:
+    "They are one of the business's own leads, picked by a playbook the team wrote. The team's goal for this email is in <playbook_goal> below: follow it where it doesn't conflict with the rules above, which always win. Mention only what the Knowledge and the <lead> material support.",
 };
 
 export function playSystem(context: PlayContext): Anthropic.TextBlockParam[] {
@@ -120,7 +124,9 @@ export function playUser(
   play: Exclude<PlayKind, "takeout">,
   lead: PlayLead,
   event: PlayEvent | null,
+  extra: { guidance?: string; language?: string | null } = {},
 ): string {
+  const goal = (extra.guidance ?? "").trim().slice(0, 1500);
   const lines = [
     "<lead>",
     `Name: ${inert(lead.name) || "(not known)"}`,
@@ -145,6 +151,8 @@ export function playUser(
         .filter(Boolean)
         .join("\n"),
     `What this email is for: ${PURPOSE[play]}`,
+    goal && `<playbook_goal>\n${inert(goal)}\n</playbook_goal>`,
+    languageLine(extra.language),
   ];
   return lines.filter(Boolean).join("\n");
 }

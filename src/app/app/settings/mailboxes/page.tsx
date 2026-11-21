@@ -17,6 +17,7 @@ import {
 import { mailReads } from "@/lib/mail/read";
 import { allowanceOn } from "@/lib/mail/schedule";
 import { senderDetailsReady, type Mailbox } from "@/lib/mail/types";
+import { SITE_URL } from "@/lib/site";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 import { ActionForm, SubmitButton } from "../../_ui/form";
@@ -42,8 +43,11 @@ import {
   updateMailbox,
 } from "./actions";
 import { ConnectForm } from "./connect-form";
+import { Deliverability } from "./deliverability";
 
 export const metadata: Metadata = { title: "Mailboxes" };
+
+const BOOKED_URL = `${SITE_URL}/api/book/done`;
 
 const link =
   "underline decoration-black/25 underline-offset-2 hover:decoration-black/60";
@@ -97,9 +101,16 @@ function MailboxRow({
         >
           {box.pause_reason === "login_refused"
             ? `Paused: the mail server refused the login ${AUTH_FAILURES_BEFORE_PAUSE} times in a row, so Dialvo stopped trying.`
-            : "Paused: nothing is sent from this mailbox."}{" "}
-          Emails waiting for this mailbox are held, not lost. Create a new app
-          password, connect this address again below, and it carries on.
+            : box.pause_reason === "bounce_rate"
+              ? "Paused: too many of its emails bounced, which hurts its reputation."
+              : box.pause_reason === "complaint_rate"
+                ? "Paused: too many people asked to stop hearing from it."
+                : "Paused: nothing is sent from this mailbox."}{" "}
+          Emails waiting for this mailbox are held, not lost.{" "}
+          {box.pause_reason === "bounce_rate" ||
+          box.pause_reason === "complaint_rate"
+            ? "Check who you are sending to (and the Deliverability section below), then resume it."
+            : "Create a new app password, connect this address again below, and it carries on."}
           {box.last_error && (
             <span className="mt-1 block text-[#0B0B0C]/65">
               What the server said: {box.last_error}
@@ -232,7 +243,8 @@ async function Content() {
       </>
     );
 
-  const reads = mailReads(await createClient(), workspace.id);
+  const supabase = await createClient();
+  const reads = mailReads(supabase, workspace.id);
   const [boxes, settings] = await Promise.all([
     reads.mailboxes(),
     reads.settings(),
@@ -403,10 +415,14 @@ async function Content() {
                 <span>
                   Follow up when nobody answers
                   <span className="mt-0.5 block text-[12px] text-[#0B0B0C]/55">
-                    Up to two follow-ups, each shorter than the last, in the
-                    same thread and from the same mailbox. They wait for your
-                    approval unless your outbound agent is set to send on its
-                    own. A reply, an unsubscribe or a bounce stops them.
+                    The standard follow-ups for first emails with no sequence:
+                    up to two, each shorter than the last, in the same thread
+                    and from the same mailbox. For up to five steps with your
+                    own instructions, build a sequence in{" "}
+                    <Link href="/app/sequences" className={link}>
+                      Sequences
+                    </Link>
+                    . A reply, an unsubscribe or a bounce stops them.
                   </span>
                 </span>
               </label>
@@ -468,9 +484,14 @@ async function Content() {
                   className={`${input} mt-1`}
                 />
                 <span className={`${hint} mt-1.5 block`}>
-                  Your own scheduling page. The agent offers it when someone
-                  wants to talk. Dialvo doesn&apos;t read your calendar: mark a
-                  meeting as booked on the lead when one is.
+                  Your own scheduling page. Email replies and the website chat
+                  offer it when someone wants to talk. To have chat bookings
+                  recorded on the lead, set your scheduling page&apos;s
+                  &ldquo;redirect after booking&rdquo; to{" "}
+                  <span className="font-medium break-all text-[#0B0B0C]/75">
+                    {BOOKED_URL}
+                  </span>
+                  . Dialvo doesn&apos;t read your calendar.
                 </span>
               </label>
             </fieldset>
@@ -520,6 +541,8 @@ async function Content() {
             your inbox is changed.
           </p>
         </section>
+
+        <Deliverability supabase={supabase} workspaceId={workspace.id} />
 
         <section
           id="connect"

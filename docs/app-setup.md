@@ -1555,3 +1555,61 @@ email, the API key and events endpoint against the live database, and the
 signal scheduler: this machine has no `SUPABASE_SECRET_KEY`,
 `ANTHROPIC_API_KEY` or `FINDYMAIL_API_KEY`, so those buttons show "not
 switched on" here. Test data left: none.
+
+## Sequences, playbooks, routing, deliverability and chat booking (21 Nov 2026)
+
+**Sequences** (`/app/sequences`). A sequence is a first email and up to
+five follow-ups, each with its own wait (1 to 60 days after the email before
+it) and its own instructions for the writer, a language (`auto` or a fixed
+one) and an approval setting. One may be the workspace's default. Plays
+choose a sequence and a language when they are started, playbooks in their
+settings, Find leads searches on the Sequences page. Customer onboarding and
+lead nurture start with a ready-made sequence of their own
+(`src/lib/sequences/steps.ts`), made the first time the play is started and
+editable like any other. A first email with no sequence keeps the old
+standard follow-ups (up to two, days after the first email). How it runs:
+the draft takes its campaign's or search's sequence and language when it is
+made (`private.outbound_draft_sequence`), the thread takes the draft's when
+the first email is sent (`private.mail_thread_sequence`), and
+`mail_write_claim` hands each follow-up to the writer with its step's
+instructions, the total and the language. Stop rules are untouched: a reply,
+bounce or unsubscribe ends the thread, and every email still goes through
+`mail_send_claim`. Limits: 25 sequences, 5 follow-ups, follow-up lengths in
+`src/lib/mail/config.ts`.
+
+**Playbooks** (`/app/plays/playbooks`). An owner or admin writes who to pick
+(stage, days with nothing happening, source, added recently), what the first
+email is for, the sequence, the language and whether first emails wait for
+approval; any member runs it. Picking is `private.playbook_candidates`, with
+every rule of the built-in plays (and customers only with consent or a
+conversation). A playbook set to send on its own is approved by
+`playbook_auto_approve` with a person's checks, as the admin who saved it.
+At most 20 playbooks and 50 leads per run.
+
+**Lead routing** (`/app/settings/routing`). Rules in order, by country,
+company size, source and play, give a new lead with no owner to one teammate
+or several in turn, assign its open conversations, write it on the timeline
+and email that person (only them, if they have alerts on). Leads are routed
+when added and again when their first email thread starts.
+
+**Deliverability** (`/app/settings/mailboxes#deliverability`). "Check DNS"
+looks up SPF, DKIM (common selectors), DMARC and MX with `node:dns` and shows
+a plain fix for each problem. Before each send step, a mailbox with at least
+3 bounces that are at least 5% of what it sent, or at least 5 unsubscribes
+that are at least 10%, over 14 days, is paused and the team told; resuming
+starts the count again. Inbox-placement tests aren't built.
+
+**Meeting booking in the chat.** With a booking link set, the chat agent
+offers it when a visitor wants to talk (and hands over to the team as well).
+The link in the reply is `/api/book/<token>`, which records the visit, keeps
+the token in a first-party cookie and goes on to the booking page. When the
+customer sets their scheduling page's redirect after booking to
+`https://trydialvo.com/api/book/done`, the booking is recorded once on the
+lead: status meeting booked, a meeting when the page passed a start time
+(`event_start_time`, `startTime`, `start_time` or `start`), and an alert.
+
+**The database** (applied to the live project 21 Nov 2026, function bodies
+compared by hash with these files, comments left out of the live copies):
+`20261121004436_sequences`, `20261121004555_playbooks`,
+`20261121004738_lead_routing`, `20261121004958_mailbox_health`,
+`20261121005029_chat_booking`. Tests: `supabase/tests/engine.test.ts`.

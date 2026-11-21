@@ -40,6 +40,11 @@ export type ChatContext = {
   latest_visitor_message_id: string | null;
   knowledge: KnowledgeEntry[];
   messages: ChatTurn[];
+  /**
+   * The workspace's booking page, when it has one. Not part of the
+   * database's chat context: the runtime adds it (chat_booking_url).
+   */
+  booking_url?: string | null;
 };
 
 export const OUTCOMES = [
@@ -57,6 +62,8 @@ export type AgentResult = {
   summary: string;
   handoff: boolean;
   stop_contact: boolean;
+  /** The reply offers the booking page (only when there is one). */
+  offer_booking: boolean;
   visitor_name: string;
   visitor_email: string;
 };
@@ -73,6 +80,10 @@ export interface ChatAgentStore {
     inReplyTo: string,
     result: AgentResult & { model: string },
   ): Promise<{ status: CommitStatus; handoff?: boolean } | null>;
+  /** The workspace's booking page, for the chat behind this widget. */
+  bookingUrl(token: string, conversationId: string): Promise<string | null>;
+  /** A booking link of Dialvo's own for this conversation (its token). */
+  offerBooking(token: string, conversationId: string): Promise<string | null>;
 }
 
 /** What an agent's turn in a "Try your agent" chat concluded. */
@@ -102,4 +113,6 @@ export interface TestChatStore {
     inReplyTo: string;
     result: AgentResult & { model: string };
   }): Promise<{ status: "sent" | "silent" | "stale" } | null>;
+  /** The workspace's booking page, offered as it is in a test chat. */
+  bookingUrl(workspaceId: string): Promise<string | null>;
 }

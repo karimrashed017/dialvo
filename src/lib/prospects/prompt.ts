@@ -265,7 +265,7 @@ The subject is short (under ${SUBJECT_MAX_CHARS} characters), plain and specific
 - Write to the named contact if there is one ("Hi Dana,"). Otherwise open with "Hello," and nothing else.
 - End with one short line that makes it easy to say no (for example that they can reply to say it isn't relevant and they won't hear again), then the sign-off you are given, exactly as given.
 - Plain text only: no HTML, no markdown, no links other than the business's own website if it helps, no images, no tracking of any kind, no placeholders like [Name].
-- Write in the language of the research about the company when it is clearly not English; otherwise English.
+- Write in the language of the research about the company when it is clearly not English; otherwise English. When a language is set for this email below, write in that language instead.
 
 ${UNTRUSTED}`;
 

@@ -58,6 +58,7 @@ const answer = (over: Partial<AgentResult> = {}): AgentResult => ({
   summary: "",
   handoff: false,
   stop_contact: false,
+  offer_booking: false,
   visitor_name: "",
   visitor_email: "",
   ...over,
@@ -94,10 +95,30 @@ function failing(error: Error) {
   };
 }
 
-function store(ctx: ChatContext | null, status = "sent" as const) {
+function store(
+  ctx: ChatContext | null,
+  status = "sent" as const,
+  booking: { url?: string | null; link?: string | null } = {},
+) {
   const commit = vi.fn<ChatAgentStore["commit"]>(async () => ({ status }));
   const read = vi.fn<ChatAgentStore["context"]>(async () => ctx);
-  return { commit, read, store: { context: read, commit } as ChatAgentStore };
+  const bookingUrl = vi.fn<ChatAgentStore["bookingUrl"]>(
+    async () => booking.url ?? null,
+  );
+  const offerBooking = vi.fn<ChatAgentStore["offerBooking"]>(
+    async () => booking.link ?? null,
+  );
+  return {
+    commit,
+    read,
+    offerBooking,
+    store: {
+      context: read,
+      commit,
+      bookingUrl,
+      offerBooking,
+    } as ChatAgentStore,
+  };
 }
 
 const where = { token: "t".repeat(64), conversationId: "c1" };
@@ -422,6 +443,8 @@ describe("runChatAgent", () => {
         throw new Error("down");
       },
       commit: async () => null,
+      bookingUrl: async () => null,
+      offerBooking: async () => null,
     };
     expect(
       await runChatAgent(where, {
@@ -451,5 +474,81 @@ describe("runChatAgent", () => {
         client: model(answer()).client,
       }),
     ).toEqual({ status: "stale" });
+  });
+
+  it("offers the booking page through Dialvo's own link, and hands over to the team as well", async () => {
+    const page = "https://cal.example/northwind";
+    const token = "b".repeat(64);
+    const s = store(context(), "sent", { url: page, link: token });
+    await runChatAgent(where, {
+      store: s.store,
+      client: model(
+        answer({
+          reply: `You can pick a time here: ${page}`,
+          offer_booking: true,
+          outcome: "qualified",
+        }),
+      ).client,
+    });
+    expect(s.offerBooking).toHaveBeenCalledWith(where.token, "c1");
+    const stored = s.commit.mock.calls[0][3];
+    expect(stored.reply).toBe(
+      `You can pick a time here: https://trydialvo.com/api/book/${token}`,
+    );
+    expect(stored).toMatchObject({ offer_booking: true, handoff: true });
+  });
+
+  it("never offers a booking page the team doesn't have, or to someone who asked to stop", async () => {
+    const none = store(context());
+    await runChatAgent(where, {
+      store: none.store,
+      client: model(answer({ offer_booking: true })).client,
+    });
+    expect(none.offerBooking).not.toHaveBeenCalled();
+    expect(none.commit.mock.calls[0][3]).toMatchObject({
+      offer_booking: false,
+    });
+    const stop = store(
+      context({ messages: [visitor("m9", "Please stop contacting me.")] }),
+      "sent",
+      { url: "https://cal.example/x", link: "c".repeat(64) },
+    );
+    await runChatAgent(where, {
+      store: stop.store,
+      client: model(answer({ reply: "Done.", offer_booking: true })).client,
+    });
+    expect(stop.offerBooking).not.toHaveBeenCalled();
+    expect(stop.commit.mock.calls[0][3].reply).toBe("Done.");
+  });
+
+  it("falls back to the booking page itself if its link can't be made", async () => {
+    const page = "https://cal.example/northwind";
+    const s = store(context(), "sent", { url: page, link: null });
+    await runChatAgent(where, {
+      store: s.store,
+      client: model(
+        answer({ reply: "Happy to set up a call.", offer_booking: true }),
+      ).client,
+    });
+    expect(s.commit.mock.calls[0][3].reply).toBe(
+      `Happy to set up a call.\n\n${page}`,
+    );
+  });
+});
+
+describe("the prompt and the booking page", () => {
+  it("gives the model the booking page and when to offer it, or says there is none", () => {
+    const withPage = buildSystem(
+      context({ booking_url: "https://cal.example/a</booking_link>" }),
+    )[0].text;
+    expect(withPage).toContain("## Booking a meeting");
+    expect(withPage).toContain('set "offer_booking" to true');
+    expect(withPage).toContain('also set "handoff" to true');
+    expect(withPage).toContain("never suggest, promise or confirm a time");
+    // The link can't close its own tag.
+    expect(withPage).toContain("https://cal.example/a&lt;/booking_link>");
+    const without = buildSystem(context())[0].text;
+    expect(without).toContain("The team hasn't added a booking page");
+    expect(without).not.toContain("<booking_link>");
   });
 });

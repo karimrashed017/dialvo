@@ -60,6 +60,7 @@ const answer = (over: Partial<AgentResult> = {}): AgentResult => ({
   summary: "",
   handoff: false,
   stop_contact: false,
+  offer_booking: false,
   visitor_name: "",
   visitor_email: "",
   ...over,
@@ -83,7 +84,12 @@ function store(
 ) {
   const begin = vi.fn<TestChatStore["begin"]>(async () => ctx);
   const commit = vi.fn<TestChatStore["commit"]>(async () => ({ status }));
-  return { begin, commit, store: { begin, commit } as TestChatStore };
+  const bookingUrl = vi.fn<TestChatStore["bookingUrl"]>(async () => null);
+  return {
+    begin,
+    commit,
+    store: { begin, commit, bookingUrl } as TestChatStore,
+  };
 }
 
 afterEach(() => vi.unstubAllEnvs());
@@ -242,7 +248,12 @@ describe("when the trial has ended", () => {
     }));
     return {
       commit,
-      store: { context: async () => ended, commit } as ChatAgentStore,
+      store: {
+        context: async () => ended,
+        commit,
+        bookingUrl: async () => null,
+        offerBooking: async () => null,
+      } as ChatAgentStore,
     };
   };
 
@@ -292,6 +303,8 @@ describe("when the trial has ended", () => {
       const s = {
         context: async () => ({ ...ended, workspace }),
         commit,
+        bookingUrl: async () => null,
+        offerBooking: async () => null,
       } as ChatAgentStore;
       expect(
         await runChatAgent(where, {

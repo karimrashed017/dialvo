@@ -4,7 +4,6 @@ import { redactCardNumbers } from "@/lib/agents/guard";
 import { spendOf } from "@/lib/prospects/model";
 import { NO_SPEND, type Spend } from "@/lib/prospects/types";
 import {
-  FOLLOWUP_MAX_WORDS,
   MAIL_MODEL,
   MODEL_TIMEOUT_MS,
   REPLY_MAX_WORDS,
@@ -13,6 +12,7 @@ import {
 import {
   followupSystem,
   followupUser,
+  followupWords,
   replySystem,
   replyUser,
   type FollowupItem,
@@ -143,7 +143,8 @@ export async function writeFollowup(
   const body = plain(answer.data.body);
   const { spend } = answer;
   if (!body) return { ok: false, reason: "unreadable", spend };
-  if (words(body) > (FOLLOWUP_MAX_WORDS[item.step - 1] ?? 70))
+  const total = Math.max(item.total ?? 2, item.step);
+  if (words(body) > followupWords(item.step, total).max)
     return { ok: false, reason: "too_long", spend };
   // A follow-up carries no links at all.
   if (/https?:\/\//i.test(body))

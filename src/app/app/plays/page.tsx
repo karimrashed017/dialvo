@@ -79,6 +79,33 @@ async function Content() {
             </ul>
           </section>
         ))}
+        <section aria-labelledby="g-own">
+          <h2
+            id="g-own"
+            className="mb-2 px-1 text-[12px] font-medium tracking-wide text-[#0B0B0C]/50 uppercase"
+          >
+            Your own
+          </h2>
+          <Link
+            href="/app/plays/playbooks"
+            data-play="playbooks"
+            className="group flex items-center justify-between gap-3 rounded-2xl border border-black/[0.07] bg-white p-4 transition-colors hover:border-black/20 focus-visible:ring-2 focus-visible:ring-black/40 focus-visible:outline-none"
+          >
+            <span>
+              <span className="block text-[14px] font-medium">
+                Your playbooks
+              </span>
+              <span className="mt-1 block text-[12.5px] leading-[1.5] text-[#0B0B0C]/60">
+                Write your own play: who to pick from your leads, what the first
+                email is for, the steps after it, and whether it waits for you.
+              </span>
+            </span>
+            <ArrowRight
+              aria-hidden
+              className="size-3.5 shrink-0 transition-transform group-hover:translate-x-0.5"
+            />
+          </Link>
+        </section>
       </div>
     </>
   );

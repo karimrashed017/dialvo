@@ -93,12 +93,38 @@ export const WRITE_MAX_TOKENS = 700;
 export const MODEL_TIMEOUT_MS = 25_000;
 /** How much of the workspace's knowledge goes into one prompt. */
 export const KNOWLEDGE_CHARS = 20_000;
-/** What the first and the second follow-up are asked to stay under. */
-export const FOLLOWUP_TARGET_WORDS = [70, 45];
+/**
+ * What each follow-up (first to fifth) is asked to stay under. A sequence
+ * has at most five (MAX_FOLLOWUPS); each is shorter than the one before.
+ */
+export const FOLLOWUP_TARGET_WORDS = [70, 60, 55, 50, 45];
 /** A follow-up longer than this is thrown away rather than shown. */
-export const FOLLOWUP_MAX_WORDS = [100, 70];
+export const FOLLOWUP_MAX_WORDS = [100, 90, 80, 75, 70];
+/** Follow-ups one sequence may have. The database refuses more. */
+export const MAX_FOLLOWUPS = 5;
+/** Days one step of a sequence may wait after the email before it. */
+export const STEP_WAIT_DAYS_MAX = 60;
+/** Sequences one workspace may keep (the database's own ceiling). */
+export const MAX_SEQUENCES = 25;
 /** An answer to a reply longer than this is thrown away. */
 export const REPLY_MAX_WORDS = 180;
+
+// --- Mailbox health -----------------------------------------------------------------
+// Checked before every send step. A mailbox over either limit is paused and
+// the team told; resuming it starts the count again.
+
+/** The window the limits look at, in days. */
+export const HEALTH_WINDOW_DAYS = 14;
+/** Paused at this many bounces... */
+export const HEALTH_MIN_BOUNCES = 3;
+/** ...when they are also at least this percent of what it sent. */
+export const HEALTH_BOUNCE_PCT = 5;
+/** Paused at this many people asking to stop (unsubscribes)... */
+export const HEALTH_MIN_STOPS = 5;
+/** ...when they are also at least this percent of what it sent. */
+export const HEALTH_STOP_PCT = 10;
+/** "Check DNS" presses per person per hour. */
+export const DNS_CHECKS_PER_HOUR = 20;
 
 // --- One step -----------------------------------------------------------------------
 

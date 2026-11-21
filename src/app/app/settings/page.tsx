@@ -66,6 +66,9 @@ async function Settings() {
   return (
     <>
       <PageHead title="Settings">
+        <Link href="/app/settings/routing" className={cn(btn.ghost, btn.small)}>
+          Lead routing
+        </Link>
         <Link href="/app/settings/api" className={cn(btn.ghost, btn.small)}>
           API keys
         </Link>

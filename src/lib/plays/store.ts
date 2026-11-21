@@ -178,6 +178,8 @@ export interface PlayStore {
   speedWorklist(): Promise<{ workspace_id: string; user_id: string }[]>;
   speedSweep(workspaceId: string): Promise<number>;
   autoApprove(workspaceId: string): Promise<number>;
+  /** Playbooks set to send on their own: approves their waiting drafts. */
+  playbookAutoApprove?(workspaceId: string): Promise<number>;
   recordEvent(
     keyHash: string,
     input: {
@@ -366,6 +368,8 @@ export function createPlayStore(): PlayStore | null {
         p_workspace_id: workspaceId,
         p_max: SPEED_TO_LEAD_PER_STEP,
       }),
+    playbookAutoApprove: (workspaceId) =>
+      rpc<number>("playbook_auto_approve", { p_workspace_id: workspaceId }),
     autoApprove: (workspaceId) =>
       rpc("play_auto_approve", { p_workspace_id: workspaceId }),
     recordEvent: (keyHash, input) =>

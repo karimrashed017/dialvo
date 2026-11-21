@@ -6,6 +6,7 @@ import {
   DAILY_REPLY_CAP,
   MODEL_TIMEOUT_MS,
 } from "./config";
+import { mentionsLink, placeBookingLink } from "./booking";
 import { generateReply, type ReplyFailure } from "./reply";
 import { createTestChatStore } from "./store";
 import type { AgentResult, TestChatStore } from "./types";
@@ -75,8 +76,21 @@ export async function runTestChat(
     const inReplyTo = context.latest_visitor_message_id;
     if (!inReplyTo) return { status: "stale" };
 
+    // The booking page, offered as it is: a test chat makes no booking link.
+    context.booking_url = await store.bookingUrl(workspaceId).catch(() => null);
+
     const generated = await generateReply(client, context);
     if (!generated.ok) return { status: "failed", reason: generated.reason };
+    if (!context.booking_url) generated.result.offer_booking = false;
+    else if (
+      generated.result.offer_booking &&
+      !mentionsLink(generated.result.reply, context.booking_url)
+    )
+      generated.result.reply = placeBookingLink(
+        generated.result.reply,
+        context.booking_url,
+        context.booking_url,
+      );
 
     const stored = await store.commit({
       workspaceId,

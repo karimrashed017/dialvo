@@ -35,6 +35,8 @@ import {
 } from "@/lib/prospects/config";
 import { contactQueryFor } from "@/lib/prospects/contact-search";
 import { createServiceClient } from "@/lib/supabase/service";
+import { isLanguage } from "@/lib/mail/languages";
+import { purposeSequence, setCampaignSequence } from "@/lib/sequences/server";
 
 // Everything a person does on Plays, and on Find leads' Signals, Lookalike
 // and Target accounts. Each action runs through inWorkspace(), which checks
@@ -91,6 +93,34 @@ function days(form: FormData, kind: LeadPlay): number {
   return n;
 }
 
+/**
+ * The sequence and language a play run uses, from its start form. "purpose"
+ * is the play's ready-made sequence (onboarding, nurture), made the first
+ * time; empty is the workspace's default. The foreign key keeps a chosen
+ * sequence inside the workspace.
+ */
+async function applySequence(
+  workspaceId: string,
+  campaignId: string,
+  form: FormData,
+  purpose: "onboarding" | "nurture" | null,
+) {
+  const choice = String(form.get("sequence") ?? "");
+  const language = String(form.get("language") ?? "auto");
+  const sequence =
+    choice === "purpose" && purpose
+      ? await purposeSequence(workspaceId, purpose)
+      : isUuid(choice)
+        ? choice
+        : null;
+  await setCampaignSequence(
+    workspaceId,
+    campaignId,
+    sequence,
+    isLanguage(language) ? language : "auto",
+  );
+}
+
 /** Starts a play on the workspace's own leads: their drafts wait for approval. */
 export async function startLeadPlay(form: FormData): Promise<ActionResult> {
   return inWorkspace(async ({ workspace, user }) => {
@@ -116,8 +146,15 @@ export async function startLeadPlay(form: FormData): Promise<ActionResult> {
         message:
           "No lead fits this play right now, so nothing was started. Try a different number of days, or come back later.",
       };
-    if (started.status !== "created")
+    if (started.status !== "created" || !started.campaign_id)
       throw new ActionProblem("That play couldn't be started.");
+    await applySequence(
+      workspace.id,
+      started.campaign_id,
+      form,
+      kind === "onboarding" || kind === "nurture" ? kind : null,
+    );
+    refresh();
     return {
       ok: true,
       message: `Started for ${started.selected} ${started.selected === 1 ? "lead" : "leads"}. Write their emails below; each one waits for your approval.`,
@@ -201,6 +238,8 @@ export async function importEvent(form: FormData): Promise<ActionResult> {
         message:
           `Nobody on that list is in this play's audience, so nothing was started. ${extra}`.trim(),
       };
+    if (result.campaign_id)
+      await applySequence(workspace.id, result.campaign_id, form, null);
     return {
       ok: true,
       message:
