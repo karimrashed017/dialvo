@@ -145,7 +145,12 @@ settings and the manual test checklist.**
   `integration_deliveries` (the Slack and webhook outbox), `site_tracking`,
   `site_companies`, `site_visitors`, `site_page_views`, `site_ip_lookups`,
   `site_link_tokens`, `intent_sources` and `intent_signals` (see
-  `docs/app-setup.md`, "Slack, the public API and webhooks"). Every table has row-level
+  `docs/app-setup.md`, "Slack, the public API and webhooks"); for briefs,
+  workflows, the MCP server, company news and ad audiences `account_briefs`,
+  `brief_settings`, `calendar_feeds`, `workflows`, `workflow_runs`,
+  `workflow_tasks`, `news_settings`, `news_companies`, `company_news`,
+  `ad_audiences` and `ad_audience_exports` (see `docs/app-setup.md`,
+  "Account briefs, workflows, the MCP server..."). Every table has row-level
   security from its first migration, policies go through `private.*` helper
   functions, and child tables use `(parent_id, workspace_id)` foreign keys.
   `npm test` applies the migrations to an in-memory Postgres (PGlite) and

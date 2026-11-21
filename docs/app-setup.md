@@ -1818,3 +1818,117 @@ screenshots read by eye. **Not tested:** a real Slack post, a real
 webhook delivery, a real ipapi.is or G2 call, the scheduler calling the app,
 and the tracker on a real customer site: this machine has no
 `SUPABASE_SECRET_KEY`, and nothing was signed up for.
+
+## Account briefs, workflows, the MCP server, company news and ad audiences (21 Nov 2026)
+
+**Where things are.** Sidebar: Workflows (`/app/workflows`), Briefs
+(`/app/briefs`, and the "Account brief" panel on every lead page), Ad
+audiences (`/app/ad-audiences`). Settings, Assistants (MCP)
+(`/app/settings/mcp`). Company news is on Find leads, Signals, below
+review-site intent. All features lists them under "More in the app"
+(`APP_ONLY_FEATURES` in `src/lib/plays/catalog.ts`). Code: `src/lib/briefs`,
+`src/lib/workflows`, `src/lib/mcp`, `src/lib/news`, `src/lib/audiences`;
+routes `src/app/api/activation/step` (the scheduler's door),
+`src/app/api/workflows/hook/[token]`, `src/app/api/mcp`,
+`src/app/app/ad-audiences/[id]/export`.
+
+**What it needs.** Nothing new: `SUPABASE_SECRET_KEY` for all of it,
+`ANTHROPIC_API_KEY` for briefs and news (claude-haiku-4-5 with the web search
+tool), `RESEND_API_KEY` to email briefs, `FINDYMAIL_API_KEY` for the MCP
+`find_contacts` tool. Without the model key, briefs wait and pages say so.
+
+**Account briefs** (`account_briefs`, `brief_settings`). On demand from a lead
+page, the Briefs page, a workflow step or the MCP tool; automatically
+`minutes_before` (default 120) each scheduled meeting, or each morning at
+`digest_hour` in the workspace's time zone for that day's meetings. A brief
+reads up to 3 pages of the lead's company site (robots.txt respected), runs up
+to 3 web searches, and reads the last 60 messages on every channel, calls,
+meetings and notes. Sources are numbered; a link the model didn't get from
+its own search results or from the pages it was given is dropped, with its
+fact. Ready briefs go on the lead's timeline, to Slack when connected (any
+connection, whatever its post settings: the workspace switched this on in
+brief settings) and by email to the meeting's host, else the lead's owner,
+else who asked. **Closed-lost:** when a lead with a conversation or call is
+marked lost, a short "why we likely lost and what might change" note is
+queued (switchable). **Calendar feeds** (`calendar_feeds`): each person pastes
+their secret iCal address (Google, Outlook, iCloud). It is kept in Vault
+(`calendar_feed:<id>`), read every 30 minutes under the page reader's rules
+(https, public addresses, no ports), 1 day back to 14 days ahead. An event
+becomes a meeting only when one of the workspace's leads is invited (the
+team's own addresses are ignored); others are never stored. Weekly and daily
+repeats are expanded; monthly and yearly repeats count once. Imported
+meetings are not posted to Slack or webhooks as "meeting booked" and don't
+start "meeting booked" workflows.
+
+**Workflows** (`workflows`, `workflow_runs`, `workflow_tasks`). Triggers:
+lead added, stage changed (optionally to chosen stages), reply sorted as
+chosen classifications, chat needs a person, meeting booked, signal kept
+(buying signals, review-site intent, company news), an inbound webhook
+(`POST /api/workflows/hook/dvw_...`, the token shown once, only its hash
+kept, 8 KB, Idempotency-Key honoured) and a schedule (daily or weekly, UTC;
+picks up to 25 matching leads not touched by it in 7 days). Conditions:
+stage, source, country, company size, company name, email known, owner
+known. Steps: research (a brief), add to a running play (its email waits
+for approval under the play's rules), give to a teammate or route by the
+routing rules, change stage, post to Slack, send to a webhook endpoint
+(signed and retried like every delivery, event `workflow.action`), create a
+task, add a note. Triggers only queue; the app runs each queued run
+(`src/lib/workflows/engine.ts`) and every action is one database function
+(`workflow_act`) on the run's own workspace. Each run's log says why every
+step ran or was skipped. A workflow's own changes don't start workflows (a
+transaction-local setting), so they can't loop.
+
+**MCP server** (`/api/mcp`). Streamable HTTP with the official TypeScript SDK
+(`@modelcontextprotocol/sdk` 1.32, protocol 2025-11-25 and earlier),
+stateless and JSON-only so it runs as a normal serverless function. Auth:
+`Authorization: Bearer dv_live_...`, the same keys as the API, now with a
+scope (`read` or `write`; existing keys are `write`) and optionally a person
+(`user_id`: personal keys any member makes, acting as them; they stop when
+the person leaves). Read keys are refused (403) by every REST call that
+isn't a GET, and by the events endpoint. Tools: search_leads, get_lead,
+list_plays, list_meetings, get_account_brief (make=true needs write),
+add_lead, add_lead_to_play, find_contacts (Findymail, 2 credits a person,
+reserved against the daily cap). 60 calls a minute per key. Requests from a
+browser on another origin are refused. Browser connectors that require
+OAuth aren't supported.
+
+**Company news** (`news_settings`, `news_companies`, `company_news`). Off until
+an admin switches it on. Tracks target accounts and leads' company websites
+at chosen stages, up to 100 companies, each searched once a week (one model
+call, up to 2 searches). Only items of the chosen kinds from the last 45
+days whose link the search returned are kept; the same link, or the same
+headline for the same company and kind in 60 days, is kept once. Keep: for a
+lead, a note and a fresh brief; for another company, a target-accounts
+campaign marked `news` (finds a contact, drafts an email for approval).
+
+**Ad audiences** (`ad_audiences`, `ad_audience_exports`). Members save
+audiences of people or companies (by stage, source, country, owner, play,
+added within) or suppression lists (customers, or do not contact and
+unsubscribed). Downloads: LinkedIn contact list (email SHA-256 hashed, the
+only column LinkedIn takes hashed), LinkedIn company list, Meta customer list
+(all identifiers normalised and hashed), Google Customer Match (combined
+template; email, phone and names hashed, gmail dots removed, country plain;
+Zip empty because Dialvo holds no post codes) and plain CSV. Do not contact,
+unsubscribed and never-contact people are never in a people or company
+audience; customers only when ticked. Every download is recorded. Nothing is
+sent to an ad platform: direct sync needs each platform's partner approval.
+
+**Every new cap and its cost note** is in `src/lib/briefs/config.ts` (40
+briefs a day, ~6 cents a brief, ~1 cent a closed-lost note),
+`src/lib/workflows/config.ts` (20 workflows, 8 steps, 500 runs and 1,000
+actions a day), `src/lib/mcp/config.ts` (60 calls a minute, 3 contacts a
+lookup), `src/lib/news/config.ts` (100 companies, weekly, ~3 cents a company
+a week) and `src/lib/audiences/config.ts` (50 audiences, 20,000 rows a file).
+Model calls count against the existing `DAILY_SPEND_CAP_MICROS`.
+
+**The schedulers** (pg_cron + pg_net, the Vault token, like the others):
+`dialvo-brief-steps` every 5 minutes (queues due briefs; calls
+`?job=briefs` / `?job=calendar` only when there is work),
+`dialvo-workflow-steps` every minute (`?job=workflows`),
+`dialvo-news-steps` hourly (`?job=news`).
+
+**The database:** `20261121100000_account_briefs`, `20261121100100_workflows`,
+`20261121100200_mcp_keys`, `20261121100300_company_news`,
+`20261121100400_ad_audiences`. Isolation and behaviour tests:
+`supabase/tests/activation-features.test.ts` (tables listed in
+`activation-tables.ts` and the RLS test).

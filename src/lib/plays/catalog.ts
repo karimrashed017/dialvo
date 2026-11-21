@@ -402,3 +402,53 @@ export const isPlaySlug = (slug: string): slug is PlaySlug =>
   Object.hasOwn(APP_PLAYS, slug);
 export const isFeatureSlug = (slug: string): slug is FeatureSlug =>
   Object.hasOwn(APP_FEATURES, slug);
+
+// --- In the app, beyond the site's menus -------------------------------------------
+// Features that live in the app but aren't (yet) pages on the marketing
+// site. Same rule: "live" only when a person can use it end to end today.
+
+export type AppOnlyFeature = {
+  key: string;
+  title: string;
+  status: Status;
+  href: string;
+  note: string;
+};
+
+export const APP_ONLY_FEATURES: AppOnlyFeature[] = [
+  {
+    key: "account-briefs",
+    title: "Account briefs and closed-lost notes",
+    status: "live",
+    href: "/app/briefs",
+    note: "A cited brief per lead (their website, a web search, every past message, call and note): facts, people, open questions, talking points. Made on demand and before each meeting or each morning, shown in the app, emailed to the meeting's owner and posted to Slack when connected. Leads marked lost get a short why-we-lost note. Meetings come from Dialvo, the lead page or each person's secret iCal address (no Google sign-in); monthly and yearly repeats count once.",
+  },
+  {
+    key: "workflows",
+    title: "Workflows",
+    status: "live",
+    href: "/app/workflows",
+    note: "When a lead is added, changes stage, replies (by how the reply was sorted), a chat needs a person, a meeting is booked, a signal is kept, your webhook is called or on a schedule: research the company, add to a running play, assign or route, change stage, post to Slack, call your webhook, make a task or add a note, if the lead's stage, source, country, size, company, email or owner match. Every run logged; 500 runs a day; nothing sends email by itself.",
+  },
+  {
+    key: "mcp-server",
+    title: "Assistants (MCP server)",
+    status: "live",
+    href: "/app/settings/mcp",
+    note: "A remote MCP server at /api/mcp for Claude Code, Claude Desktop, Cursor, VS Code and other MCP apps: search leads, a lead with its history, contacts at a company (contact database, within the daily credits), add a lead, add it to a play, list meetings and get a brief. Personal or workspace keys, read-only or write. Browser connectors that need OAuth sign-in aren't supported yet.",
+  },
+  {
+    key: "company-news",
+    title: "Company news signals",
+    status: "live",
+    href: "/app/prospects/signals",
+    note: "Once a week per tracked company (target accounts and leads' companies, up to 100), a web search for funding, launches, leadership hires and expansions, deduplicated, with the source link. Keep one: on a lead, a note and a fresh brief; otherwise a target-accounts campaign that finds a contact and drafts an email for approval. Off until an admin switches it on.",
+  },
+  {
+    key: "ad-audiences",
+    title: "Ad audiences and suppression lists",
+    status: "live",
+    href: "/app/ad-audiences",
+    note: "Audiences of people or companies from your leads (by stage, source, country, owner, play, when added), downloaded as LinkedIn contact or company lists, Meta customer lists or Google Ads Customer Match files, hashed with SHA-256 where the platform takes it; plus suppression lists of customers or opted-out people. You upload the file yourself: direct sync needs each platform's partner approval, which Dialvo doesn't have.",
+  },
+];

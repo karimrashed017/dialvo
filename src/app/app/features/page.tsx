@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { featureGroups } from "@/lib/plays/catalog";
+import { APP_ONLY_FEATURES, featureGroups } from "@/lib/plays/catalog";
 import { PageHead } from "../_ui/kit";
 import { StatusPill } from "../plays/ui";
 
@@ -12,7 +12,15 @@ export const metadata: Metadata = { title: "All features" };
 // built" page. Nothing here reads the session, so it needs no Suspense.
 
 export default function FeaturesPage() {
-  const groups = featureGroups();
+  const groups = [
+    ...featureGroups(),
+    {
+      id: "app-only",
+      title: "More in the app",
+      blurb: "",
+      items: APP_ONLY_FEATURES.map((f) => ({ ...f, key: `app:${f.key}` })),
+    },
+  ];
   return (
     <>
       <PageHead
