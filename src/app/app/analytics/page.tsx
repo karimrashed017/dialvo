@@ -36,6 +36,8 @@ const PLAY_LABEL: Record<string, string> = {
   accounts: "Target accounts",
   lookalike: "Lookalike",
   signal: "Buying signals",
+  retargeting: "Retargeting website visitors",
+  intent: "Review-site intent",
 };
 
 const pct = (n: number, of: number) =>

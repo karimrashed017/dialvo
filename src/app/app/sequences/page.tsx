@@ -42,6 +42,8 @@ const PLAY_LABEL: Record<string, string> = {
   accounts: "Target accounts",
   lookalike: "Lookalike",
   signal: "Buying signals",
+  retargeting: "Retargeting website visitors",
+  intent: "Review-site intent",
 };
 
 /** Plays whose email is a single touch: they never get follow-ups. */

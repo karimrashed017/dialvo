@@ -66,7 +66,7 @@ Plain text, under ${EMAIL_TARGET_WORDS} words, in short paragraphs. The subject 
 ${UNTRUSTED}`;
 
 /** What each play's email is for. Our words; nothing in them comes from outside. */
-const PURPOSE: Record<Exclude<PlayKind, "takeout">, string> = {
+const PURPOSE: Record<Exclude<PlayKind, "takeout" | "intent">, string> = {
   speed_to_lead:
     "They have just contacted the business, through a form on its website or its website chat. Thank them briefly and answer what they asked if the Knowledge answers it; if it doesn't, say someone will come back to them on it. Ask one short question that moves things forward. If they want to talk or meet and a booking link is given, offer it once.",
   reactivation:
@@ -86,6 +86,8 @@ const PURPOSE: Record<Exclude<PlayKind, "takeout">, string> = {
     "They attended the event below. Thank them for coming, share the event link if one is given (for example the replay or the slides), and ask one short question about whether the topic is relevant to them now.",
   event_no_show:
     "They registered for the event below but didn't attend. Don't make them feel bad about it. Share the event link if one is given (the replay or the next date) and keep it short.",
+  retargeting:
+    "They are one of the business's leads and have recently been reading its website, including the pricing page (the <lead> material says which pages). NEVER say or hint that you know they visited, which pages they read, or that anyone is watching: write as if the timing is a coincidence. Write a brief, helpful note about what those pages cover, from the Knowledge only, and offer to answer questions or, if a booking link is given, to talk. No pressure and no invented offers or discounts.",
 };
 
 export function playSystem(context: PlayContext): Anthropic.TextBlockParam[] {
@@ -117,7 +119,7 @@ export function playSystem(context: PlayContext): Anthropic.TextBlockParam[] {
 }
 
 export function playUser(
-  play: Exclude<PlayKind, "takeout">,
+  play: Exclude<PlayKind, "takeout" | "intent">,
   lead: PlayLead,
   event: PlayEvent | null,
 ): string {
