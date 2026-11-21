@@ -31,8 +31,8 @@ export const PLAN_CARDS: Plan[] = [
     cta: "Start free",
     intro: "Includes",
     features: [
-      "Voice agent for inbound leads: speed to lead, qualification and booking",
-      `${fmt(PLANS.starter.calls)} AI calls a month`,
+      "Phone agent that answers your number: qualification and booking",
+      `${fmt(PLANS.starter.calls)} answered calls a month`,
       `Email agent that sends from your own inbox (${PLANS.starter.inboxes} inbox)`,
       "SMS follow-up with people who opted in",
       `${fmt(PLANS.starter.leadCredits)} lead credits a month for prospect data and research`,
@@ -53,8 +53,7 @@ export const PLAN_CARDS: Plan[] = [
     features: [
       "All channels: chat, social and WhatsApp agents as well",
       "AI closer for simple sales: payment links, bookings and agreements",
-      `${fmt(PLANS.pro.calls)} AI calls a month, with premium voices`,
-      `${PLANS.pro.dialerSeats} human dialer seats for your reps`,
+      `${fmt(PLANS.pro.calls)} answered calls a month, with premium voices`,
       `${PLANS.pro.inboxes} sending inboxes, with multi-channel sequences`,
       `${fmt(PLANS.pro.leadCredits)} lead credits a month`,
       "CRM sync: Salesforce, HubSpot, Pipedrive and Zoho",
@@ -74,9 +73,8 @@ export const PLAN_CARDS: Plan[] = [
     cta: "Start free",
     intro: "Everything in Pro, plus",
     features: [
-      `${fmt(PLANS.scale.calls)} AI calls a month, with premium voices`,
+      `${fmt(PLANS.scale.calls)} answered calls a month, with premium voices`,
       `${PLANS.scale.workspaces} workspaces: run separate clients or brands, each with its own agents, knowledge and reporting`,
-      `${PLANS.scale.dialerSeats} human dialer seats`,
       `${PLANS.scale.inboxes} sending inboxes, with deliverability monitoring across all of them`,
       `${fmt(PLANS.scale.leadCredits)} lead credits a month`,
       "Custom playbooks and scripts for each workspace",

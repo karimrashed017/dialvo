@@ -17,7 +17,7 @@ export const viewport = siteViewport;
 
 export const metadata: Metadata = pageMetadata({
   title: "Pricing · Dialvo, inbound and outbound sales run by AI agents",
-  description: `Dialvo is free for ${TRIAL.days} days. Then Starter at $${PLANS.starter.price} a month (voice, email and SMS agents for inbound leads), Pro at $${PLANS.pro.price} a month (inbound, outbound, closing and expansion on every channel, with human dialer seats and CRM sync) or Scale at $${PLANS.scale.price} a month (several workspaces and much higher limits). Cancel anytime.`,
+  description: `Dialvo is free for ${TRIAL.days} days. Then Starter at $${PLANS.starter.price} a month (voice, email and SMS agents for inbound leads), Pro at $${PLANS.pro.price} a month (inbound, outbound, closing and expansion on every channel, with CRM sync) or Scale at $${PLANS.scale.price} a month (several workspaces and much higher limits). Cancel anytime.`,
   path: "/pricing",
 });
 
@@ -28,25 +28,19 @@ const ROWS: { group: string; rows: [string, Cell, Cell, Cell][] }[] = [
   {
     group: "Channels",
     rows: [
-      ["Voice agent for inbound leads and callers", true, true, true],
+      ["Phone agent that answers your calls", true, true, true],
       ["Email agent, from your own inbox", true, true, true],
       ["SMS follow-up, with people who opted in", true, true, true],
       ["Website chat agent", false, true, true],
       ["Social agent", false, true, true],
       ["WhatsApp follow-up, with people who opted in", false, true, true],
-      [
-        "Human dialer for your reps",
-        false,
-        `${pro.dialerSeats} seats`,
-        `${scale.dialerSeats} seats`,
-      ],
     ],
   },
   {
     group: "Allowances",
     rows: [
       [
-        "AI calls a month",
+        "Answered calls a month",
         fmt(starter.calls),
         fmt(pro.calls),
         fmt(scale.calls),
@@ -77,7 +71,7 @@ const ROWS: { group: string; rows: [string, Cell, Cell, Cell][] }[] = [
     rows: [
       ["Inbound: speed to lead, qualification, scheduling", true, true, true],
       ["Outbound: research and personalised email", true, true, true],
-      ["Multi-channel sequences (email, social, rep calls)", false, true, true],
+      ["Multi-channel sequences (email, social, texts)", false, true, true],
       [
         "AI closer for simple sales: payment links, bookings and agreements",
         false,
@@ -186,10 +180,9 @@ export default function Pricing() {
             </Rise>
             <p className="mt-6 max-w-[760px] text-[13.5px] leading-[1.55] text-[#0B0B0C]/55">
               The free trial lasts {TRIAL.days} days. Add-ons on any plan: extra
-              AI calls, lead credits, sending inboxes and dialer seats. Need
-              more than Scale? Email us and we&apos;ll put a plan together.
-              Channels are switched on in stages: ask us what&apos;s ready for
-              your use case.
+              answered calls, lead credits and sending inboxes. Need more than
+              Scale? Email us and we&apos;ll put a plan together. Channels are
+              switched on in stages: ask us what&apos;s ready for your use case.
             </p>
           </div>
         </section>

@@ -14,14 +14,14 @@ import { card, GRAIN, muted, serif } from "./theme";
 
 // "Nothing happens out of sight": the four controls and the sample call. The player
 // under the four cards is a sample script (public/audio/demo-call.json) of an
-// inbound speed-to-lead call, labelled as an example, never a real
+// incoming call the phone agent answers, labelled as an example, never a real
 // customer's call.
 
 const CONTROLS = [
   {
     icon: Headphones,
     title: "Listen to every call",
-    body: "Each call is recorded and transcribed, with a short summary of what was asked, answered and agreed.",
+    body: "Each call is transcribed, with a short summary of what was asked, answered and agreed.",
   },
   {
     icon: MessagesSquare,

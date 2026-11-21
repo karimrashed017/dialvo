@@ -1,8 +1,9 @@
 import type { PlaySlug } from "./catalog";
 import type { PlayContent } from "./types";
 
-// The expansion plays. Voice calls here go to customers and users who opted
-// in to them. People and businesses in the sample panels are made up.
+// The expansion plays. Dialvo never makes outbound calls: these run on email,
+// chat and (with consent) texts. People and businesses in the sample panels
+// are made up.
 
 export const EXPANSION_PLAYS = {
   "customer-expansion": {
@@ -30,7 +31,7 @@ export const EXPANSION_PLAYS = {
       },
       {
         title: "Start the conversation",
-        body: "Customers who opted in get a call from the voice agent. Others get an email or message from their account owner.",
+        body: "Each customer gets an email from their account owner, or a text or WhatsApp if they opted in. Dialvo never calls them.",
       },
       {
         title: "Qualify the interest",
@@ -47,14 +48,14 @@ export const EXPANSION_PLAYS = {
     ],
     visual: {
       kind: "thread",
-      title: "Voice call · transcript",
-      note: "customer opted in to calls",
+      title: "Email thread",
+      note: "from the account owner's inbox",
       messages: [
         {
           agent: true,
-          text: "Hi Marcus, it's Northwind, and this call is recorded. Your team has used every seat on the plan since the Leith site opened. Do you have two minutes?",
+          text: "Hi Marcus, it's Northwind. Your team has used every seat on the plan since the Leith site opened. Is that getting in the way?",
         },
-        { text: "Sure. We've been sharing logins, to be honest." },
+        { text: "A bit. We've been sharing logins, to be honest." },
         {
           agent: true,
           text: "That's common at this point. How many people need their own access across the two sites?",
@@ -62,18 +63,18 @@ export const EXPANSION_PLAYS = {
         { text: "Probably eight more." },
         {
           agent: true,
-          text: "Thanks. Priya can walk you through the options for eight more seats. She's free tomorrow at 11:00. Shall I book it?",
+          text: "Thanks. Priya can walk you through the options for eight more seats. She's free tomorrow at 11:00. Shall I put it in?",
         },
       ],
-      foot: "Sample transcript with a made-up business.",
+      foot: "Sample thread with a made-up business.",
     },
-    channels: ["voice", "email", "messages"],
+    channels: ["email", "messages"],
     features: ["crm-integration", "api", "knowledge-base", "analytics"],
     setup: [
       "Connect your CRM and send usage events through the API.",
       "Define the triggers: seat usage, limits reached, days to renewal.",
       "Add plans, pricing and upgrade paths to the knowledge base.",
-      "Record which customers have opted in to calls and texts.",
+      "Record which customers have opted in to texts.",
     ],
     faqs: [
       {
@@ -81,12 +82,12 @@ export const EXPANSION_PLAYS = {
         a: "It can confirm what the customer wants and send your upgrade link or pass the request to your team. Changes to billing stay with you and the customer.",
       },
       {
-        q: "Who does the AI call?",
-        a: "Only existing customers who agreed to receive calls. Everyone else is contacted by email or message from their account owner, and can opt out of those too.",
+        q: "Does the AI call customers?",
+        a: "No. Dialvo never makes outbound calls. Customers hear from their account owner by email, or by text if they agreed to it, and can opt out of those too.",
       },
       {
         q: "Will this step on our account managers' toes?",
-        a: "You choose which accounts the play covers. Most teams keep named accounts with their managers and let Dialvo cover the long tail nobody was calling.",
+        a: "You choose which accounts the play covers. Most teams keep named accounts with their managers and let Dialvo cover the long tail nobody was reaching.",
       },
       {
         q: "Does it help with renewals?",
@@ -129,7 +130,7 @@ export const EXPANSION_PLAYS = {
       },
       {
         title: "Use the channel they chose",
-        body: "Email and in-app chat by default. Users who opted in to calls can get one from the voice agent when they stall before first value.",
+        body: "Email and in-app chat by default, and a text for users who opted in, when they stall before first value. Dialvo never calls them.",
       },
       {
         title: "Route the ready ones",
@@ -166,7 +167,7 @@ export const EXPANSION_PLAYS = {
       ],
       foot: "Sample accounts. All made up.",
     },
-    channels: ["email", "chat", "voice", "messages"],
+    channels: ["email", "chat", "messages"],
     features: [
       "api",
       "lead-qualification",
@@ -182,7 +183,7 @@ export const EXPANSION_PLAYS = {
     faqs: [
       {
         q: "Self-serve users don't want a sales call. Won't this put them off?",
-        a: "That's why the default is a helpful written message tied to what they were doing. A rep only gets involved when the user asks, and calls only go to users who opted in.",
+        a: "That's why the default is a helpful written message tied to what they were doing. A rep only gets involved when the user asks, and Dialvo never calls them.",
       },
       {
         q: "What usage data does Dialvo need?",

@@ -182,7 +182,7 @@ const JOBS: {
   {
     id: "outbound",
     title: "Outbound: new business, found and opened for you.",
-    body: "Dialvo builds lists of companies that fit you, researches each one and writes to every person for a reason. Cold email goes from your own inboxes, LinkedIn messages from your reps' own profiles, and your reps get a call list with the research ready. Replies are handled and meetings booked.",
+    body: "Dialvo builds lists of companies that fit you, researches each one and writes to every person for a reason. Cold email goes from your own inboxes, and LinkedIn messages from your reps' own profiles. Replies are handled and meetings booked.",
     tags: [
       { label: "Lead generation", href: playHref("outbound-lead-generation") },
       {
@@ -221,8 +221,8 @@ const JOBS: {
         },
         {
           name: "Maya Chen · Cedar Lane Fitness",
-          detail: "Opened twice · brief and opening line ready",
-          tag: "On Priya's call list",
+          detail: "Opened twice · follow-up drafted",
+          tag: "Follow-up due",
         },
       ],
       foot: "Sample data. Every person and business here is made up.",
@@ -424,7 +424,7 @@ export function Jobs() {
 // --- What it replaces ---------------------------------------------------------------
 
 const PILE: { icon: LucideIcon; name: string }[] = [
-  { icon: PhoneCall, name: "A dialer" },
+  { icon: PhoneCall, name: "An answering service" },
   { icon: Mail, name: "An email sequencer" },
   { icon: MessageCircle, name: "A chat widget" },
   { icon: Database, name: "A lead database" },
@@ -451,7 +451,7 @@ export function Replaces() {
     <section id="replaces" className="scroll-mt-20 px-5 py-24 sm:py-32">
       <Head
         title="One team instead of five tools and a hire."
-        lead="A dialer, an email sequencer, a chat widget, a lead database and someone to run them all. Dialvo is one system with one inbox, at a price you can decide on today."
+        lead="An answering service, an email sequencer, a chat widget, a lead database and someone to run them all. Dialvo is one system with one inbox, at a price you can decide on today."
       />
       <div className="mx-auto mt-12 grid max-w-[1180px] items-stretch gap-3 lg:grid-cols-[1.25fr_auto_1fr]">
         <Rise className="flex items-center rounded-[28px] border border-dashed border-black/20 p-5 sm:p-7">
@@ -529,18 +529,18 @@ export function Replaces() {
 const RULES: { icon: LucideIcon; title: string; body: string }[] = [
   {
     icon: PhoneIncoming,
-    title: "Voice agents call people who asked",
-    body: "AI calls go to people who asked to hear from you or opted in: form leads, callers and your own customers.",
+    title: "Answers calls, never makes them",
+    body: "The phone agent only answers calls people make to your number. Dialvo never makes outbound calls.",
   },
   {
     icon: Mic,
     title: "Recorded, with notice",
-    body: "Calls are recorded and transcribed, and the person on the line is told so at the start.",
+    body: "Calls are transcribed, and recorded only if you switch it on. The caller is told so at the start.",
   },
   {
     icon: PhoneOff,
     title: "Opt-outs and Do Not Call",
-    body: "Anyone who says stop is removed straight away, and Do Not Call lists are checked before a number is dialled.",
+    body: "Anyone who says stop is removed straight away, on every channel, and is never texted again.",
   },
   {
     icon: MailX,
@@ -632,8 +632,8 @@ export function Compliance() {
       />
       <Head
         center
-        title="Your name is on every call. We protect it."
-        lead="Voice agents call only people who asked or agreed. Calls are recorded with notice. Opt-outs and Do Not Call lists are honoured automatically. Every email has an unsubscribe link. Payments go through a secure link, never read out over a call."
+        title="Your name is on every message. We protect it."
+        lead="The phone agent answers calls and never makes them. Callers are told the call is transcribed. Opt-outs and Do Not Call lists are honoured automatically. Every email has an unsubscribe link. Payments go through a secure link, never read out over a call."
       />
       <Rise delay={0.15}>
         <Shield />

@@ -11,7 +11,7 @@ names or numbers, and the site never names them.
 
 A team of AI sales agents, not a single tool and not a cold caller:
 
-- **Every channel:** voice, email, chat, social, SMS and WhatsApp, plus a dialer
+- **Every channel:** an inbound phone agent, email, chat, social, SMS and WhatsApp
   for human reps.
 - **Three motions:** inbound (capture demand), outbound (create demand),
   expansion (grow existing customers).
@@ -20,9 +20,9 @@ A team of AI sales agents, not a single tool and not a cold caller:
 - **Reps keep the deals:** agents do the first contact, research, qualification
   and booking; people close.
 
-Important detail we keep: **AI voice is for inbound leads and existing
-customers who opted in.** Cold outbound is email and social; cold calls are
-made by human reps using the dialer, with the research on screen.
+Important detail we keep: **Dialvo never makes outbound calls of any kind**
+(founder, 21 Nov 2026, because of the legal risk). The phone agent only
+answers calls. Cold outbound is email and social. There is no dialer.
 
 ## 2. Channels (the tabbed section)
 
@@ -33,7 +33,6 @@ made by human reps using the dialer, with the research on screen.
 | Chat           | Answers website visitors instantly and qualifies them without a form                                                                                                                                               | A chat thread                     |
 | Social         | Starts and continues conversations on professional social networks                                                                                                                                                 | A DM thread with a profile header |
 | SMS & WhatsApp | Follows up where a call won't land                                                                                                                                                                                 | A message thread                  |
-| Human dialer   | Gives reps a prioritised call list with research and context before they dial                                                                                                                                      | A dialer with research            |
 
 ## 3. Inbound
 
@@ -83,7 +82,7 @@ made by human reps using the dialer, with the research on screen.
   sends.
 - **Playbooks:** ready-made plays, each with its own audience and research
   logic; several can run at once; results per play.
-- **Power dialer for reps:** who to call, why now, what to say.
+- **Power dialer for reps:** not offered. Dialvo makes no outbound calls (founder, 21 Nov 2026).
 - **Automatic opt-outs:** unsubscribes honoured at once and written to the CRM.
 
 ## 5. Expansion
@@ -112,7 +111,7 @@ conversion · competitor switch campaigns.
 | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Data and lead generation     | Live company and contact database; live web search prospecting; lead qualification; website visitor tracking                                                                                                                                                                                                                        |
 | Research and messaging       | Deep research; AI personalisation; playbooks; knowledge base (docs, URLs, call transcripts, battle cards; per campaign; per language; versions)                                                                                                                                                                                     |
-| Outreach and workflows       | Multi-channel sequences; sequence builder; smart replies; multilingual outreach (about 100 languages); consented outbound calling; event plays                                                                                                                                                                                      |
+| Outreach and workflows       | Multi-channel sequences; sequence builder; smart replies; multilingual outreach (about 100 languages); event plays                                                                                                                                                                                                                  |
 | Inbound handling             | AI phone agent; inbound qualification; lead routing                                                                                                                                                                                                                                                                                 |
 | Analytics and deliverability | One dashboard (replies, positive replies, meetings, calls, outcomes per conversation, per play and region); email deliverability (authenticated domains, warm-up, mailbox rotation, placement checks); call deliverability (number warm-up, rotation, spam-flag monitoring, local numbers, branded caller ID, Do Not Call handling) |
 | Integrations                 | Two-way CRM sync (Salesforce, HubSpot, Pipedrive, Zoho); Gmail, Outlook, Google Calendar; Slack alerts by channel and threaded by account; review-site intent; one API with webhooks and structured output                                                                                                                          |
@@ -163,8 +162,9 @@ conversion · competitor switch campaigns.
   integration: it is described as buyer-intent signals from software review
   sites, and says the customer brings their own intent data.
 - **No Customers, Blog, Solutions or Company menus.** We have no such pages.
-- **Cold calls:** their copy lists phone in some outbound sequences. Ours never
-  has the AI call a cold prospect; reps do that with the dialer.
+- **Calls:** their copy lists phone in some outbound sequences. Dialvo never
+  makes outbound calls at all (founder, 21 Nov 2026); its phone agent only
+  answers.
 - **Website visitor tracking:** they describe resolving visits to named
   people. We say companies, and people only when already known to us.
 - **Upgrades on the call:** they describe completing simple upgrades in the
@@ -240,7 +240,6 @@ original and lives in `src/lib/content/`.
 | Sequence builder                          | Steps, timing, channels, fallbacks; agents execute; channel-native messages                              | `/platform/sequence-builder`                                       |
 | Smart replies                             | Instant handling; intent classification; hot leads booked with context                                   | `/platform/smart-replies`                                          |
 | Multi-lingual outreach                    | Written natively; same research depth; new markets by configuration                                      | `/platform/multilingual-outreach`                                  |
-| Consented outbound calling                | Calls to opted-in existing customers; account-aware; whole-base coverage                                 | `/platform/consented-outbound-calling`                             |
 | Deep analytics                            | One source of truth; all three motions; CRM-linked attribution                                           | `/platform/analytics`                                              |
 | AI deliverability and mailbox health      | Domain setup, warm-up, rotation, monitoring; volume scaling; health view                                 | `/platform/deliverability-and-mailbox-health`                      |
 | Call deliverability and number management | Number warm-up; spam-flag monitoring; pools that grow with volume                                        | `/platform/call-deliverability-and-number-management`              |
@@ -248,7 +247,7 @@ original and lives in `src/lib/content/`.
 | AI personalization                        | Research-based messages; same depth at any list size; per persona                                        | `/platform/ai-personalisation`                                     |
 | Playbooks                                 | Pre-built plays with research logic; fast launch; runs unattended                                        | `/platform/playbooks`                                              |
 | Knowledge base                            | Positioning everywhere; scoped per campaign; instant updates                                             | `/platform/knowledge-base`                                         |
-| AI phone agent                            | Answers and calls back; real conversation; knowledge-base grounding and accuracy checks                  | `/platform/ai-phone-agent`                                         |
+| AI phone agent                            | Answers calls (never makes them); real conversation; knowledge-base grounding and accuracy checks        | `/platform/ai-phone-agent`                                         |
 | Inbound lead qualification                | Own criteria in order; automated accuracy checks; outcomes beyond yes or no                              | `/platform/inbound-lead-qualification`                             |
 | Intelligent lead routing                  | Routed in the conversation; context travels; rules easy to change; own or existing router                | `/platform/intelligent-lead-routing`                               |
 | CRM integration                           | Automatic logging; triggers from CRM events; read and write permissions                                  | `/platform/crm-integration`                                        |
@@ -377,7 +376,7 @@ or "Being built"). Details and what was tested: `docs/app-setup.md`, "Plays".
 | Being built | Retargeting website visitors (no visitor-identification provider)                                                                                                                                                                                             | Website visitor tracking, consented outbound calling, call deliverability, AI phone agent (no phone provider), Slack integration, review-site intent                                                                                                                                                                                                                                    |
 | Status      | Plays                                                                                                                                                                                                                                                         | Platform features                                                                                                                                                                                                                                                                                                                                                                       |
 | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------                                      | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Live        | Speed to lead, outbound lead generation, lead nurture (email plus text, LinkedIn and call steps), lead reactivation, closed lost, event registration, event follow-up, event no-show, customer expansion, PLG conversion                                      | Company and lead database, live web search, lead qualification, smart replies, analytics, deep research, AI personalisation, knowledge base, inbound lead qualification, CRM integration, AI phone agent, consented outbound calling, call deliverability and number management, multi-channel sequences (needs Twilio's keys for calls and texts; LinkedIn steps are sent by a person) |
+| Live        | Speed to lead, outbound lead generation, lead nurture (email plus text and LinkedIn steps), lead reactivation, closed lost, event registration, event follow-up, event no-show, customer expansion, PLG conversion                                            | Company and lead database, live web search, lead qualification, smart replies, analytics, deep research, AI personalisation, knowledge base, inbound lead qualification, CRM integration, AI phone agent, consented outbound calling, call deliverability and number management, multi-channel sequences (needs Twilio's keys for calls and texts; LinkedIn steps are sent by a person) |
 | Partly live | Automated meeting scheduling (email replies only), customer onboarding (check-in emails only), competitive takeout (needs the contact database)                                                                                                               | Sequence builder (email, up to two follow-ups), multilingual outreach, deliverability, playbooks, intelligent lead routing, API (product events only)                                                                                                                                                                                                                                   |
 | Being built | Retargeting website visitors (no visitor-identification provider)                                                                                                                                                                                             | Website visitor tracking, Slack integration, review-site intent                                                                                                                                                                                                                                                                                                                         |
 
@@ -400,3 +399,15 @@ isn't offered, tracking is off until the customer switches it on and waits
 for consent by default, and no email says the person visited or was seen on
 a review site. Details: `docs/app-setup.md`, "Slack, the public API and
 webhooks".
+
+## 17. No outbound calls (21 Nov 2026)
+
+Founder decision: Dialvo makes no outbound calls of any kind, because of the
+legal risk. The AI phone agent only answers calls to a workspace's number.
+Removed: the consented outbound calling feature and its platform page (it
+redirects to the AI phone agent), the app's Outbound calls tab and call
+batches, call-task steps in sequences, per-number call caps and spam-label
+health, and the human dialer from the site and the plans. The database
+refuses outbound calls too (`20261121012511_no_outbound_calls`). Texts stay,
+to people who agreed to them only. The 11x column above still lists their
+power dialer and phone steps; we deliberately don't offer them.

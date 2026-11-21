@@ -23,10 +23,11 @@ export default function Privacy() {
       </p>
       <h2>Calls and messages</h2>
       <p>
-        Once Dialvo makes calls and sends messages for you, it records and
-        transcribes calls and keeps the messages, so you can review them. Every
-        call says that it&apos;s recorded. We keep a log of opt-outs so nobody
-        who asked to stop is contacted again.
+        Once Dialvo answers calls and sends messages for you, it transcribes the
+        calls (and records them, if you switch recording on) and keeps the
+        messages, so you can review them. Every call says that it&apos;s
+        transcribed. Dialvo never makes outbound calls. We keep a log of
+        opt-outs so nobody who asked to stop is contacted again.
       </p>
       <h2>The live voice demo</h2>
       <p>

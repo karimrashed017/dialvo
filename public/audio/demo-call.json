@@ -2,12 +2,12 @@
   {
     "t": 0,
     "speaker": "Dialvo",
-    "text": "Hi, is this Lena? It's Northwind Agency, and this call is recorded. You asked about a new website on our site a minute ago. Is now a good time?"
+    "text": "Thanks for calling Northwind Agency. This call is transcribed so the team can follow up. How can I help?"
   },
   {
     "t": 10,
     "speaker": "Lead",
-    "text": "Wow, that was quick. Sure, go ahead."
+    "text": "Hi, it's Lena from Bright Smile Dental. We need a new website, with online booking."
   },
   {
     "t": 13.5,

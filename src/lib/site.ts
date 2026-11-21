@@ -32,7 +32,6 @@ export const PLANS = {
     calls: 3000,
     leadCredits: 1500,
     inboxes: 3,
-    dialerSeats: 3,
   },
   // Founder, 19 Nov 2026: a larger third plan, for agencies and bigger teams.
   scale: {
@@ -41,7 +40,6 @@ export const PLANS = {
     calls: 10000,
     leadCredits: 6000,
     inboxes: 10,
-    dialerSeats: 10,
     workspaces: 5,
   },
 } as const;

@@ -1,22 +1,21 @@
 # Dialvo
 
-> Dialvo runs inbound and outbound sales with AI agents. They answer every lead within a minute, go out to find new business, follow up on every channel (voice, email, chat, social, SMS and WhatsApp), book the meetings, close simple sales and grow existing customers with onboarding, renewals and upgrades. Bigger or more complex deals go to your team, and your reps get a human dialer.
+> Dialvo runs inbound and outbound sales with AI agents. They answer every lead within a minute, go out to find new business, answer your phone, follow up on email, chat, social, SMS and WhatsApp, book the meetings, close simple sales and grow existing customers with onboarding, renewals and upgrades. Bigger or more complex deals go to your team. Dialvo never makes outbound calls.
 
 Dialvo is open for sign-up at https://trydialvo.com/signup. The website chat agent is live today; the other channels are being switched on in stages. Website: https://trydialvo.com. Contact: contact@trydialvo.com.
 
 ## Channels
 
-- Voice: AI voice agents answer and call back people who asked to hear from you (form leads, callers, existing customers who opted in), qualify them, book meetings and transfer live calls to a person. Scenarios include receptionist, speed to lead and upsell, with a choice of voice styles.
+- Voice: an AI phone agent answers calls to your business number, day and night, qualifies callers, books meetings and transfers live calls to a person. It only answers: Dialvo never makes outbound calls. The live demo includes a receptionist, a new enquiry and a customer line, with a choice of voice styles.
 - Email: agents research each account and write one message for one person, sent from your own Gmail or Outlook inbox, and handle the replies.
 - Chat: a website chat agent that answers visitors straight away and qualifies them without a form.
 - Social: agents start and continue conversations on professional networks from your reps' own profiles.
 - SMS and WhatsApp: follow-up by message with people who opted in.
-- Human dialer: a call list for your reps, with the research brief and opening line on screen. Reps make the calls.
 
 ## Four motions
 
 - [Inbound](https://trydialvo.com/inbound): speed to lead within seconds, qualification against your criteria, lead routing, meeting scheduling, follow-up across channels.
-- [Outbound](https://trydialvo.com/outbound): prospect data, live signals (funding, hiring, job changes, new tools, site visits, review-site research), deep research, personalised multi-channel sequences, reply handling and the human dialer. Cold email is sent from the customer's own inboxes and domains, with authentication, gradual warm-up, daily limits, sender details and an unsubscribe link. LinkedIn messages are drafted by the agent and sent from the rep's own profile after the rep approves them. Calls to cold prospects are placed by human reps through the dialer, never by the AI.
+- [Outbound](https://trydialvo.com/outbound): prospect data, live signals (funding, hiring, job changes, new tools, site visits, review-site research), deep research, personalised multi-channel sequences and reply handling. Cold email is sent from the customer's own inboxes and domains, with authentication, gradual warm-up, daily limits, sender details and an unsubscribe link. LinkedIn messages are drafted by the agent and sent from the rep's own profile after the rep approves them. Dialvo never makes calls to prospects.
 - [Closing](https://trydialvo.com/closing): simple sales with a clear price, finished in the conversation. The agent recognises a clear yes, confirms the offer and price from your knowledge base, answers the last questions, and sends a secure payment link, a booking or an agreement to sign, then logs the sale and hands off. You set which offers it may close, the price limits and the discount rules. Complex, negotiated or high-value deals always go to your team. The agent never takes or reads out card details and never invents prices or terms. Works on voice, chat, SMS, WhatsApp and email replies.
 - [Expansion](https://trydialvo.com/expansion): upsell, cross-sell, renewal check-ins and onboarding with existing customers who opted in.
 
@@ -26,7 +25,7 @@ All plays: [https://trydialvo.com/plays](https://trydialvo.com/plays). Each play
 
 ### Inbound plays
 
-- [Speed to lead](https://trydialvo.com/plays/speed-to-lead): Every form fill gets a call or a chat reply within seconds, at any hour.
+- [Speed to lead](https://trydialvo.com/plays/speed-to-lead): Every form fill gets an email or chat reply within seconds, at any hour.
 - [Automated meeting scheduling](https://trydialvo.com/plays/automated-meeting-scheduling): Meetings booked on the right rep's calendar during the first conversation.
 - [Customer onboarding operations](https://trydialvo.com/plays/customer-onboarding-operations): A live onboarding conversation for every new customer, not only the big ones.
 
@@ -60,17 +59,16 @@ Overview: [https://trydialvo.com/platform](https://trydialvo.com/platform). Gove
 
 ### Outreach and workflows
 
-- [Multi-channel sequences](https://trydialvo.com/platform/multi-channel-sequences): Email, LinkedIn, texts and rep calls as one conversation that remembers.
+- [Multi-channel sequences](https://trydialvo.com/platform/multi-channel-sequences): Email, LinkedIn and texts as one conversation that remembers.
 - [Sequence builder](https://trydialvo.com/platform/sequence-builder): Steps, timing, channels and branches in one place, with limits you set.
 - [Smart replies](https://trydialvo.com/platform/smart-replies): Replies sorted and answered within minutes; meetings booked; opt-outs honoured.
 - [Multilingual outreach](https://trydialvo.com/platform/multilingual-outreach): Agents write and speak in your buyer's language, from knowledge you add per market.
-- [Consented outbound calling](https://trydialvo.com/platform/consented-outbound-calling): AI voice calls to customers and leads who said yes to them. Nobody else.
 
 ### Analytics and deliverability
 
 - [Analytics](https://trydialvo.com/platform/analytics): Conversations, replies, qualified leads and meetings by channel and by play.
 - [Deliverability and mailbox health](https://trydialvo.com/platform/deliverability-and-mailbox-health): Authenticated domains, gradual warm-up, daily limits and rotation for your inboxes.
-- [Call deliverability and number management](https://trydialvo.com/platform/call-deliverability-and-number-management): Numbers warmed, monitored and rotated so your calls show up as you.
+- [Phone number management](https://trydialvo.com/platform/call-deliverability-and-number-management): Local business numbers your phone agent answers, day and night.
 
 ### Research and messaging
 
@@ -81,7 +79,7 @@ Overview: [https://trydialvo.com/platform](https://trydialvo.com/platform). Gove
 
 ### Inbound handling
 
-- [AI phone agent](https://trydialvo.com/platform/ai-phone-agent): Answers your line and calls form leads back, qualifies, books and transfers.
+- [AI phone agent](https://trydialvo.com/platform/ai-phone-agent): Answers your line day and night, qualifies, books and transfers.
 - [Inbound lead qualification](https://trydialvo.com/platform/inbound-lead-qualification): Your qualifying questions asked in the first conversation, with the answers recorded.
 - [Intelligent lead routing](https://trydialvo.com/platform/intelligent-lead-routing): Territory, owner, seniority or round robin, applied while the lead is still talking.
 
@@ -98,14 +96,14 @@ You can listen to every call, read every message, require approval before anythi
 
 ## Trust and compliance
 
-AI voice agents call people who asked to hear from you or opted in; Dialvo's AI does not cold call. Calls are recorded and transcribed, and the person is told. Opt-outs and Do Not Call lists are honoured automatically, and every email has an unsubscribe link. SMS and WhatsApp go only to people who agreed. Payments go through a secure link; card numbers are never asked for or read out over a call.
+Dialvo never makes outbound calls: its phone agent only answers calls people make to you. Calls are transcribed, and the caller is told. Opt-outs and Do Not Call lists are honoured automatically, and every email has an unsubscribe link. SMS and WhatsApp go only to people who agreed. Payments go through a secure link; card numbers are never asked for or read out over a call.
 ## Pricing
 
 - Free trial: 7 days.
-- Starter: $99 a month. Inbound: every lead answered, qualified and booked. Voice agent for inbound leads, email agent from your own inbox, SMS follow-up, 1,000 AI calls and 500 lead credits a month.
-- Pro: $299 a month. Inbound, outbound, closing and expansion. Every channel including chat, social and WhatsApp, the AI closer for simple sales (payment links, bookings and agreements), human dialer seats, CRM sync, premium voices, 3,000 AI calls and 1,500 lead credits a month.
-- Scale: $799 a month. For agencies and several brands. Everything in Pro (the AI closer included) with 10,000 AI calls, 6,000 lead credits, 10 sending inboxes, 10 dialer seats and 5 workspaces for separate clients or brands, plus priority support and hands-on setup.
-- Add-ons: extra AI calls, lead credits, inboxes and dialer seats. Cancel anytime, no contract.
+- Starter: $99 a month. Inbound: every lead answered, qualified and booked. Phone agent that answers your calls, email agent from your own inbox, SMS follow-up, 1,000 answered calls and 500 lead credits a month.
+- Pro: $299 a month. Inbound, outbound, closing and expansion. Every channel including chat, social and WhatsApp, the AI closer for simple sales (payment links, bookings and agreements), CRM sync, premium voices, 3,000 answered calls and 1,500 lead credits a month.
+- Scale: $799 a month. For agencies and several brands. Everything in Pro (the AI closer included) with 10,000 answered calls, 6,000 lead credits, 10 sending inboxes and 5 workspaces for separate clients or brands, plus priority support and hands-on setup.
+- Add-ons: extra answered calls, lead credits and inboxes. Cancel anytime, no contract.
 
 ## Key pages
 

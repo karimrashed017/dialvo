@@ -54,9 +54,9 @@ export function Hero() {
         <Rise delay={0.6}>
           <p className="mx-auto mt-6 max-w-[680px] text-[17px] leading-[1.55] text-balance text-[#0B0B0C]/70 sm:text-[18px]">
             Dialvo answers every lead within a minute, goes out to find new ones
-            and grows the customers you already have. Its agents call, email,
-            message and follow up on every channel, book the meetings, close the
-            simple sales and hand your team the big ones.
+            and grows the customers you already have. Its agents answer calls,
+            email, message and follow up on every channel, book the meetings,
+            close the simple sales and hand your team the big ones.
           </p>
         </Rise>
         <Rise delay={0.8} className="mt-9">

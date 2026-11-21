@@ -31,7 +31,7 @@ try {
   const res = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json", Origin: site },
-    body: JSON.stringify({ scenario: "speed-to-lead", voice: "warm" }),
+    body: JSON.stringify({ scenario: "new-enquiry", voice: "warm" }),
   });
   const body = await res.json().catch(() => ({}));
   console.log(`POST ${url} -> ${res.status}`);

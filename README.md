@@ -1,10 +1,10 @@
 # Dialvo
 
 The marketing site and the signed-in app (slice 1, see "The app" below) for Dialvo: inbound and outbound sales, run by AI agents.
-They answer every lead within a minute, go out to find new business, follow up
-on every channel (voice, email, chat, social, SMS and WhatsApp), book the
-meetings and close simple sales; bigger deals go to the customer's team, and
-reps get a human dialer. Next.js 16 (App Router, Cache Components), Tailwind CSS 4. Open for sign-up:
+They answer every lead within a minute, go out to find new business, answer
+the phone, follow up on email, chat, social, SMS and WhatsApp, book the
+meetings and close simple sales; bigger deals go to the customer's team.
+Dialvo never makes outbound calls (founder, 21 Nov 2026). Next.js 16 (App Router, Cache Components), Tailwind CSS 4. Open for sign-up:
 every "Start free" button opens /signup (the old /waitlist address redirects there). Earlier waitlist sign-ups remain as private files in the Vercel Blob store "dialvo-waitlist".
 
 ## Run it
@@ -152,9 +152,9 @@ settings and the manual test checklist.**
   proves one workspace can't read or write another's rows.
 - **Calls, numbers, texts and multi-channel steps** (`/app/calls`,
   `/app/sequences/channels`, `src/lib/phone`, `src/lib/channels`): the AI
-  phone agent and consented outbound calls on Twilio, number buying and
-  health, SMS with STOP handling, and LinkedIn (done by a person), text and
-  call steps that stop on a reply anywhere. See `docs/app-setup.md`, "Calls".
+  phone agent on Twilio (inbound only: Dialvo never makes outbound calls),
+  number buying, SMS with STOP handling, and LinkedIn (done by a person) and
+  text steps that stop on a reply anywhere. See `docs/app-setup.md`, "Calls".
 - **Design preview:** `DIALVO_DEV_FIXTURES=1 npm run dev` draws the shell
   with made-up data and no database. Development only; it is compiled out of
   production builds (`scripts/check-no-preview-data.mjs`).
@@ -175,8 +175,9 @@ settings and the manual test checklist.**
   Payments go through a secure link; the agent never takes card details.
 - No certifications are claimed.
 - Sign-up is open. Channels are switched on in stages, and the FAQ says plainly which are live; individual features aren't tagged.
-- AI voice calls go only to people who asked or opted in. Cold calls are made
-  by reps with the dialer.
+- Dialvo never makes outbound calls of any kind (founder, 21 Nov 2026,
+  because of the legal risk): the phone agent only answers calls. There is
+  no dialer.
 - The site makes no claim about how the agent introduces itself (founder,
   19 Nov 2026). It must also never say or imply that the agent is a person, or
   that people can't tell. The live agent's own rules and opening lines are in

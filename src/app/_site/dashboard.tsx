@@ -50,7 +50,7 @@ const EVENTS: Event[] = [
   {
     icon: Phone,
     channel: "Voice",
-    what: "Called back a form lead and qualified them",
+    what: "Answered a call from a new lead and qualified them",
     who: "Bright Smile Dental",
   },
   {

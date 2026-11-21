@@ -12,7 +12,7 @@ export const PLATFORM_PAGE = {
     "Dialvo's agents are only as good as what they know and the rules they follow. The platform is that shared ground: who to talk to, what to say, how to send it, where to log it and how to tell whether it worked. Twenty-three features in six groups, each with its own page.",
   context: {
     title: "Every agent works from the same picture",
-    lead: "The voice agent, the email agent and your rep on the dialer all see the same account, so nobody asks a question twice or contradicts the last conversation.",
+    lead: "The phone agent, the email agent and your reps all see the same account, so nobody asks a question twice or contradicts the last conversation.",
     items: [
       {
         title: "Your CRM",
@@ -62,7 +62,7 @@ export const PLATFORM_PAGE = {
       },
       {
         title: "Consent enforced",
-        body: "AI calls, SMS and WhatsApp only go to people with a recorded opt-in. Opt-outs apply everywhere at once.",
+        body: "Dialvo never makes outbound calls. SMS and WhatsApp only go to people with a recorded opt-in. Opt-outs apply everywhere at once.",
       },
       {
         title: "Automatic checks",
@@ -77,7 +77,7 @@ export const PLATFORM_PAGE = {
     },
     {
       q: "Which features are on which plan?",
-      a: "Starter covers the voice agent for inbound leads, email from one inbox, SMS follow-up, the knowledge base and smart replies. Pro adds chat, LinkedIn and WhatsApp, the human dialer, CRM sync, routing rules, Slack and the API. The pricing page has the full comparison.",
+      a: "Starter covers the phone agent that answers your calls, email from one inbox, SMS follow-up, the knowledge base and smart replies. Pro adds chat, LinkedIn and WhatsApp, CRM sync, routing rules, Slack and the API. The pricing page has the full comparison.",
     },
     {
       q: "Is everything available today?",

@@ -11,9 +11,7 @@ import {
   MessageSquareText,
   Mic,
   Phone,
-  PhoneCall,
   Share2,
-  SkipForward,
   Sparkles,
   type LucideIcon,
 } from "lucide-react";
@@ -25,7 +23,7 @@ import { Rise, Words } from "./motion";
 import { GRAIN, muted, serif } from "./theme";
 import { PanelBar } from "./voice-parts";
 
-// The channels section: six tabs, one per channel, each with a line about
+// The channels section: five tabs, one per channel, each with a line about
 // what the agent does there and a product panel beside it. The tabs move on
 // by themselves, slowly, and stop while someone is reading or clicking.
 // Every person and business in the panels is made up, and each panel is
@@ -33,14 +31,14 @@ import { PanelBar } from "./voice-parts";
 // demo on the page sits in the section above (voice-section.tsx), and the
 // Voice panel links up to it.
 
-type TabId = "voice" | "email" | "chat" | "social" | "messages" | "dialer";
+type TabId = "voice" | "email" | "chat" | "social" | "messages";
 
 const TABS: { id: TabId; label: string; icon: LucideIcon; line: string }[] = [
   {
     id: "voice",
     label: "Voice",
     icon: Phone,
-    line: "Voice agents answer and call back the people who asked to hear from you, qualify them on the call, book the meeting and grow existing accounts.",
+    line: "The phone agent answers every call to your number straight away, day or night, qualifies the caller, books the meeting or puts them through to you.",
   },
   {
     id: "email",
@@ -64,13 +62,7 @@ const TABS: { id: TabId; label: string; icon: LucideIcon; line: string }[] = [
     id: "messages",
     label: "SMS & WhatsApp",
     icon: MessageSquareText,
-    line: "Messaging agents follow up by text and WhatsApp when a call doesn't land, with people who opted in.",
-  },
-  {
-    id: "dialer",
-    label: "Human dialer",
-    icon: PhoneCall,
-    line: "When a rep makes the call, the dialer lines up who to ring next, with the research and the opening line on screen.",
+    line: "Messaging agents follow up by text and WhatsApp, only with people who opted in.",
   },
 ];
 
@@ -222,7 +214,6 @@ export function Channels() {
               {active === "chat" && <ChatPanel />}
               {active === "social" && <SocialPanel />}
               {active === "messages" && <MessagesPanel />}
-              {active === "dialer" && <DialerPanel />}
             </div>
           </div>
         </Rise>
@@ -292,9 +283,9 @@ function Bubbles({
 const CALL: Msg[] = [
   {
     me: true,
-    text: "Hi Lena, it's Northwind Agency, and this call is recorded. Got a minute?",
+    text: "Thanks for calling Northwind Agency. This call is transcribed. How can I help?",
   },
-  { text: "That was quick. Yes, go ahead." },
+  { text: "Hi, we need a new website for our clinics." },
   { me: true, text: "What should the new site do first?" },
   { text: "Take bookings for both clinics." },
   {
@@ -308,11 +299,11 @@ function VoicePanel() {
   const shown = useReveal(CALL.length, 1500);
   return (
     <>
-      <PanelBar icon={Phone} title="Voice agent" note="Speed to lead" />
+      <PanelBar icon={Phone} title="Phone agent" note="Incoming call" />
       <div className="shrink-0 border-b border-black/[0.06] px-4 py-3">
         <span className="block text-[14px] font-medium">Lena Ortiz</span>
         <span className="block truncate text-[12px] text-[#0B0B0C]/50">
-          Bright Smile Dental · filled in the contact form at 21:14
+          Bright Smile Dental · called at 21:14
         </span>
       </div>
       <Bubbles
@@ -523,7 +514,7 @@ function SocialPanel() {
 const TEXTS: Msg[] = [
   {
     me: true,
-    text: "Hi Lena, it's Northwind Agency. Sorry we missed you just now. Would a quick call tomorrow suit?",
+    text: "Hi Lena, it's Northwind Agency, about your new website. Would a call with Priya tomorrow suit?",
   },
   { text: "Tomorrow after 2 works." },
   {
@@ -579,104 +570,6 @@ function MessagesPanel() {
         {app === "SMS"
           ? "Every text thread can be stopped with a reply of STOP."
           : "Sent from your WhatsApp Business profile, to people who opted in."}
-      </p>
-    </>
-  );
-}
-
-// --- Human dialer ----------------------------------------------------------------
-
-const QUEUE = [
-  {
-    who: "Dr. Lena Ortiz",
-    where: "Bright Smile Dental",
-    why: "Replied yesterday",
-  },
-  { who: "Marcus Hale", where: "Harbor & Pine", why: "Opened pricing twice" },
-  { who: "Maya Chen", where: "Cedar Lane Fitness", why: "Asked for a call" },
-  { who: "Tom Avery", where: "Fernhill Vets", why: "New location" },
-];
-
-function DialerPanel() {
-  return (
-    <>
-      <PanelBar icon={PhoneCall} title="Dialer" note="Priya's call list" />
-      <div className="grid min-h-0 flex-1 sm:grid-cols-[0.85fr_1.15fr]">
-        <ol className="space-y-1 border-b border-black/[0.06] p-2.5 sm:border-r sm:border-b-0">
-          {QUEUE.map((q, i) => (
-            <li
-              key={q.who}
-              className={cn(
-                "flex items-center gap-2.5 rounded-xl px-2.5 py-2",
-                i === 0 ? "bg-[#0B0B0C] text-white" : "",
-                i > 0 && "hidden sm:flex",
-              )}
-            >
-              <span
-                className={cn(
-                  "grid size-6 shrink-0 place-items-center rounded-full text-[11px] tabular-nums",
-                  i === 0 ? "bg-white/20" : "bg-black/[0.06]",
-                )}
-              >
-                {i + 1}
-              </span>
-              <span className="min-w-0">
-                <span className="block truncate text-[13px] font-medium">
-                  {q.who}
-                </span>
-                <span
-                  className={cn(
-                    "block truncate text-[11.5px]",
-                    i === 0 ? "text-white/60" : "text-[#0B0B0C]/50",
-                  )}
-                >
-                  {q.where} · {q.why}
-                </span>
-              </span>
-            </li>
-          ))}
-        </ol>
-        <div className="flex min-h-0 flex-col overflow-hidden p-4">
-          <p className="text-[11px] tracking-wide text-[#0B0B0C]/45 uppercase">
-            Research brief
-          </p>
-          <p className="mt-1.5 text-[15px] font-medium">Dr. Lena Ortiz</p>
-          <p className="text-[12.5px] text-[#0B0B0C]/50">
-            Owner · Bright Smile Dental
-          </p>
-          <ul className="mt-3 space-y-1.5 text-[13px] leading-[1.4]">
-            {[
-              "Opened a second clinic this autumn",
-              "Hiring a receptionist; bookings by phone only",
-              "Replied to Tuesday's email: “worth a chat”",
-            ].map((f) => (
-              <li key={f} className="flex gap-2">
-                <Check
-                  aria-hidden
-                  className="mt-[3px] size-3.5 shrink-0 text-[#0B0B0C]/50"
-                />
-                {f}
-              </li>
-            ))}
-          </ul>
-          <p className="mt-3 rounded-xl bg-black/[0.045] px-3 py-2 text-[12.5px] leading-[1.45]">
-            <span className="font-medium">Open with:</span> the second clinic,
-            then online booking for both.
-          </p>
-          <div className="mt-auto flex items-center gap-2 pt-3">
-            <span className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-full bg-[#0B0B0C] text-[13.5px] font-medium text-white">
-              <Phone aria-hidden className="size-4" />
-              Dial
-            </span>
-            <span className="inline-flex h-10 items-center gap-1.5 rounded-full border border-black/15 px-4 text-[13px]">
-              <SkipForward aria-hidden className="size-3.5" />
-              Skip
-            </span>
-          </div>
-        </div>
-      </div>
-      <p className="shrink-0 border-t border-black/[0.07] px-4 py-2.5 text-[12px] text-[#0B0B0C]/50">
-        Your rep makes the call. Dialvo does the prep and logs the outcome.
       </p>
     </>
   );

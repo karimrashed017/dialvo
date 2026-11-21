@@ -7,8 +7,8 @@ import { cn } from "@/lib/utils";
 import script from "../../../public/audio/demo-call.json";
 
 // "Listen to every call": a sample inbound call with its transcript,
-// highlighted line by line as it plays. A lead filled in a form on a made-up
-// agency's site, and the agent calls back within a minute. It plays /audio/demo-call.mp3 when that file
+// highlighted line by line as it plays. Someone rings a made-up agency's
+// number and the phone agent answers (Dialvo never makes outbound calls). It plays /audio/demo-call.mp3 when that file
 // exists; until then it runs through the transcript on a timer, so the demo
 // works either way. The script is in public/audio/demo-call.json
 // ([{ t: seconds, speaker, text }]); record the mp3 to the same timings.
@@ -21,7 +21,7 @@ const TIMER_LENGTH = LINES[LINES.length - 1].t + 3.5;
 
 // What the call gets done, and when, so the checklist fills in as it plays.
 const MOMENTS = [
-  { at: 0, label: "Says it's recorded" },
+  { at: 0, label: "Says it's transcribed" },
   { at: 13.5, label: "Qualifies the lead" },
   { at: 39.5, label: "Doesn't guess a price" },
   { at: 54.5, label: "Books Thu 2pm" },

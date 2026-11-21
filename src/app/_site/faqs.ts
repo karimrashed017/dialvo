@@ -8,7 +8,7 @@ export const FAQS: Record<string, Faq[]> = {
   Product: [
     {
       q: "What is Dialvo?",
-      a: "AI agents that run inbound and outbound sales. They answer every lead within a minute, go out to find new business, follow up on voice, email, chat, social, SMS and WhatsApp, book the meetings and close simple sales. Bigger deals go to your team, and your reps get a dialer with the research on screen for the calls they make themselves.",
+      a: "AI agents that run inbound and outbound sales. They answer every lead within a minute, go out to find new business, answer your phone, follow up by email, chat, social, SMS and WhatsApp, book the meetings and close simple sales. Bigger deals go to your team.",
     },
     {
       q: "Is everything available today?",
@@ -37,16 +37,16 @@ export const FAQS: Record<string, Faq[]> = {
   ],
   "Calls and messages": [
     {
-      q: "Who do the voice agents call?",
-      a: "People who asked to hear from you or opted in: someone who filled in your form, rang your number, or an existing customer who agreed to calls. Dialvo's AI doesn't cold call strangers. Outbound to new accounts runs on email and social, and when a call is the right next step, your rep makes it with the dialer.",
+      q: "Does Dialvo make phone calls?",
+      a: "No. Dialvo never makes outbound calls. Its phone agent answers the calls people make to your number, straight away, day and night: it answers from your knowledge base, qualifies the caller, books the meeting or transfers to a person. Outbound to new accounts runs on email and social.",
     },
     {
       q: "Can I see what it says?",
-      a: "All of it. Every call is recorded and transcribed with a short summary, and every email, chat, text and direct message is in one inbox. You can also require your approval before anything is sent.",
+      a: "All of it. Every call is transcribed with a short summary, and every email, chat, text and direct message is in one inbox. You can also require your approval before anything is sent.",
     },
     {
       q: "How are opt-outs handled?",
-      a: "Automatically. Every email has an unsubscribe link, every text thread can be stopped with a reply, and anyone who asks not to be contacted is removed straight away, on every channel. Do Not Call lists are checked before a number is dialled.",
+      a: "Automatically. Every email has an unsubscribe link, every text thread can be stopped with a reply, and anyone who asks not to be contacted is removed straight away, on every channel. Dialvo never makes outbound calls.",
     },
     {
       q: "Is it legal where I sell?",
@@ -60,7 +60,7 @@ export const FAQS: Record<string, Faq[]> = {
     },
     {
       q: "What happens after the trial?",
-      a: `You pick a plan: Starter at $${PLANS.starter.price} a month (the voice agent for inbound leads, the email agent and SMS follow-up, with ${fmt(PLANS.starter.calls)} AI calls), Pro at $${PLANS.pro.price} a month (every channel, outbound, the AI closer for simple sales, human dialer seats, CRM sync and premium voices, with ${fmt(PLANS.pro.calls)} AI calls) or Scale at $${PLANS.scale.price} a month (${PLANS.scale.workspaces} workspaces for separate clients or brands, with ${fmt(PLANS.scale.calls)} AI calls). If you'd rather not, you can stop there and pay nothing.`,
+      a: `You pick a plan: Starter at $${PLANS.starter.price} a month (the phone agent that answers your calls, the email agent and SMS follow-up, with ${fmt(PLANS.starter.calls)} answered calls), Pro at $${PLANS.pro.price} a month (every channel, outbound, the AI closer for simple sales, CRM sync and premium voices, with ${fmt(PLANS.pro.calls)} answered calls) or Scale at $${PLANS.scale.price} a month (${PLANS.scale.workspaces} workspaces for separate clients or brands, with ${fmt(PLANS.scale.calls)} answered calls). If you'd rather not, you can stop there and pay nothing.`,
     },
     {
       q: "Can I cancel?",
@@ -68,7 +68,7 @@ export const FAQS: Record<string, Faq[]> = {
     },
     {
       q: "What if I need more than a plan includes?",
-      a: "Add extra AI calls, lead credits, sending inboxes or dialer seats to any plan. For larger teams, email us and we'll work it out together.",
+      a: "Add extra answered calls, lead credits or sending inboxes to any plan. For larger teams, email us and we'll work it out together.",
     },
   ],
 };

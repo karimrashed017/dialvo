@@ -67,7 +67,7 @@ export function VoiceSection() {
             <p
               className={`mt-5 max-w-[500px] text-[17px] leading-[1.55] ${muted}`}
             >
-              This is a live Dialvo voice agent. Pick a scenario, press talk,
+              This is a live Dialvo phone agent. Pick a scenario, press talk,
               and see how it handles you.
             </p>
           </Rise>

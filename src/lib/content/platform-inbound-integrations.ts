@@ -6,23 +6,23 @@ import type { FeatureContent } from "./types";
 
 export const INBOUND_INTEGRATION_FEATURES = {
   "ai-phone-agent": {
-    tagline: "Every call answered. Every form lead called back.",
+    tagline: "Every call answered, day and night.",
     intro:
-      "Dialvo's phone agent picks up your line on the first ring, at any hour, and rings new form leads back within seconds. It holds a real conversation: it qualifies, answers questions, books the meeting or puts the caller through to a person.",
+      "Dialvo's phone agent picks up your line on the first ring, at any hour. It holds a real conversation: it qualifies, answers questions, books the meeting or puts the caller through to a person.",
     description:
-      "Dialvo's AI phone agent answers inbound calls and calls form leads back within seconds, qualifies them, books meetings and transfers to your team.",
+      "Dialvo's AI phone agent answers inbound calls at once, qualifies callers, books meetings and transfers to your team. It never makes outbound calls.",
     capabilities: [
       {
         title: "Answers at once, day and night",
         body: "No hold queue and no voicemail. Put it on your main number, a campaign number or behind your existing phone menu.",
       },
       {
-        title: "Calls form leads back",
-        body: "A new enquiry gets a call within seconds, opening with what the person asked about on the form.",
+        title: "Only answers, never dials",
+        body: "It picks up calls people make to your number. Dialvo never makes outbound calls, so nobody gets a call they didn't start.",
       },
       {
-        title: "Recorded, with notice",
-        body: "Every call opens with your business's name and tells the caller that the call is recorded.",
+        title: "Transcribed, with notice",
+        body: "Every call opens by telling the caller that the call is transcribed (and recorded, if you switch recording on).",
       },
       {
         title: "Talks like a person, from your facts",
@@ -42,12 +42,12 @@ export const INBOUND_INTEGRATION_FEATURES = {
       },
       {
         title: "A full record",
-        body: "Recording, transcript, the answers to each question and the outcome, saved to the CRM as the call ends.",
+        body: "Transcript, summary, the answers to each question and the outcome, saved on the lead (and the recording, if you switch it on) as the call ends.",
       },
     ],
     fit: [
-      "The phone agent is the voice of the inbound motion. It uses inbound qualification for its questions, lead routing to pick the rep and number management so its callbacks are answered. If nobody picks up, the SMS, WhatsApp and email agents follow up.",
-      "The same agent places consented calls to existing customers for expansion and onboarding. It does not cold call; reps do that with the dialer.",
+      "The phone agent is the voice of the inbound motion. It uses inbound qualification for its questions and lead routing to pick the rep. After the call, the email agent (and texts, for callers who agree to them) follow up.",
+      "It only answers. Dialvo never makes outbound calls: not to leads, not to customers, not to prospects.",
     ],
     visual: {
       kind: "thread",
@@ -56,7 +56,7 @@ export const INBOUND_INTEGRATION_FEATURES = {
       messages: [
         {
           agent: true,
-          text: "Thanks for calling Northwind Agency. This call is recorded. How can I help?",
+          text: "Thanks for calling Northwind Agency. This call is transcribed. How can I help?",
         },
         {
           text: "I need a new website for my dental practice. Do you do that?",
@@ -84,7 +84,7 @@ export const INBOUND_INTEGRATION_FEATURES = {
       },
       {
         title: "Call allowance",
-        body: "Each plan includes a monthly number of AI calls; more can be added. You're warned before you reach the limit.",
+        body: "Each plan includes a monthly number of answered calls; more can be added. You're warned before you reach the limit.",
       },
       {
         title: "Automatic checks",
@@ -533,11 +533,11 @@ export const INBOUND_INTEGRATION_FEATURES = {
     intro:
       "Your product, forms and internal tools know things Dialvo should act on. One API lets you trigger agents from anywhere and receive what happened, in a structured form your systems can use.",
     description:
-      "Dialvo's API lets you create leads, trigger calls and sequences, send product events and receive transcripts, replies and outcomes through webhooks and structured data.",
+      "Dialvo's API lets you create leads, start plays and sequences, send product events and receive transcripts, replies and outcomes through webhooks and structured data.",
     capabilities: [
       {
         title: "Create leads and start plays",
-        body: "Post a lead from any form, app or script and say which play to run. The speed-to-lead callback starts from one request.",
+        body: "Post a lead from any form, app or script and say which play to run. The speed-to-lead reply starts from one request.",
       },
       {
         title: "Send product events",
@@ -562,7 +562,7 @@ export const INBOUND_INTEGRATION_FEATURES = {
     ],
     fit: [
       "The API is the door for anything the built-in integrations don't cover. Most teams use it for two things: getting leads and product events in, and getting outcomes out to a data warehouse or an internal tool.",
-      "It exposes the same agents and rules as the app. A call triggered through the API still checks consent and follows your send windows.",
+      "It exposes the same agents and rules as the app. A message started through the API still checks consent and follows your send windows.",
     ],
     visual: {
       kind: "code",
@@ -574,8 +574,8 @@ export const INBOUND_INTEGRATION_FEATURES = {
         '  "lead": {',
         '    "name": "Lena Ortiz",',
         '    "company": "Bright Smile Dental",',
-        '    "phone": "+44 131 ··· 0142",',
-        '    "consent": { "call": true, "source": "website form" }',
+        '    "email": "lena@···.example",',
+        '    "consent": { "sms": false, "source": "website form" }',
         "  },",
         '  "context": "Asked for a quote on a booking site"',
         "}",

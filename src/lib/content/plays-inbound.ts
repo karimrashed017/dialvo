@@ -7,9 +7,9 @@ export const INBOUND_PLAYS = {
   "speed-to-lead": {
     promise: "Reach every new lead while they're still on your website.",
     intro:
-      "Someone fills in your form because they want to talk now. Dialvo calls them back or opens a chat within seconds, qualifies them and puts a meeting on your calendar before they open a second tab.",
+      "Someone fills in your form because they want to talk now. Dialvo replies by email or opens a chat within seconds, qualifies them and puts a meeting on your calendar before they open a second tab.",
     description:
-      "Dialvo's speed-to-lead play calls or chats with every new form lead within seconds, day or night, qualifies them and books the meeting with the right rep.",
+      "Dialvo's speed-to-lead play replies to every new form lead by email or chat within seconds, day or night, qualifies them and books the meeting with the right rep.",
     situation: {
       title: "The lead is ready now. Your team is in a meeting.",
       body: [
@@ -25,23 +25,23 @@ export const INBOUND_PLAYS = {
       },
       {
         title: "An agent replies within seconds",
-        body: "The voice agent rings the number they gave about their request, and mentions that the call is recorded. If they're still on the site, the chat agent can open the conversation instead.",
+        body: "The email agent writes back about their request straight away. If they're still on the site, the chat agent can open the conversation instead. Dialvo never calls them.",
       },
       {
         title: "It qualifies in the same conversation",
         body: "The agent asks your questions (need, timing, budget, who decides), answers product questions from your knowledge base and scores the lead against your ideal customer.",
       },
       {
-        title: "A meeting is booked, or the call is transferred",
-        body: "Good fits pick a time on the right rep's calendar there and then. If a rep is free, the agent can transfer the call live with a short spoken summary first.",
+        title: "A meeting is booked",
+        body: "Good fits pick a time on the right rep's calendar there and then, from the link in the reply or in the chat.",
       },
       {
         title: "No answer? It keeps trying, politely",
-        body: "A text or WhatsApp goes out with a link to book, then an email, then a second call inside your send window. The lead only stops hearing from you when they book, decline or opt out.",
+        body: "Follow-up emails go out inside your send window, plus a text or WhatsApp with a link to book for people who agreed to them. The lead only stops hearing from you when they book, decline or opt out.",
       },
       {
         title: "Everything is written to the CRM",
-        body: "The recording, transcript, answers and outcome land on the lead's record, and your team gets a Slack note for every booked meeting.",
+        body: "The conversation, answers and outcome land on the lead's record, and your team gets a Slack note for every booked meeting.",
       },
     ],
     visual: {
@@ -57,13 +57,13 @@ export const INBOUND_PLAYS = {
         },
         {
           when: "21:14:31",
-          channel: "Voice",
-          text: "Agent called back, call answered",
+          channel: "Email",
+          text: "Agent replied, with two times to talk",
           done: true,
         },
         {
           when: "21:17",
-          channel: "Voice",
+          channel: "Email",
           text: "Qualified: two clinics, wants to go live this quarter",
           done: true,
         },
@@ -76,37 +76,35 @@ export const INBOUND_PLAYS = {
         {
           when: "21:19",
           channel: "CRM",
-          text: "Transcript, answers and score saved to the lead",
+          text: "Conversation, answers and score saved to the lead",
         },
       ],
       foot: "Sample timeline. Times are for illustration.",
     },
-    channels: ["voice", "chat", "messages", "email"],
+    channels: ["email", "chat", "messages"],
     features: [
-      "ai-phone-agent",
       "inbound-lead-qualification",
       "intelligent-lead-routing",
-      "call-deliverability-and-number-management",
       "crm-integration",
     ],
     setup: [
       "Connect your form, or send new CRM leads to Dialvo.",
       "Add your qualifying questions and what counts as a good fit.",
       "Connect your reps' calendars and set who gets which leads.",
-      "Add consent wording to the form so people know they'll get a call.",
+      "Add consent wording to the form if you want texts sent as well.",
     ],
     faqs: [
       {
-        q: "Is this an AI cold call?",
-        a: "No. The agent only calls people who gave you their number and asked to be contacted. It opens by saying it's calling on your behalf and that the call is recorded.",
+        q: "Does Dialvo call the lead?",
+        a: "No. Dialvo never makes outbound calls. It replies by email and chat, and texts only people who agreed to them. If the lead rings your number, the phone agent answers.",
       },
       {
         q: "What if the lead would rather talk to a person?",
-        a: "They can say so at any point. The agent transfers the call to a rep who is free, or books the first open slot and tells the lead when to expect the call.",
+        a: "They can say so at any point. The agent passes the conversation to a rep, or books the first open slot with a person.",
       },
       {
         q: "What happens outside office hours?",
-        a: "The agent replies at any hour and books into your reps' working calendars. You can also set quiet hours so nobody is phoned late at night, with a text and an email sent instead.",
+        a: "The agent replies at any hour and books into your reps' working calendars. You can also set quiet hours so nobody gets a text late at night.",
       },
       {
         q: "Does it work with the forms I already have?",
@@ -245,7 +243,7 @@ export const INBOUND_PLAYS = {
       },
       {
         title: "It checks in, with permission",
-        body: "Customers who opted in get a call or a message timed to where they are in setup, and a nudge if they stall before the first key action.",
+        body: "Customers get an email, or a text if they opted in, timed to where they are in setup, and a nudge if they stall before the first key action.",
       },
       {
         title: "It hands over when it should",
@@ -263,7 +261,7 @@ export const INBOUND_PLAYS = {
       rows: [
         {
           name: "Harbor Fitness",
-          detail: "Setup call done · imported members",
+          detail: "Setup done · imported members",
           tag: "First value",
           strong: true,
         },
@@ -295,13 +293,13 @@ export const INBOUND_PLAYS = {
     setup: [
       "Add your setup guides and help articles to the knowledge base.",
       "Define the first key action that counts as onboarded.",
-      "Add an opt-in for check-in calls and texts to your signup flow.",
+      "Add an opt-in for check-in texts to your signup flow.",
       "Choose which accounts and topics always go to a person.",
     ],
     faqs: [
       {
-        q: "Does the agent call customers without asking?",
-        a: "No. Proactive calls and texts go only to customers who agreed to them. Anyone can ring the onboarding line themselves at any time.",
+        q: "Does the agent call customers?",
+        a: "No. Dialvo never makes outbound calls. Check-in texts go only to customers who agreed to them, and anyone can ring the onboarding line themselves at any time.",
       },
       {
         q: "Can it see how far a customer has got?",

@@ -31,7 +31,6 @@ import {
   MessageSquareReply,
   MessageSquareText,
   Phone,
-  PhoneCall,
   PhoneIncoming,
   RefreshCw,
   Route,
@@ -76,7 +75,7 @@ export const MOTIONS: {
     name: "Outbound",
     href: "/outbound",
     icon: Send,
-    blurb: "Researched email and LinkedIn outreach; reps make the calls.",
+    blurb: "Researched email and LinkedIn outreach to the right people.",
   },
   // Closing has no plays of its own: it finishes what the others start.
   {
@@ -105,7 +104,6 @@ export const CHANNELS = {
   chat: { label: "Website chat", icon: MessageCircle },
   social: { label: "LinkedIn and social", icon: Share2 },
   messages: { label: "SMS and WhatsApp", icon: MessageSquareText },
-  dialer: { label: "Human dialer", icon: PhoneCall },
 } as const satisfies Record<string, { label: string; icon: LucideIcon }>;
 
 export type ChannelId = keyof typeof CHANNELS;
@@ -125,7 +123,7 @@ export const PLAYS = {
     motion: "inbound",
     icon: Zap,
     blurb:
-      "Every form fill gets a call or a chat reply within seconds, at any hour.",
+      "Every form fill gets an email or chat reply within seconds, at any hour.",
   },
   "automated-meeting-scheduling": {
     title: "Automated meeting scheduling",
@@ -301,8 +299,7 @@ export const FEATURES = {
     title: "Multi-channel sequences",
     group: "outreach",
     icon: Waypoints,
-    blurb:
-      "Email, LinkedIn, texts and rep calls as one conversation that remembers.",
+    blurb: "Email, LinkedIn and texts as one conversation that remembers.",
   },
   "sequence-builder": {
     title: "Sequence builder",
@@ -340,11 +337,10 @@ export const FEATURES = {
       "Authenticated domains, gradual warm-up, daily limits and rotation for your inboxes.",
   },
   "call-deliverability-and-number-management": {
-    title: "Call deliverability and number management",
+    title: "Phone number management",
     group: "analytics",
     icon: ShieldCheck,
-    blurb:
-      "Numbers warmed, monitored and rotated so your calls show up as you.",
+    blurb: "Local business numbers your phone agent answers, day and night.",
   },
   "deep-research": {
     title: "Deep research",
@@ -378,8 +374,7 @@ export const FEATURES = {
     title: "AI phone agent",
     group: "inbound-handling",
     icon: PhoneIncoming,
-    blurb:
-      "Answers your line and calls form leads back, qualifies, books and transfers.",
+    blurb: "Answers your line day and night, qualifies, books and transfers.",
   },
   "inbound-lead-qualification": {
     title: "Inbound lead qualification",

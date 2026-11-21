@@ -11,23 +11,23 @@ export const SCENARIOS = [
     says: "Thanks for calling Northwind Agency. How can I help?",
   },
   {
-    id: "speed-to-lead",
-    name: "Speed to lead",
-    does: "Calls a new form lead back while they're still on your site.",
-    says: "Hi, it's Northwind Agency. You just asked about a new website. Is now a good time?",
+    id: "new-enquiry",
+    name: "New enquiry",
+    does: "Answers a new lead who rings straight away, qualifies them and books the meeting.",
+    says: "Thanks for calling Northwind Agency. Are you calling about a new website?",
   },
   {
-    id: "upsell",
-    name: "Upsell",
-    does: "Calls customers who opted in, when there's a reason to grow.",
-    says: "Hi, it's Northwind Agency. Your care plan renews next month, and I had one idea to share.",
+    id: "customer",
+    name: "Customer line",
+    does: "Answers your existing customers, helps them and spots a reason to grow.",
+    says: "Thanks for calling Northwind Agency. How can I help with your site today?",
   },
 ] as const;
 
 export type ScenarioId = (typeof SCENARIOS)[number]["id"];
 
 /** The scenario picked when the page opens. */
-export const DEFAULT_SCENARIO: ScenarioId = "speed-to-lead";
+export const DEFAULT_SCENARIO: ScenarioId = "new-enquiry";
 
 // Each voice style maps to a voice from ElevenLabs' premade library, which
 // every account can use. The ids were checked against ElevenLabs' public

@@ -43,7 +43,7 @@ export function PricingSection({
       </Rise>
       <Rise className="mx-auto mt-10 max-w-[900px] rounded-2xl border border-dashed border-black/20 px-5 py-4 text-center text-[14px] text-[#0B0B0C]/65">
         <span className="font-medium text-[#0B0B0C]">Add-ons</span> on any plan:
-        extra AI calls, lead credits, sending inboxes and dialer seats.
+        extra answered calls, lead credits and sending inboxes.
       </Rise>
     </section>
   );

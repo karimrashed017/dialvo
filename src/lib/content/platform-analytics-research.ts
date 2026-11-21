@@ -190,95 +190,81 @@ export const ANALYTICS_RESEARCH_FEATURES = {
   },
 
   "call-deliverability-and-number-management": {
-    tagline: 'Calls that show up as you, not as "Spam likely".',
+    tagline: "A business number your customers can call, answered every time.",
     intro:
-      "People answer calls they recognise. Dialvo looks after the phone numbers your voice agents and reps call from, so calls connect, your name appears where carriers allow it, and no number is worn out.",
+      "Your phone agent needs a number people can ring. Dialvo gets you a local business number, points it at the agent and keeps a record of every call it answers. It never dials out from it.",
     description:
-      "Dialvo manages calling numbers for voice agents and reps: warm-up, local numbers, rotation, spam-label monitoring, branded caller ID where supported and Do Not Call checks.",
+      "Dialvo manages the business phone numbers its AI phone agent answers: buy and release local numbers, forward your existing line, and see every call each number receives. Dialvo never makes outbound calls.",
     capabilities: [
       {
-        title: "Numbers set up for you",
-        body: "Local numbers in the regions you call, registered to your business with the carriers.",
+        title: "Numbers in minutes",
+        body: "Pick a local number in the US or Canada. The monthly price is shown before you buy.",
       },
       {
-        title: "Warm-up before real calls",
-        body: "A new number starts with low daily volume and builds, so it has a normal-looking history before it carries leads.",
+        title: "Answered by the agent",
+        body: "Every number goes straight to the AI phone agent, day and night, with your greeting and your knowledge base.",
       },
       {
-        title: "Spam-label monitoring",
-        body: "Each number is checked for spam or scam labels across carriers. A flagged number is taken out of rotation and remediated.",
+        title: "Keep your main line",
+        body: "Forward your existing business number to the agent instead of buying a new one.",
       },
       {
-        title: "Rotation and capacity",
-        body: "Calls are spread across a pool so no single number places too many in a day. The pool grows as your volume does.",
+        title: "Texts to the same number",
+        body: "People who text the number reach your inbox, and STOP is honoured at once.",
       },
       {
-        title: "Branded caller ID",
-        body: "Where carriers support it, your business name shows on the person's screen. Coverage varies by country and network.",
+        title: "Every call on record",
+        body: "See how many calls each number received this week and today, with the transcript of each on the lead.",
       },
       {
-        title: "Local presence",
-        body: "Calls go out from a number in the same country or area as the person being called.",
-      },
-      {
-        title: "Callbacks land in the right place",
-        body: "When someone rings a number back, the AI phone agent answers with the context of the original call.",
+        title: "Never used to dial out",
+        body: "Dialvo never makes outbound calls, from these numbers or any other.",
       },
     ],
     fit: [
-      "The inbound voice agent, consented outbound calls and the human dialer all draw on the same number pool. A speed-to-lead callback only works if the lead picks up, so number health is part of that play, not an extra.",
-      "It's the voice counterpart to mailbox health. Both exist so that the work the agents do reaches the person it was meant for.",
+      "Numbers are the front door of the phone agent. A caller who rings is answered, qualified and booked or put through to a person.",
+      "It's the phone counterpart to mailbox health: both exist so the conversations people start with you reach the right place.",
     ],
     visual: {
       kind: "list",
       title: "Numbers",
-      note: "health today",
+      note: "this week",
       rows: [
         {
-          name: "+44 131 ··· 0142",
-          detail: "Edinburgh · 31 calls today · branded",
-          tag: "Healthy",
+          name: "+1 415 ··· 0142",
+          detail: "San Francisco · 31 calls answered",
+          tag: "In use",
           strong: true,
         },
         {
-          name: "+44 20 ··· 0178",
-          detail: "London · 27 calls today · branded",
-          tag: "Healthy",
+          name: "+1 312 ··· 0178",
+          detail: "Chicago · 12 calls answered",
+          tag: "In use",
           strong: true,
-        },
-        {
-          name: "+44 161 ··· 0119",
-          detail: "Manchester · day 6 of warm-up",
-          tag: "Warming",
-        },
-        {
-          name: "+44 113 ··· 0163",
-          detail: "Leeds · label reported on one carrier",
-          tag: "Resting",
         },
       ],
       foot: "Sample numbers. All made up.",
     },
     controls: [
       {
-        title: "Do Not Call checks",
-        body: "Numbers are screened against your suppression list, and national registers where you connect them, before any call.",
+        title: "Owner-only buying",
+        body: "Only the workspace's owner can buy or release a number, and the price is confirmed first.",
       },
       {
-        title: "Per-number caps",
-        body: "Set the most calls a number may place per day, and the hours it may call.",
+        title: "Do not contact",
+        body: "Numbers on your do-not-contact list are never texted, and a caller who asks is added at once.",
       },
       {
         title: "Bring your own numbers",
-        body: "Port existing business numbers in, or keep your main line and forward it to the phone agent.",
+        body: "Keep your main line and forward it to the phone agent.",
       },
       {
-        title: "Carrier decisions are theirs",
-        body: "Carriers decide how calls are labelled. Dialvo monitors and responds; it can't guarantee how a given network will display a call.",
+        title: "Transcription notice",
+        body: "Every call opens by telling the caller it's transcribed, and recorded if you switch recording on.",
       },
     ],
     related: ["ai-phone-agent", "deliverability-and-mailbox-health"],
-    plays: ["speed-to-lead", "customer-expansion"],
+    plays: ["automated-meeting-scheduling"],
   },
 
   "deep-research": {
@@ -318,7 +304,7 @@ export const ANALYTICS_RESEARCH_FEATURES = {
       },
     ],
     fit: [
-      "Research is the step between finding a lead and contacting them. The email and social agents write from the brief; the dialer shows it to the rep before a call; the voice agent has it when an inbound lead rings.",
+      "Research is the step between finding a lead and contacting them. The email and social agents write from the brief, and the phone agent has it when a lead rings.",
       "It's also what makes approval quick. When you review a message, the brief is beside it, so you can see why the agent wrote what it did.",
     ],
     visual: {
@@ -551,7 +537,7 @@ export const ANALYTICS_RESEARCH_FEATURES = {
       },
     ],
     fit: [
-      "The knowledge base sits behind everything. The voice agent answers product questions from it mid-call; smart replies draw on it for objections; research frames each account against it; chat uses it to qualify.",
+      "The knowledge base sits behind everything. The phone agent answers product questions from it mid-call; smart replies draw on it for objections; research frames each account against it; chat uses it to qualify.",
       "It's also the main lever you have over quality. Most agent mistakes trace back to something missing or out of date here, which makes them quick to put right.",
     ],
     visual: {

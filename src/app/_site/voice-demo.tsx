@@ -364,8 +364,8 @@ function ExampleVoice({
           <Mic aria-hidden className="size-4" />
         </span>
         <span className="text-[12.5px] leading-[1.35] text-[#0B0B0C]/55">
-          Live demo is being set up. Real calls are recorded and transcribed,
-          with notice.
+          Live demo is being set up. Real calls are transcribed, and the caller
+          is told.
         </span>
       </div>
     </>

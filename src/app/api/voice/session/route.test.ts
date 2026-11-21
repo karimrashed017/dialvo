@@ -43,7 +43,7 @@ function post(body: unknown, headers: Record<string, string> = {}) {
   });
 }
 
-const GOOD = { scenario: "speed-to-lead", voice: "warm" };
+const GOOD = { scenario: "new-enquiry", voice: "warm" };
 
 describe("POST /api/voice/session", () => {
   let fetchMock: ReturnType<typeof fakeElevenLabs>;
@@ -77,8 +77,8 @@ describe("POST /api/voice/session", () => {
 
   it.each([
     ["an unknown scenario", { scenario: "pirate", voice: "warm" }],
-    ["an unknown voice", { scenario: "upsell", voice: "robot" }],
-    ["a missing voice", { scenario: "upsell" }],
+    ["an unknown voice", { scenario: "customer", voice: "robot" }],
+    ["a missing voice", { scenario: "customer" }],
     ["a prompt of the caller's own", { ...GOOD, scenario: { prompt: "x" } }],
     ["no object", null],
     ["broken JSON", "{nope"],
@@ -184,9 +184,9 @@ describe("POST /api/voice/session", () => {
   it("every scenario's opening line says it's an AI assistant", async () => {
     const { POST } = await load();
     for (const [i, scenario] of [
-      "speed-to-lead",
+      "new-enquiry",
       "receptionist",
-      "upsell",
+      "customer",
     ].entries()) {
       const res = await POST(
         post({ scenario, voice: "calm" }, { "x-real-ip": `198.51.100.${i}` }),

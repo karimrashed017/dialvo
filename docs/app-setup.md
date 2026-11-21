@@ -1616,12 +1616,22 @@ compared by hash with these files, comments left out of the live copies):
 
 ## Calls, numbers, texts and multi-channel sequences (21 Nov 2026)
 
-**Where things are.** Calls (`/app/calls`) has four tabs: Calls (every call
-with its transcript, summary, outcome and recording), Outbound (call batches
-and their approval), Numbers (buy, release, caps, health) and Settings (the
-phone agent, the call window, caps, texting and A2P 10DLC, the do-not-call
-list). Sequences has a second page, `/app/sequences/channels`: text,
-LinkedIn and call-task steps, and the tasks due today. Each lead's page has a
+**No outbound calls (founder, 21 Nov 2026).** Dialvo never makes outbound
+calls of any kind, because of the legal risk. The phone agent only answers
+calls people make to a workspace's number. Migration
+`20261121012511_no_outbound_calls` makes this hold in the database too:
+`calls` rows can only be inbound, sequence steps and runs can't be
+`call_task`, `call_batch_create` raises, `call_batch_decide` returns false
+and `call_claim` always returns an empty list. The Outbound tab, call
+batches, call-task steps, per-number call caps and spam-label health were
+removed from the app; `/app/calls/outbound` and
+`/platform/consented-outbound-calling` redirect.
+
+**Where things are.** Calls (`/app/calls`) has three tabs: Calls (every call
+with its transcript, summary, outcome and recording), Numbers (buy, release,
+calls received) and Settings (the phone agent, the texting window, texting
+and A2P 10DLC, the do-not-call list). Sequences has a second page,
+`/app/sequences/channels`: text and LinkedIn steps, and the tasks due today. Each lead's page has a
 Time zone box. Code: `src/lib/phone` (Twilio, the agent, webhooks),
 `src/lib/channels` (the step engine's app side), `src/app/api/phone/*`
 (webhooks), `src/app/api/channels/step` (scheduler).
@@ -1633,7 +1643,7 @@ preview deployment (Twilio signs the exact public address). Numbers bought
 from the app get their Voice, status and SMS webhooks set to
 `https://trydialvo.com/api/phone/...` automatically. Without the keys every
 Calls page names what is missing and shows Twilio's prices; nothing can be
-bought, dialled or texted.
+bought or texted (and nothing is ever dialled).
 
 **How a call runs.** Twilio does speech recognition (`<Gather
 input="speech">`) and the voice (`<Say>`, Amazon Polly neural voices); each
@@ -1647,21 +1657,14 @@ the greeting; the agent says it is an AI assistant when asked and never
 claims to be a person. It answers from Knowledge with the Website chat
 agent's instructions and qualifying questions, offers to text the booking
 link (one text, only if asked, and only when texting is set up), transfers
-to the transfer number (`<Dial>`) or promises a call back and emails the
-team, and logs every turn as messages in a voice conversation on the lead.
-"Don't call me again" withdraws call consent and adds the number to the
-do-not-call list. Answering machines are hung up on without a message.
+to the transfer number (`<Dial>`, part of answering the call) or tells the
+caller the team will be in touch and emails the team, and logs every turn as
+messages in a voice conversation on the lead. "Don't call me again" adds the
+number to the do-not-call list.
 
-**Outbound rules, all checked in the database at the moment of each call
-(`call_claim`):** recorded call consent with its source; not do not contact
-or unsubscribed; not on the do-not-call list; the batch approved by an owner
-or admin; the workspace's outbound switch on; the call window (never before
-08:00 or after 21:00) open in the lead's own zone, or in every zone the
-number's country spans when none is set (unknown country: not called);
-the workspace's and the number's daily caps; a number not flagged as spam
-and not "resting" (20+ calls in three days answered under 15%).
-
-**Texts.** Only leads with recorded texting consent, inside the call window,
+**Texts.** Only leads with recorded texting consent, inside the texting
+window (never before 08:00 or after 21:00, in the lead's own zone, or in
+every zone the number's country spans when none is set),
 under the daily cap, and from US local numbers only once the A2P 10DLC
 campaign is recorded as approved. The first text to someone starts with the
 business name and ends "Reply STOP to opt out." STOP and its synonyms opt
@@ -1678,24 +1681,24 @@ otherwise a LinkedIn people search), which a person sends and marks done. At
 most 20 a day per workspace.
 
 **Stop on reply across channels.** `channel_tick` (every minute, scheduler
-job `dialvo-channel-steps`) stops a sequence's other steps when its email
+job `dialvo-channel-steps`; the step only sends texts) stops a sequence's other steps when its email
 thread ended, the lead is do not contact or unsubscribed, or the lead wrote
 in on any channel since the first email; such a reply, or a LinkedIn reply a
 person reports, also ends the email thread (status `replied`), so no more
 follow-ups go out. Lead nurture can have its own steps ("Lead nurture").
 
 **Twilio's prices** (twilio.com, 21 Nov 2026, US): local number $1.15 a
-month; incoming $0.0085 a minute; outbound $0.014 a minute; speech
+month; incoming $0.0085 a minute; speech
 recognition $0.02 per turn; neural voice $0.0032 per 100 characters;
 recording $0.0025 a minute; SMS $0.0083 a segment plus carrier fees;
 A2P 10DLC about $4.50 + $41.50 brand, $15 campaign vetting, $1.50 to $10 a
 month per campaign. Caps in `src/lib/phone/config.ts`: 3 numbers a workspace,
-$5 a month at most per number, US and Canada only, 200 answered calls a day,
-10 placed a minute, 200 leads a batch, 5 open batches.
+$5 a month at most per number, US and Canada only, 200 answered calls a day.
 
 **The database** (applied to the live project 21 Nov 2026, verified
 byte-for-byte against the history): `20261121004616_phone_and_sms`,
-`20261121004956_sequence_channel_steps`. Tests:
+`20261121004956_sequence_channel_steps`, `20261121012511_no_outbound_calls`.
+Tests:
 `supabase/tests/channels.test.ts`.
 
 **What was tested.** `npm run check` (PGlite tests of every new table and
@@ -1704,8 +1707,8 @@ step with Twilio, the model and the database faked; Twilio's documented
 signature example) and `npm run build`. `scripts/e2e-channels.mjs` against a
 local production build and the live database, as a test account made for
 it: every new page at 1440 and 390 px (26 of 26), saving settings, the
-do-not-call list, making and approving a batch, adding a LinkedIn step and a
-lead's time zone; screenshots read by eye. **Not tested:** anything against
+do-not-call list, adding a LinkedIn step and a lead's time zone (the batch
+steps were replaced by a check that the outbound page is gone); screenshots read by eye. **Not tested:** anything against
 Twilio (no account), a real call or text, the agent's model call, the
 recording proxy, the scheduler calling `/api/channels/step` (no
 `SUPABASE_SECRET_KEY` here).

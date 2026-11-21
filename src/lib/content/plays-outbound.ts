@@ -2,9 +2,9 @@ import type { PlaySlug } from "./catalog";
 import type { PlayContent } from "./types";
 
 // The outbound plays. Cold outreach here is email from the customer's own
-// inboxes and LinkedIn messages from the rep's own profile after approval;
-// calls to cold prospects are made by reps with the dialer. People and
-// businesses in the sample panels are made up.
+// inboxes and LinkedIn messages from the rep's own profile after approval.
+// Dialvo never makes outbound calls. People and businesses in the sample
+// panels are made up.
 
 export const OUTBOUND_PLAYS = {
   "outbound-lead-generation": {
@@ -42,10 +42,6 @@ export const OUTBOUND_PLAYS = {
         title: "Handle the replies",
         body: "Replies are sorted within minutes. Questions are answered from your knowledge base, meetings are booked, and anyone who opts out is removed everywhere.",
       },
-      {
-        title: "Give reps the calls worth making",
-        body: "Prospects who engage but don't reply go to the human dialer, with the research and an opening line on screen. Your rep makes the call.",
-      },
     ],
     visual: {
       kind: "email",
@@ -62,7 +58,7 @@ export const OUTBOUND_PLAYS = {
       ],
       foot: "Unsubscribe link and sender details added to every email.",
     },
-    channels: ["email", "social", "dialer"],
+    channels: ["email", "social"],
     features: [
       "company-and-lead-database",
       "live-web-search-prospecting",
@@ -80,8 +76,8 @@ export const OUTBOUND_PLAYS = {
     ],
     faqs: [
       {
-        q: "Does Dialvo's AI cold call prospects?",
-        a: "No. Cold outreach is email and LinkedIn. Calls to prospects who haven't opted in are made by your reps, using the dialer with the research in front of them.",
+        q: "Does Dialvo cold call prospects?",
+        a: "No. Dialvo never makes outbound calls. Cold outreach is email and LinkedIn.",
       },
       {
         q: "Whose name is on the messages?",
@@ -274,7 +270,7 @@ export const OUTBOUND_PLAYS = {
       ],
       foot: "Sample list. All made up.",
     },
-    channels: ["email", "social", "dialer"],
+    channels: ["email", "social"],
     features: [
       "crm-integration",
       "company-and-lead-database",
@@ -338,7 +334,7 @@ export const OUTBOUND_PLAYS = {
       },
       {
         title: "Follow up and hand over",
-        body: "Email and LinkedIn touches adapt to engagement. Replies are answered, meetings booked, and hot accounts are pushed to a rep's call list.",
+        body: "Email and LinkedIn touches adapt to engagement. Replies are answered, meetings booked, and hot accounts are flagged to the account owner.",
       },
     ],
     visual: {
@@ -371,7 +367,7 @@ export const OUTBOUND_PLAYS = {
       ],
       foot: "Sample visitors. All made up.",
     },
-    channels: ["email", "social", "dialer", "chat"],
+    channels: ["email", "social", "chat"],
     features: [
       "website-visitor-tracking",
       "lead-qualification",
@@ -455,7 +451,7 @@ export const OUTBOUND_PLAYS = {
       ],
       foot: "Sample brief. All made up.",
     },
-    channels: ["email", "social", "dialer"],
+    channels: ["email", "social"],
     features: [
       "crm-integration",
       "deep-research",
@@ -551,7 +547,7 @@ export const OUTBOUND_PLAYS = {
       ],
       foot: "Sample accounts. All made up.",
     },
-    channels: ["email", "social", "dialer"],
+    channels: ["email", "social"],
     features: [
       "live-web-search-prospecting",
       "review-site-intent",
@@ -697,7 +693,7 @@ export const OUTBOUND_PLAYS = {
       },
       {
         title: "Book and brief",
-        body: "Replies are handled and meetings booked with the account owner, who gets the event context. The hottest conversations go to the dialer for a same-week call from a rep.",
+        body: "Replies are handled and meetings booked with the account owner, who gets the event context. The hottest conversations are flagged to a rep the same day.",
       },
     ],
     visual: {
@@ -730,7 +726,7 @@ export const OUTBOUND_PLAYS = {
       ],
       foot: "Sample attendees. All made up.",
     },
-    channels: ["email", "social", "dialer"],
+    channels: ["email", "social"],
     features: [
       "ai-personalisation",
       "smart-replies",
@@ -754,8 +750,8 @@ export const OUTBOUND_PLAYS = {
         a: "The agent uses what it does know: the sessions they attended, their role and their company. It won't pretend a conversation took place.",
       },
       {
-        q: "Can attendees be called?",
-        a: "By your reps, yes, through the dialer. AI voice calls are only for people who opted in to them, for example on the registration form.",
+        q: "Does Dialvo call attendees?",
+        a: "No. Dialvo never makes outbound calls. Follow-up is by email, and by text only for people who opted in, for example on the registration form.",
       },
     ],
     related: [

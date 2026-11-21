@@ -38,7 +38,7 @@ export const DATA_OUTREACH_FEATURES = {
       },
     ],
     fit: [
-      "Every outbound play starts here. The outbound agents draw their audience from the database, the research agent uses the company record as its starting point, and the dialer shows the same details to a rep before a call.",
+      "Every outbound play starts here. The outbound agents draw their audience from the database, and the research agent uses the company record as its starting point.",
       "Because the data is shared, a change is seen everywhere. When a contact replies that they've left the company, the record is updated, the sequence stops and the account is flagged for a new contact.",
     ],
     visual: {
@@ -200,7 +200,7 @@ export const DATA_OUTREACH_FEATURES = {
       },
     ],
     fit: [
-      "Qualification sits between finding leads and contacting them. Only leads that pass move on to deep research and into sequences, which keeps credits, inbox reputation and dialer time for the accounts worth having.",
+      "Qualification sits between finding leads and contacting them. Only leads that pass move on to deep research and into sequences, which keeps credits and inbox reputation for the accounts worth having.",
       "It is separate from inbound qualification, where an agent asks the lead questions in conversation. This check happens before any contact, using what can be found out without asking.",
     ],
     visual: {
@@ -288,7 +288,7 @@ export const DATA_OUTREACH_FEATURES = {
       },
     ],
     fit: [
-      "Visitor data is one of the signals every agent shares. The research agent uses the pages read to choose an angle; the chat agent greets a returning account differently; the dialer moves an account up the call list when it comes back.",
+      "Visitor data is one of the signals every agent shares. The research agent uses the pages read to choose an angle; and the chat agent greets a returning account differently.",
       "The outreach that follows is about the topic, not the tracking. Agents write about the problem the page covers and never quote the visit back at the prospect.",
     ],
     visual: {
@@ -352,7 +352,7 @@ export const DATA_OUTREACH_FEATURES = {
     capabilities: [
       {
         title: "Every channel in one sequence",
-        body: "Email from your inbox, LinkedIn from your rep's profile, SMS and WhatsApp for people who opted in, voice for leads who asked for a call, and a dialer step for your reps.",
+        body: "Email from your inbox, LinkedIn from your rep's profile, and SMS and WhatsApp for people who opted in. Dialvo never makes outbound calls.",
       },
       {
         title: "Each touch builds on the last",
@@ -404,8 +404,8 @@ export const DATA_OUTREACH_FEATURES = {
         },
         {
           when: "Day 8",
-          channel: "Dialer",
-          text: "On Priya's call list with the brief on screen.",
+          channel: "LinkedIn",
+          text: "Follow-up message drafted for Priya to send.",
         },
         {
           when: "Day 12",
@@ -471,7 +471,7 @@ export const DATA_OUTREACH_FEATURES = {
     ],
     fit: [
       "The builder gives the outbound and follow-up agents their shape. It doesn't replace their judgement: within a step, the agent still decides the angle and the wording for each person from the research and the conversation so far.",
-      "Rep steps appear in the dialer or as an approval request. Everything else runs without anyone on your team touching it.",
+      "Rep steps appear as a task or an approval request. Everything else runs without anyone on your team touching it.",
     ],
     visual: {
       kind: "timeline",
@@ -498,8 +498,8 @@ export const DATA_OUTREACH_FEATURES = {
         },
         {
           when: "+5 days",
-          channel: "Dialer",
-          text: "If still engaged: add to the owner's call list.",
+          channel: "LinkedIn",
+          text: "If still engaged: a LinkedIn task for the owner.",
         },
         {
           when: "+7 days",
@@ -637,7 +637,7 @@ export const DATA_OUTREACH_FEATURES = {
       },
       {
         title: "Voice and text",
-        body: "Voice agents hold calls in supported languages; email, chat, SMS and WhatsApp agents write in them.",
+        body: "The phone agent answers calls in supported languages; email, chat, SMS and WhatsApp agents write in them.",
       },
       {
         title: "Knowledge per market",

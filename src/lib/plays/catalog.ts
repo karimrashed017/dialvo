@@ -72,7 +72,7 @@ export const APP_PLAYS: Record<PlaySlug, AppPlay> = {
       "A connected mailbox with sending switched on",
       "Your website chat or a form on your site",
     ],
-    note: "Answers by email and in the chat straight away. To follow up by text or a call as well, add those steps under Sequences, channels (texts and calls only to leads who agreed to them).",
+    note: "Answers by email and in the chat straight away. To follow up by text as well, add a text step under Sequences, channels (texts only to leads who agreed to them). Dialvo never calls leads.",
     kinds: ["speed_to_lead"],
   },
   "automated-meeting-scheduling": {
@@ -117,7 +117,7 @@ export const APP_PLAYS: Record<PlaySlug, AppPlay> = {
   "lead-nurture": {
     slug: "lead-nurture",
     status: "live",
-    what: "For leads whose first emails ran their course without a reply, a slow nurture: a useful, value-first email from your Knowledge, then a few more weeks apart. Add text, LinkedIn or call steps under Sequences, channels; a reply anywhere ends it.",
+    what: "For leads whose first emails ran their course without a reply, a slow nurture: a useful, value-first email from your Knowledge, then a few more weeks apart. Add text or LinkedIn steps under Sequences, channels; a reply anywhere ends it.",
     who: "New, engaged or qualified leads whose last sequence finished more than N days ago with no reply, who never replied and never said no.",
     needs: [
       "Leads you've emailed before",
@@ -278,7 +278,7 @@ export const APP_FEATURES: Record<FeatureSlug, AppFeature> = {
   "multi-channel-sequences": {
     status: "live",
     href: "/app/sequences/channels",
-    note: "Email steps plus texts (consented leads, via Twilio), LinkedIn messages you send from your own profile, and call tasks; a reply on any channel stops every step.",
+    note: "Email steps plus texts (consented leads, via Twilio) and LinkedIn messages you send from your own profile; a reply on any channel stops every step. No call steps: Dialvo never makes outbound calls.",
   },
   "sequence-builder": {
     status: "live",
@@ -308,7 +308,7 @@ export const APP_FEATURES: Record<FeatureSlug, AppFeature> = {
   "call-deliverability-and-number-management": {
     status: "live",
     href: "/app/calls/numbers",
-    note: "Buy and release Twilio numbers (owner only, price shown first, capped), per-number daily caps, answer-rate and spam-label health, and caller name and STIR/SHAKEN steps.",
+    note: "Buy and release Twilio numbers (owner only, price shown first, capped) for the phone agent to answer, with calls received per number. Never used to dial out.",
   },
   "deep-research": {
     status: "live",
@@ -333,7 +333,7 @@ export const APP_FEATURES: Record<FeatureSlug, AppFeature> = {
   "ai-phone-agent": {
     status: "live",
     href: "/app/calls",
-    note: "Answers your Twilio number from your Knowledge, qualifies, texts your booking link, transfers to a person, and logs the transcript and summary on the lead.",
+    note: "Inbound only: answers your Twilio number from your Knowledge, qualifies, texts your booking link when the caller asks, transfers to a person, and logs the transcript and summary on the lead. It never makes calls.",
   },
   "inbound-lead-qualification": {
     status: "live",

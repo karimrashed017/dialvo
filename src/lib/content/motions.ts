@@ -10,9 +10,9 @@ export const MOTION_PAGES: Record<MotionId, MotionContent> = {
     title: "Inbound · AI agents that answer, qualify and book every lead",
     headline: "Turn every enquiry into a qualified meeting.",
     intro:
-      "Dialvo answers each new lead by phone or chat within seconds, at any hour. It asks your qualifying questions, picks the right rep and books the meeting, so the money you spend generating leads isn't lost to slow replies.",
+      "Dialvo answers each new lead by chat, email or on your phone line within seconds, at any hour. It asks your qualifying questions, picks the right rep and books the meeting, so the money you spend generating leads isn't lost to slow replies.",
     description:
-      "Dialvo Inbound answers every lead by voice or chat within seconds, qualifies with your questions, routes to the right rep and books the meeting, around the clock.",
+      "Dialvo Inbound answers every lead by phone, chat or email within seconds, qualifies with your questions, routes to the right rep and books the meeting, around the clock.",
     problem: {
       title: "You paid for the lead. Then it waited.",
       lead: "Inbound demand is the most expensive pipeline you have and the easiest to waste. The gaps are always the same.",
@@ -45,7 +45,7 @@ export const MOTION_PAGES: Record<MotionId, MotionContent> = {
         },
         {
           title: "An agent replies within seconds",
-          body: "The voice agent calls form leads back and answers your line. The chat agent talks to visitors on the site.",
+          body: "The phone agent answers your line and the email agent replies to form leads. The chat agent talks to visitors on the site.",
         },
         {
           title: "It qualifies with your questions",
@@ -72,7 +72,7 @@ export const MOTION_PAGES: Record<MotionId, MotionContent> = {
       items: [
         {
           id: "voice",
-          body: "Answers your line and calls form leads back. Qualifies, books and transfers.",
+          body: "Answers your line, day and night. Qualifies, books and transfers. It never makes outbound calls.",
         },
         {
           id: "chat",
@@ -80,7 +80,7 @@ export const MOTION_PAGES: Record<MotionId, MotionContent> = {
         },
         {
           id: "messages",
-          body: "Follows up by SMS and WhatsApp when a call isn't answered, with people who opted in.",
+          body: "Follows up by SMS and WhatsApp, only with people who opted in.",
         },
         {
           id: "email",
@@ -99,7 +99,7 @@ export const MOTION_PAGES: Record<MotionId, MotionContent> = {
       feed: [
         {
           name: "Lena Ortiz · Bright Smile Dental",
-          detail: "Form 21:14 · called back · qualified",
+          detail: "Form 21:14 · replied by email · qualified",
           tag: "Booked Tue 10:30",
           strong: true,
         },
@@ -154,7 +154,7 @@ export const MOTION_PAGES: Record<MotionId, MotionContent> = {
         },
         {
           title: "Quiet hours and consent",
-          body: "Choose when callbacks may be placed. Texts and WhatsApp go only to people who agreed to them.",
+          body: "Choose when texts may be sent. Texts and WhatsApp go only to people who agreed to them, and Dialvo never makes outbound calls.",
         },
         {
           title: "Automatic checks",
@@ -173,7 +173,7 @@ export const MOTION_PAGES: Record<MotionId, MotionContent> = {
     faqs: [
       {
         q: 'How fast is "within seconds"?',
-        a: "A callback is placed as soon as the form reaches Dialvo, and chat replies as the visitor types. How long the lead takes to pick up is up to them. Your dashboard shows the actual first-reply time for every lead.",
+        a: "A reply goes out as soon as the form reaches Dialvo, calls to your number are answered at once, and chat replies as the visitor types. How long the lead takes to pick up is up to them. Your dashboard shows the actual first-reply time for every lead.",
       },
       {
         q: "Will it replace our inbound sales reps?",
@@ -185,7 +185,7 @@ export const MOTION_PAGES: Record<MotionId, MotionContent> = {
       },
       {
         q: "Which plan includes inbound?",
-        a: "Starter covers the voice agent for inbound leads, email and SMS follow-up. Pro adds website chat, WhatsApp, lead routing rules and CRM sync.",
+        a: "Starter covers the phone agent that answers your calls, email and SMS follow-up. Pro adds website chat, WhatsApp, lead routing rules and CRM sync.",
       },
     ],
   },
@@ -195,9 +195,9 @@ export const MOTION_PAGES: Record<MotionId, MotionContent> = {
     title: "Outbound · Researched cold email and LinkedIn outreach, run by AI",
     headline: "Outbound that reads like your best rep wrote it.",
     intro:
-      "Dialvo finds the accounts worth contacting, researches each one and writes to every person for a reason. Cold email goes from your own inboxes and LinkedIn messages from your reps' own profiles. Replies are handled and meetings booked. Your reps make the phone calls, with the research in front of them.",
+      "Dialvo finds the accounts worth contacting, researches each one and writes to every person for a reason. Cold email goes from your own inboxes and LinkedIn messages from your reps' own profiles. Replies are handled and meetings booked.",
     description:
-      "Dialvo Outbound finds accounts, researches each one and sends personal cold email from your inboxes and LinkedIn messages from your reps' profiles, then handles replies. Reps make the calls.",
+      "Dialvo Outbound finds accounts, researches each one and sends personal cold email from your inboxes and LinkedIn messages from your reps' profiles, then handles replies.",
     problem: {
       title: "Outbound works. Doing it properly doesn't scale.",
       lead: "Everyone knows what good prospecting looks like. Very few teams can afford to do it for every account.",
@@ -216,7 +216,7 @@ export const MOTION_PAGES: Record<MotionId, MotionContent> = {
         },
         {
           title: "Channels live in separate tools",
-          body: "Email in one place, LinkedIn in another, the dialer in a third. Nobody knows what was already said.",
+          body: "Email in one place, LinkedIn in another, notes in a third. Nobody knows what was already said.",
         },
         {
           title: "Replies wait",
@@ -254,22 +254,18 @@ export const MOTION_PAGES: Record<MotionId, MotionContent> = {
         },
         {
           title: "Run it as one sequence",
-          body: "Email, LinkedIn and rep calls are steps in a single sequence. Each touch knows about the others, and a reply on any channel pauses the rest.",
+          body: "Email, LinkedIn and texts are steps in a single sequence. Each touch knows about the others, and a reply on any channel pauses the rest.",
         },
         {
           title: "Handle every reply",
           body: "Replies are read as they arrive: questions answered from your knowledge base, objections addressed, meetings booked, referrals followed, opt-outs honoured immediately. When a reply is a clear yes to a simple offer, the agent can close it with a secure payment link.",
-        },
-        {
-          title: "Put reps on the calls that matter",
-          body: "Prospects who engage are added to the human dialer. Your rep sees who to call, why now and what to say, and makes the call. Dialvo's AI does not cold call.",
         },
       ],
     },
     playsLead:
       "Outbound isn't one campaign. Run the plays that suit your pipeline, side by side.",
     channels: {
-      lead: "Cold outreach uses the channels where a first message from a stranger is acceptable. Calls to prospects are made by people.",
+      lead: "Cold outreach uses the channels where a first message from a stranger is acceptable. Dialvo never makes calls.",
       items: [
         {
           id: "email",
@@ -278,10 +274,6 @@ export const MOTION_PAGES: Record<MotionId, MotionContent> = {
         {
           id: "social",
           body: "LinkedIn connection notes and messages from your reps' own profiles, sent after they approve them.",
-        },
-        {
-          id: "dialer",
-          body: "A prioritised call list for your reps, with the brief and an opening line on screen. People place the calls.",
         },
         {
           id: "messages",
@@ -318,7 +310,7 @@ export const MOTION_PAGES: Record<MotionId, MotionContent> = {
         {
           name: "Ava Lindqvist · Harbor Fitness",
           detail: "Opened twice, clicked · no reply",
-          tag: "On Priya's call list",
+          tag: "Follow-up email due",
         },
         {
           name: "Lena Ortiz · Calder & Pine",
@@ -384,8 +376,8 @@ export const MOTION_PAGES: Record<MotionId, MotionContent> = {
         a: "Each rep connects their own LinkedIn profile. The agent drafts connection notes and messages from the research; the rep approves them, and they go from that rep's account at a sensible daily pace. Dialvo doesn't use fake or shared profiles.",
       },
       {
-        q: "Does the AI cold call prospects?",
-        a: "No. AI voice calls are for people who asked to hear from you or opted in. Calls to cold prospects are made by your reps through the human dialer, with the research and an opening line in front of them.",
+        q: "Does Dialvo cold call prospects?",
+        a: "No. Dialvo never makes outbound calls of any kind. Outbound runs on email and LinkedIn; its phone agent only answers calls people make to you.",
       },
       {
         q: "Where does the prospect data come from?",
@@ -397,7 +389,7 @@ export const MOTION_PAGES: Record<MotionId, MotionContent> = {
       },
       {
         q: "Which plan includes outbound?",
-        a: "Starter includes research and personalised email from one inbox. Pro adds LinkedIn, multi-channel sequences, more inboxes, human dialer seats and CRM sync.",
+        a: "Starter includes research and personalised email from one inbox. Pro adds LinkedIn, multi-channel sequences, more inboxes and CRM sync.",
       },
     ],
   },
@@ -420,7 +412,7 @@ export const MOTION_PAGES: Record<MotionId, MotionContent> = {
         },
         {
           title: "Signals become tasks, and tasks wait",
-          body: '"Usage at 95%" joins a queue behind renewals and escalations. By the time someone calls, the customer has found a workaround.',
+          body: '"Usage at 95%" joins a queue behind renewals and escalations. By the time someone gets in touch, the customer has found a workaround.',
         },
         {
           title: "Problems surface at renewal",
@@ -434,7 +426,7 @@ export const MOTION_PAGES: Record<MotionId, MotionContent> = {
     },
     steps: {
       title: "From a signal on an account to a conversation with a rep",
-      lead: "Voice opens the conversation with customers who agreed to calls; email and messages carry it for everyone else.",
+      lead: "Email opens the conversation; texts and WhatsApp carry it for customers who agreed to them.",
       items: [
         {
           title: "Find the reason to get in touch",
@@ -446,7 +438,7 @@ export const MOTION_PAGES: Record<MotionId, MotionContent> = {
         },
         {
           title: "Start a real conversation",
-          body: "Customers who opted in get a call from the voice agent, which says why it's calling. Others get an email, text or WhatsApp from their account owner.",
+          body: "Each customer gets an email from their account owner saying why you're in touch, or a text or WhatsApp if they agreed to those.",
         },
         {
           title: "Understand the need",
@@ -468,12 +460,12 @@ export const MOTION_PAGES: Record<MotionId, MotionContent> = {
       lead: "Expansion uses the channels your customers have agreed to hear from you on.",
       items: [
         {
-          id: "voice",
-          body: "Calls to customers who opted in, with a specific reason for each call.",
-        },
-        {
           id: "email",
           body: "Check-ins and follow-ups from the account owner's inbox.",
+        },
+        {
+          id: "voice",
+          body: "Customers who ring you are answered by the phone agent, which knows their account. Dialvo never calls them.",
         },
         {
           id: "messages",
@@ -496,7 +488,7 @@ export const MOTION_PAGES: Record<MotionId, MotionContent> = {
       feed: [
         {
           name: "Harbor Fitness",
-          detail: "All seats used · call: needs 8 more",
+          detail: "All seats used · replied: needs 8 more",
           tag: "Booked with Priya",
           strong: true,
         },
@@ -508,7 +500,7 @@ export const MOTION_PAGES: Record<MotionId, MotionContent> = {
         },
         {
           name: "Oakline Studio",
-          detail: "Renewal in 60 days · check-in call done",
+          detail: "Renewal in 60 days · check-in email answered",
           tag: "Happy, renewing",
         },
         {
@@ -518,7 +510,7 @@ export const MOTION_PAGES: Record<MotionId, MotionContent> = {
         },
         {
           name: "Calder & Pine",
-          detail: "No opt-in for calls · email check-in",
+          detail: "No opt-in for texts · email check-in",
           tag: "Replied: not yet",
         },
       ],
@@ -534,8 +526,8 @@ export const MOTION_PAGES: Record<MotionId, MotionContent> = {
       lead: "These are relationships you've already earned. Dialvo is careful with them.",
       items: [
         {
-          title: "Consent for calls",
-          body: "The voice agent only calls customers with a recorded opt-in. No opt-in, no call.",
+          title: "No calls, consent for texts",
+          body: "Dialvo never calls your customers. Texts and WhatsApp go only to those with a recorded opt-in.",
         },
         {
           title: "Which accounts are covered",
@@ -568,8 +560,8 @@ export const MOTION_PAGES: Record<MotionId, MotionContent> = {
     ],
     faqs: [
       {
-        q: "Will my customers get calls from a robot they didn't ask for?",
-        a: "No. AI calls go only to customers who agreed to receive them. The agent explains why it's calling at the start, and stops if asked.",
+        q: "Will my customers get calls from a robot?",
+        a: "No. Dialvo never makes outbound calls. Its phone agent only answers when a customer rings you, and says it's an AI assistant at the start.",
       },
       {
         q: "Can the agent close an upgrade?",
@@ -603,7 +595,7 @@ export const MOTION_PAGES: Record<MotionId, MotionContent> = {
       points: [
         {
           title: "The yes arrives out of hours",
-          body: "A buyer decides in the evening, on a chat or a callback. The only next step on offer is a meeting two days away.",
+          body: "A buyer decides in the evening, on a chat or a call to your number. The only next step on offer is a meeting two days away.",
         },
         {
           title: "The meeting kills the momentum",

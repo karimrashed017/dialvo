@@ -35,17 +35,18 @@ export default function Terms() {
       </p>
       <ul>
         <li>
-          to have Dialvo&apos;s voice agents call, and its agents text or
-          message, only people who asked to hear from you or agreed to it;
+          to have Dialvo&apos;s agents text or message only people who asked to
+          hear from you or agreed to it (Dialvo&apos;s phone agent only answers
+          calls; it never makes them);
         </li>
         <li>to follow the calling, texting and email laws where you sell;</li>
         <li>not to use Dialvo to mislead, harass or spam anyone.</li>
       </ul>
       <p>
-        Dialvo tells people when a call is recorded, checks Do Not Call lists,
-        adds an unsubscribe link to every email and honours opt-outs, but these
-        defaults help you follow the rules; they don&apos;t replace your own
-        responsibility.
+        Dialvo tells callers when a call is transcribed or recorded, never makes
+        outbound calls, adds an unsubscribe link to every email and honours
+        opt-outs, but these defaults help you follow the rules; they don&apos;t
+        replace your own responsibility.
       </p>
       <h2>Contact</h2>
       <p>
