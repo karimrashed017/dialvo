@@ -33,6 +33,7 @@ import {
 import { addMonitor, decideSignal, deleteMonitor } from "../../plays/actions";
 import { FindTabs } from "../tabs";
 import { IntentSection } from "./intent";
+import { NewsSection } from "./news";
 
 export const metadata: Metadata = { title: "Signals" };
 
@@ -333,6 +334,10 @@ async function Content() {
         </div>
       </div>
       <IntentSection
+        workspaceId={workspace.id}
+        admin={workspace.role !== "member"}
+      />
+      <NewsSection
         workspaceId={workspace.id}
         admin={workspace.role !== "member"}
       />
