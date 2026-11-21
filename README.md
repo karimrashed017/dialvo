@@ -40,7 +40,7 @@ npm test        # the tests alone (vitest)
 - `src/app/plays`: every play as a card (the grid that used to be on the home
   page), and `src/app/plays/[slug]`: one page per play (14).
 - `src/app/platform` and `src/app/platform/[slug]`: the platform overview and
-  one page per feature (36, in seven groups).
+  one page per feature (35, in seven groups).
 - `src/lib/content/`: all the copy for those pages, typed. `catalog.ts` is the
   map (motions, plays, feature groups, one-liners) that the menus, footer,
   sitemap and cards read; the `plays-*.ts`, `platform-*.ts` and `motions.ts`
