@@ -119,43 +119,38 @@ export const INBOUND_PLAYS = {
   },
 
   "automated-meeting-scheduling": {
-    promise: "The meeting is on the calendar before your rep hears about it.",
+    promise: "Your booking link, offered the moment someone wants to talk.",
     intro:
-      'Dialvo books the meeting inside the first conversation, on the right rep\'s calendar, then handles reminders, reschedules and no-shows without anyone on your team sending a single "does Thursday work?" email.',
+      "Add your booking link once. When someone replies to an email wanting to meet, asks for a meeting in your website chat or on a call, Dialvo offers that link straight away and tells your team. Bookings made from the chat are recorded on the lead.",
     description:
-      "Dialvo books qualified leads onto the right rep's calendar during the first call or chat, then handles reminders, rescheduling and no-shows automatically.",
+      "Dialvo offers your booking link the moment a lead wants to meet, in email replies, the website chat and on calls to your phone agent, tells your team, and records bookings on the lead when your scheduling page sends people back.",
     situation: {
       title: "Scheduling quietly eats deals",
       body: [
-        "Between a lead saying yes and the meeting happening, there is a gap. Three emails to find a time. A booking link nobody clicks. A reschedule that never gets rebooked. Each step loses a few people who were ready to talk.",
-        "It also eats your reps' day. Every hour spent on calendar admin is an hour not spent on a live deal, and the admin grows with every lead you generate.",
-        "The fix isn't a prettier booking page. It's making sure nobody leaves the first conversation without a time in the diary.",
+        "Between a lead saying yes and the meeting happening, there is a gap. A reply that waits until tomorrow. Three emails to find a time. Each step loses a few people who were ready to talk.",
+        "The fix isn't another tool. It's making sure that whenever someone says they want to talk, the way to book is in front of them in the same minute.",
       ],
     },
     steps: [
       {
-        title: "The agent qualifies first",
-        body: "On a call, in chat or by email, the agent confirms the lead is worth a meeting using your criteria, so calendars fill with good fits only.",
+        title: "Add your booking link",
+        body: "Any scheduling page works. Set its redirect after booking to Dialvo's link, so bookings come back.",
       },
       {
-        title: "It picks the right rep",
-        body: "Your routing rules decide whose calendar to offer: territory, account owner, deal size, product line or round robin.",
+        title: "In the chat, it's offered in the conversation",
+        body: "When a visitor wants to meet, the website chat offers your link right there.",
       },
       {
-        title: "It offers real times and books one",
-        body: "The agent reads live availability from Google Calendar, offers two or three slots in the lead's time zone and sends the invite while they're still talking.",
+        title: "In email, the answer carries it",
+        body: "When a reply is sorted as interested, the drafted answer offers your link and your team is told.",
       },
       {
-        title: "Reminders go out by themselves",
-        body: "A confirmation at once, then reminders by email and text before the meeting, each with a one-tap way to move it.",
+        title: "On a call, it's sent by text",
+        body: "When a caller asks for a meeting, the phone agent texts them your link.",
       },
       {
-        title: "Reschedules and no-shows are rebooked",
-        body: "If someone cancels or doesn't turn up, the agent follows up, offers new times and rebooks, without creating a task for the rep.",
-      },
-      {
-        title: "The rep gets a briefing",
-        body: "The invite carries what the lead asked about, how they answered your questions and why they're looking now, so the meeting starts where the first conversation ended.",
+        title: "The booking lands on the lead",
+        body: "When your scheduling page sends the person back, the lead is marked meeting booked, with the time when the page passes it on.",
       },
     ],
     visual: {
@@ -168,46 +163,46 @@ export const INBOUND_PLAYS = {
         },
         {
           agent: true,
-          text: "That timing works. Tom looks after teams your size. He's free Wednesday at 2:00 or Thursday at 9:30, UK time. Which suits you?",
+          text: "That timing works. The quickest next step is a short call with our team. You can pick a time here: book.northwind.example",
         },
-        { text: "Thursday 9:30." },
+        { text: "Done, Thursday at 9:30." },
         {
           agent: true,
-          text: "Booked. The invite is in your inbox, and I'll send a reminder the day before with a link in case you need to move it.",
+          text: "Thanks, I can see it. Tom will be on the call and has the notes from this chat.",
         },
       ],
       foot: "Sample conversation with a made-up business.",
     },
-    channels: ["voice", "chat", "email", "messages"],
+    channels: ["chat", "email", "voice"],
     features: [
-      "intelligent-lead-routing",
       "inbound-lead-qualification",
-      "ai-phone-agent",
       "smart-replies",
+      "ai-phone-agent",
+      "intelligent-lead-routing",
       "crm-integration",
     ],
     setup: [
-      "Connect each rep's Google Calendar and set their working hours.",
-      "Choose meeting lengths, buffers and how far ahead people can book.",
-      "Write the routing rules, or sync account owners from your CRM.",
-      "Decide how many reminders go out and on which channels.",
+      "Add your booking link under Settings, Mailboxes, follow-ups.",
+      "Set your scheduling page's redirect after booking to Dialvo's link.",
+      "Connect a mailbox, for answers to email replies.",
+      "Put the website chat on your site, for bookings from the chat.",
     ],
     faqs: [
       {
-        q: "Can it book for a whole team?",
-        a: "Yes. It reads every connected calendar, applies your routing rules and shares meetings fairly when several reps could take one.",
+        q: "Does Dialvo read our calendars?",
+        a: "No. People pick a time on your own scheduling page, which already knows when you're free.",
       },
       {
-        q: "What does the rep see?",
-        a: "A calendar invite with a short briefing, the full transcript one click away, and the same details on the CRM record.",
+        q: "Which scheduling tools work?",
+        a: "Any page with a booking link. To record bookings automatically, it needs to redirect people to a link after they book.",
       },
       {
-        q: "Does it double-book?",
-        a: "No. It checks live availability at the moment of booking and holds the slot while the lead confirms.",
+        q: "What does the team see?",
+        a: "An alert that someone wants to meet, and the lead marked meeting booked once they do, with the conversation that led to it.",
       },
       {
-        q: "We already use a scheduling tool. Do we have to drop it?",
-        a: "No. Dialvo can hand qualified leads to your existing booking link or router instead of booking directly, and still log the outcome.",
+        q: "Does it handle reminders and reschedules?",
+        a: "Your scheduling page does. Dialvo records the booking; reminders and changes stay with the tool you already use.",
       },
     ],
     related: [

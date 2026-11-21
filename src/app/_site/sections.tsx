@@ -18,7 +18,14 @@ import {
 } from "lucide-react";
 import type { StaticImageData } from "next/image";
 import { Mark } from "@/components/brand/logo";
-import { featureHref, playHref, type MotionId } from "@/lib/content/catalog";
+import {
+  FEATURE_SLUGS,
+  featureHref,
+  GROUPS,
+  itemInfo,
+  playHref,
+  type MotionId,
+} from "@/lib/content/catalog";
 import type { Visual } from "@/lib/content/types";
 import { cn } from "@/lib/utils";
 import labrador from "../../../public/images/art/bradford-coast-of-labrador.jpg";
@@ -133,7 +140,7 @@ const JOBS: {
   {
     id: "inbound",
     title: "Inbound: every lead answered in seconds.",
-    body: "Forms, calls and chats get a reply straight away, day or night. The agent asks your qualifying questions, books the meeting or passes the call to you live, and keeps following up by email, text and WhatsApp until they answer.",
+    body: "Forms, calls and chats get a reply straight away, day or night. The agent asks your qualifying questions, offers your booking link or passes the call to you live, and keeps following up by email, and by text for people who agreed, until they answer.",
     tags: [
       { label: "Speed to lead", href: playHref("speed-to-lead") },
       {
@@ -144,7 +151,7 @@ const JOBS: {
         label: "Meeting scheduling",
         href: playHref("automated-meeting-scheduling"),
       },
-      { label: "No-show follow-up" },
+      { label: "Lead routing", href: featureHref("intelligent-lead-routing") },
     ],
     art: heade,
     visual: {
@@ -421,6 +428,83 @@ export function Jobs() {
   );
 }
 
+// --- The platform -------------------------------------------------------------------
+
+/**
+ * Every platform group with every feature in it, so the home page shows the
+ * whole product. It reads the catalog, so a new feature appears here (and in
+ * the menu, the footer and the sitemap) as soon as it has a page.
+ */
+export function PlatformOverview() {
+  return (
+    <section id="platform" className="scroll-mt-20 px-5 py-24 sm:py-32">
+      <Head
+        title="Everything the agents work from."
+        lead={`Data, research, scoring, sequences, inbound handling, deliverability and integrations: ${FEATURE_SLUGS.length} features, each with its own page saying what it does, what it needs and where it stops.`}
+      />
+      <ul className="mx-auto mt-12 grid max-w-[1180px] gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {GROUPS.map((g, i) => (
+          <Rise
+            as="li"
+            key={g.id}
+            delay={(i % 4) * 0.06}
+            className="flex flex-col rounded-[22px] border border-black/[0.08] bg-white/80 p-6 shadow-[0_12px_32px_-18px_rgba(60,45,30,0.18)]"
+          >
+            <span className="grid size-10 place-items-center rounded-xl border border-black/12 bg-black/[0.05]">
+              <g.icon aria-hidden className="size-[18px]" />
+            </span>
+            <h3 className="mt-5 text-[16px] font-medium">
+              <Link
+                href={`/platform#${g.id}`}
+                className="transition-colors hover:text-[#0B0B0C]/70"
+              >
+                {g.title}
+              </Link>
+            </h3>
+            <p className={`mt-1.5 text-[14px] leading-[1.5] ${muted}`}>
+              {g.blurb}
+            </p>
+            <ul className="mt-4 space-y-1.5 border-t border-black/[0.07] pt-4">
+              {g.items.map((item) => {
+                const it = itemInfo(item);
+                return (
+                  <li key={it.key}>
+                    <Link
+                      href={it.href}
+                      className="text-[14px] leading-[1.4] text-[#0B0B0C]/75 underline decoration-transparent underline-offset-4 transition-colors hover:text-[#0B0B0C] hover:decoration-black/30"
+                    >
+                      {it.title}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </Rise>
+        ))}
+        <Rise
+          as="li"
+          delay={0.18}
+          className="flex flex-col justify-between rounded-[22px] bg-[#0B0B0C] p-6 text-white"
+        >
+          <p className={`${serif} text-[28px] leading-[1.1]`}>
+            One platform under every agent.
+          </p>
+          <Link
+            href="/platform"
+            className="group mt-8 inline-flex items-center gap-1.5 self-start text-[14.5px] font-medium underline decoration-white/30 underline-offset-4 transition-colors hover:decoration-white"
+          >
+            See the whole platform
+            <ArrowRight
+              aria-hidden
+              className="size-3.5 transition-transform group-hover:translate-x-0.5"
+            />
+          </Link>
+        </Rise>
+      </ul>
+    </section>
+  );
+}
+
 // --- What it replaces ---------------------------------------------------------------
 
 const PILE: { icon: LucideIcon; name: string }[] = [
@@ -434,16 +518,16 @@ const PILE: { icon: LucideIcon; name: string }[] = [
 // The tools Dialvo connects to. Those with a logo file in public/apps show
 // it; the rest show their name.
 const TOOLS: { logo?: string; name: string }[] = [
-  { name: "Salesforce" },
   { logo: "hubspot", name: "HubSpot" },
   { logo: "pipedrive", name: "Pipedrive" },
-  { name: "Zoho" },
   { logo: "gmail", name: "Gmail" },
   { logo: "outlook", name: "Outlook" },
-  { logo: "google-calendar", name: "Google Calendar" },
   { name: "Slack" },
-  { logo: "whatsapp", name: "WhatsApp" },
-  { name: "API" },
+  { name: "Twilio" },
+  { name: "LinkedIn, Meta and Google ad files" },
+  { name: "Calendars by iCal" },
+  { name: "Claude, Cursor and MCP apps" },
+  { name: "API and webhooks" },
 ];
 
 export function Replaces() {
@@ -498,7 +582,7 @@ export function Replaces() {
       </div>
       <Rise className="mx-auto mt-12 max-w-[1180px]">
         <p className={`text-center text-[15px] ${muted}`}>
-          Works from your CRM, your inbox and your calendar
+          Works with your CRM, your inbox and the tools your team uses
         </p>
         <ul className="mt-6 flex flex-wrap justify-center gap-2">
           {TOOLS.map((t) => (

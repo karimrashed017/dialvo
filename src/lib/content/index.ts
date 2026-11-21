@@ -2,6 +2,7 @@
 // pages exist; `satisfies` here makes a missing page a type error.
 
 import type { FeatureSlug, PlaySlug } from "./catalog";
+import { ACTIVATION_FEATURES } from "./platform-activation";
 import { ANALYTICS_RESEARCH_FEATURES } from "./platform-analytics-research";
 import { DATA_OUTREACH_FEATURES } from "./platform-data-outreach";
 import { DATA_TABLE_FEATURES } from "./platform-data-tables";
@@ -22,7 +23,11 @@ export const FEATURE_PAGES = {
   ...ANALYTICS_RESEARCH_FEATURES,
   ...INBOUND_INTEGRATION_FEATURES,
   ...DATA_TABLE_FEATURES,
+  ...ACTIVATION_FEATURES,
 } satisfies Record<FeatureSlug, FeatureContent>;
+
+/** How each feature works, what it needs and its questions. */
+export { FEATURE_DETAILS } from "./platform-details";
 
 export { MOTION_PAGES } from "./motions";
 export * from "./catalog";

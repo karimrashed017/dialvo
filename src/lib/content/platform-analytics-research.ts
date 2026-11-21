@@ -92,46 +92,38 @@ export const ANALYTICS_RESEARCH_FEATURES = {
   "deliverability-and-mailbox-health": {
     tagline: "A good email only counts if it reaches the inbox.",
     intro:
-      "Dialvo sends cold email from your own inboxes, on your own domains, as you. That makes your sender reputation worth protecting. Deliverability is built into how every sequence sends, so volume never outruns what your mailboxes can safely carry.",
+      "Dialvo sends from your own mailboxes, on your own domains, as you. That makes your sender reputation worth protecting. Every mailbox is checked, ramped up slowly, kept under a daily limit and paused by itself if people start bouncing or asking to stop.",
     description:
-      "Dialvo protects email deliverability with authenticated sending domains, gradual warm-up, daily limits, mailbox rotation, health monitoring and automatic unsubscribes.",
+      "Dialvo protects email deliverability with DNS checks per mailbox (SPF, DKIM, DMARC and MX) and plain fixes, a gradual ramp-up, daily limits, spacing between sends, and an automatic pause when bounces or unsubscribes run high.",
     capabilities: [
       {
-        title: "Your inboxes, your identity",
-        body: "Connect Gmail or Outlook mailboxes. Email goes out under your name and domain, with your business details in the footer.",
+        title: "Your mailboxes, your identity",
+        body: "Connect your own address. Email goes out under your name and domain, with an unsubscribe link and your details.",
       },
       {
-        title: "Authentication checked",
-        body: "Dialvo checks SPF, DKIM and DMARC on each sending domain and tells you exactly what to fix before the first send.",
+        title: "DNS checked, fixes in plain words",
+        body: "SPF, DKIM, DMARC and MX are checked for each mailbox's domain, with exactly what to change when something's missing.",
       },
       {
-        title: "Separate sending domains",
-        body: "Guidance on setting up a dedicated outreach domain, so your main domain's reputation is kept apart from cold email.",
+        title: "A gradual ramp-up",
+        body: "A new mailbox starts at 10 emails a day and adds 5 a day until it reaches its limit.",
       },
       {
-        title: "Gradual warm-up",
-        body: "New mailboxes start with a small daily volume that rises over weeks. Nothing jumps from zero to hundreds.",
+        title: "Daily limits",
+        body: "30 a day per mailbox once ramped up, unless you set it lower, and never more than 50. The workspace has a daily total too.",
       },
       {
-        title: "Daily limits and rotation",
-        body: "Each mailbox has a cap. Sequences spread their sends across your connected inboxes and across the day, like a person working through a list.",
+        title: "Spaced like a person",
+        body: "Emails from one mailbox go out minutes apart, at varied gaps, not in a burst.",
       },
       {
-        title: "Health monitoring",
-        body: "Bounces, spam complaints and placement checks are tracked per mailbox. An inbox that starts to struggle is slowed or paused automatically.",
-      },
-      {
-        title: "Unsubscribe on every email",
-        body: "A working unsubscribe link and one-click header on every message. Opt-outs take effect at once and are written to your CRM.",
-      },
-      {
-        title: "Addresses verified first",
-        body: "Email addresses are checked before sending, which keeps the bounce rate down and your reputation up.",
+        title: "Paused automatically",
+        body: "If bounces or unsubscribes pass a threshold over two weeks, the mailbox stops sending and your team is told.",
       },
     ],
     fit: [
-      "Every email agent sends through this layer. The sequence builder can ask for a hundred sends today; deliverability decides how many each mailbox can take and queues the rest.",
-      "It works alongside personalisation. Fewer, more relevant emails draw fewer complaints, and that does more for inbox placement than any technical setting.",
+      "Every email Dialvo sends goes through these limits. A play can draft a hundred emails today; each mailbox sends only what it safely can, and the rest wait their turn.",
+      "Fewer, more relevant emails draw fewer complaints, which does more for where your mail lands than any technical setting.",
     ],
     visual: {
       kind: "list",
@@ -140,20 +132,20 @@ export const ANALYTICS_RESEARCH_FEATURES = {
       rows: [
         {
           name: "priya@northwind.example",
-          detail: "Authenticated · 38 of 40 sent · no bounces",
+          detail: "DNS checked · 24 of 30 sent · no bounces",
           tag: "Healthy",
           strong: true,
         },
         {
           name: "tom@northwind.example",
-          detail: "Authenticated · 22 of 40 sent",
+          detail: "DNS checked · 18 of 30 sent",
           tag: "Healthy",
           strong: true,
         },
         {
           name: "sales@getnorthwind.example",
-          detail: "Day 9 of warm-up · limit 15 a day",
-          tag: "Warming",
+          detail: "Ramping up · 20 a day today",
+          tag: "Ramping",
         },
         {
           name: "hello@northwind.example",
@@ -166,19 +158,19 @@ export const ANALYTICS_RESEARCH_FEATURES = {
     controls: [
       {
         title: "Limits you set",
-        body: "Lower any mailbox's daily cap below Dialvo's default. You can't raise it past a safe ceiling.",
+        body: "Lower any mailbox's daily limit. It can't be raised past the safe ceiling.",
       },
       {
-        title: "Suppression lists",
-        body: "Upload domains and addresses that must never be emailed. They apply to every play.",
+        title: "Never-contact list",
+        body: "Addresses and domains on it are never emailed, by any play.",
       },
       {
-        title: "No guarantees",
-        body: "Nobody controls where an inbox provider places a message. Dialvo follows good sending practice and shows you the signals; it can't promise the inbox.",
+        title: "No placement tests",
+        body: "Dialvo doesn't run inbox-placement tests, and nobody controls where a provider puts a message. It follows good practice and shows you the signals.",
       },
       {
-        title: "Extra inboxes",
-        body: "Plans include a set number of sending inboxes; more can be added as an add-on.",
+        title: "Resume when fixed",
+        body: "A paused mailbox stays paused until someone resumes it, and the count starts again.",
       },
     ],
     related: [
@@ -417,87 +409,87 @@ export const ANALYTICS_RESEARCH_FEATURES = {
   },
 
   playbooks: {
-    tagline: "Proven sales plays, ready to switch on.",
+    tagline: "Ready-made plays, and your own.",
     intro:
-      "You shouldn't have to design a campaign from a blank page. A playbook is a complete play: who to target, what to research, what to say, in what order and when to hand over. Pick one, fill in your details and it runs.",
+      "Dialvo comes with plays for the common situations: a new lead, a quiet lead, a lost deal, an event. When yours doesn't fit any of them, write a playbook: who it picks, what the first email should do, which sequence follows and whether it waits for you.",
     description:
-      "Dialvo playbooks are ready-made sales plays, each with its own audience rules, research logic, sequence and handoff. Pick one, add your details and launch.",
+      "Dialvo's playbooks are ready-made sales plays plus your own custom ones: pick leads by stage, inactivity and source, set the first email's goal, the sequence and the language, and choose whether each draft waits for approval.",
     capabilities: [
       {
         title: "A play for each situation",
-        body: "Speed to lead, outbound lead generation, nurture, reactivation, closed lost, competitive takeout, visitor follow-up, the three event plays, expansion, onboarding and PLG conversion.",
+        body: "Speed to lead, outbound lead generation, nurture, reactivation, closed lost, competitive takeout, website visitors, the three event plays, onboarding, expansion and PLG conversion.",
       },
       {
-        title: "Strategy included",
-        body: "Each playbook knows what it's looking for. The closed-lost play reads lost reasons; the event play reads session attendance. It's more than a sequence with a name.",
+        title: "Your own playbooks",
+        body: "For anything the ready-made plays don't cover, write a playbook of your own.",
       },
       {
-        title: "Set up by answering questions",
-        body: "A short setup asks for the details that play needs: the event date, the competitor's name, the usage trigger. Dialvo builds the audience and sequence from your answers.",
+        title: "Who it picks",
+        body: "Leads by stage, how long they've been quiet and where they came from.",
       },
       {
-        title: "A planning assistant",
-        body: "Describe a goal in your own words and Dialvo proposes the audience, angle and sequence for you to edit.",
+        title: "What the first email should do",
+        body: "Say the goal in a sentence. The email is written for each person from your Knowledge.",
       },
       {
-        title: "Run several at once",
-        body: "Plays run side by side, and a lead is only ever in one at a time, so nobody gets two campaigns in the same week.",
+        title: "Which sequence follows",
+        body: "Choose a sequence and its language, so the follow-ups are set up once.",
       },
       {
-        title: "Results per play",
-        body: "Replies, qualified leads and meetings are reported for each play, so you can see which one is paying for itself.",
+        title: "Approval your way",
+        body: "Have each draft wait for you, or let the playbook send within your limits.",
       },
     ],
     fit: [
-      "A playbook ties the platform together. It draws its audience from the database or your CRM, briefs the research agent, supplies the sequence and sets the rules for replies and routing.",
-      "Everything in a playbook can be edited: instructions, steps, timings and approvals are all visible. Start with the default and adjust as the results come in.",
+      "Playbooks tie the rest together: an audience or a list decides who, the knowledge base decides what's true, and the sequence decides what follows.",
+      "Results are counted per play in Analytics, so you can see which ones earn their place.",
     ],
     visual: {
       kind: "list",
       title: "Playbooks",
-      note: "your workspace",
+      note: "running",
       rows: [
         {
-          name: "Speed to lead",
-          detail: "Inbound · form leads · voice, chat, SMS",
-          tag: "Running",
+          name: "Quiet trial users",
+          detail: "Stage: trial · quiet 14 days · source: signup",
+          tag: "Your playbook",
           strong: true,
         },
         {
-          name: "Visitor follow-up",
-          detail: "Outbound · pricing-page visitors · email, LinkedIn",
-          tag: "Running",
+          name: "Lead reactivation",
+          detail: "Quiet 30 days · drafts wait for approval",
+          tag: "Ready-made",
           strong: true,
         },
         {
-          name: "Closed lost",
-          detail: "Outbound · deals lost 6+ months ago",
-          tag: "In review",
+          name: "Event follow-up",
+          detail: "Attendees from the November webinar",
+          tag: "Ready-made",
         },
         {
-          name: "Customer expansion",
-          detail: "Expansion · accounts at seat limit",
-          tag: "Draft",
+          name: "Partner referrals",
+          detail: "Source: partner · German sequence",
+          tag: "Your playbook",
         },
       ],
-      foot: "Sample workspace.",
+      foot: "Sample playbooks. All made up.",
     },
     controls: [
       {
-        title: "Review before launch",
-        body: "Every play shows its audience size, sample messages and schedule before it starts.",
+        title: "The never-contact rules",
+        body: "No playbook writes to anyone on your never-contact list, anyone who unsubscribed or anyone who asked not to be contacted.",
       },
       {
-        title: "Pause at any time",
-        body: "Pause a play and everything in flight stops. Resume and it carries on from where it was.",
+        title: "Not the same lead too soon",
+        body: "A playbook doesn't pick a lead again within the number of days you set.",
       },
       {
-        title: "Priority order",
-        body: "When a lead qualifies for two plays, your priority order decides which one they enter.",
+        title: "A cap on every start",
+        body: "Each time a playbook starts, it picks a limited number of leads, so one click can't email your whole database.",
       },
     ],
-    related: ["sequence-builder", "analytics", "deep-research"],
-    plays: ["speed-to-lead", "closed-lost", "event-follow-up"],
+    related: ["sequence-builder", "saved-audiences", "workflows"],
+    plays: ["lead-reactivation", "closed-lost", "event-follow-up"],
   },
 
   "knowledge-base": {

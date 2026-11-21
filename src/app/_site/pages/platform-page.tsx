@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { GROUPS, itemInfo, PLATFORM_PAGE } from "@/lib/content";
+import { FEATURE_SLUGS, GROUPS, itemInfo, PLATFORM_PAGE } from "@/lib/content";
 import { Rise, Words } from "../motion";
 import { muted, serif } from "../theme";
 import {
@@ -14,7 +14,7 @@ import {
 } from "./parts";
 import { PageShell } from "./shell";
 
-/** /platform: the six groups and every feature in them. */
+/** /platform: every group and every feature in it. */
 export function PlatformPage() {
   const page = PLATFORM_PAGE;
   return (
@@ -29,7 +29,9 @@ export function PlatformPage() {
           />
           <div className="mt-8 max-w-[860px]">
             <Rise>
-              <Eyebrow label="Platform · six groups, 23 features" />
+              <Eyebrow
+                label={`Platform · ${GROUPS.length} groups, ${FEATURE_SLUGS.length} features`}
+              />
             </Rise>
             <Words
               as="h1"
@@ -48,7 +50,7 @@ export function PlatformPage() {
               <HeroButtons />
             </Rise>
           </div>
-          {/* Jump links to the six groups. */}
+          {/* Jump links to the groups. */}
           <Rise delay={0.45}>
             <ul className="mt-12 flex flex-wrap gap-2">
               {GROUPS.map((g) => (

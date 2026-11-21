@@ -1,7 +1,8 @@
-import { APP_FEATURES, statusLine } from "@/lib/plays/catalog";
+import { appFeature, statusLine } from "@/lib/plays/catalog";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import {
+  FEATURE_DETAILS,
   FEATURE_PAGES,
   FEATURES,
   groupById,
@@ -15,11 +16,14 @@ import {
   Backdrop,
   Band,
   Breadcrumbs,
+  Checklist,
   Eyebrow,
+  FaqList,
   FeatureLinks,
   HeroButtons,
   PointGrid,
   Split,
+  Steps,
 } from "./parts";
 import { PageShell } from "./shell";
 import { VisualPanel } from "./visual";
@@ -28,6 +32,10 @@ import { VisualPanel } from "./visual";
 export function FeaturePage({ slug }: { slug: FeatureSlug }) {
   const entry = FEATURES[slug];
   const page = FEATURE_PAGES[slug];
+  const details = FEATURE_DETAILS[slug];
+  // The app's entry, once it has one. A feature written ahead of the merge
+  // that adds it to the app shows no status line rather than failing.
+  const app = appFeature(slug);
   const group = groupById(entry.group);
   return (
     <PageShell>
@@ -61,12 +69,14 @@ export function FeaturePage({ slug }: { slug: FeatureSlug }) {
               <Rise delay={0.4} className="mt-8">
                 <HeroButtons />
                 {/* Whether the app does this today: the same status as in the app. */}
-                <p
-                  data-app-status={APP_FEATURES[slug].status}
-                  className={`mt-4 text-[13px] ${muted}`}
-                >
-                  {statusLine(APP_FEATURES[slug].status)}
-                </p>
+                {app && (
+                  <p
+                    data-app-status={app.status}
+                    className={`mt-4 text-[13px] ${muted}`}
+                  >
+                    {statusLine(app.status)}
+                  </p>
+                )}
               </Rise>
             </div>
             <Rise delay={0.2} className="min-w-0">
@@ -85,6 +95,14 @@ export function FeaturePage({ slug }: { slug: FeatureSlug }) {
       >
         <PointGrid items={page.capabilities} cols={3} />
       </Band>
+
+      <Split
+        id="how"
+        title="How it works"
+        lead={`${details.steps.length} steps, from setting it up to seeing the result.`}
+      >
+        <Steps items={details.steps} />
+      </Split>
 
       <Split id="fit" title="How it fits with the agents">
         <div className="space-y-5">
@@ -120,6 +138,14 @@ export function FeaturePage({ slug }: { slug: FeatureSlug }) {
       </Split>
 
       <Split
+        id="needs"
+        title="What it needs"
+        lead="What has to be in place before it runs."
+      >
+        <Checklist items={details.needs} />
+      </Split>
+
+      <Split
         id="controls"
         title="Controls and limits"
         lead="What you decide, and what this feature won't do."
@@ -134,6 +160,10 @@ export function FeaturePage({ slug }: { slug: FeatureSlug }) {
             </Rise>
           ))}
         </dl>
+      </Split>
+
+      <Split id="faq" title="Questions">
+        <FaqList faqs={details.faqs} />
       </Split>
 
       <Band

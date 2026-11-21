@@ -2,20 +2,20 @@
 
 > Dialvo runs inbound and outbound sales with AI agents. They answer every lead within a minute, go out to find new business, answer your phone, follow up on email, chat, social, SMS and WhatsApp, book the meetings, close simple sales and grow existing customers with onboarding, renewals and upgrades. Bigger or more complex deals go to your team. Dialvo never makes outbound calls.
 
-Dialvo is open for sign-up at https://trydialvo.com/signup. The website chat agent is live today; the other channels are being switched on in stages. Website: https://trydialvo.com. Contact: contact@trydialvo.com.
+Dialvo is open for sign-up at https://trydialvo.com/signup. Each feature page says whether it's available in the app today. Website: https://trydialvo.com. Contact: contact@trydialvo.com.
 
 ## Channels
 
-- Voice: an AI phone agent answers calls to your business number, day and night, qualifies callers, books meetings and transfers live calls to a person. It only answers: Dialvo never makes outbound calls. The live demo includes a receptionist, a new enquiry and a customer line, with a choice of voice styles.
-- Email: agents research each account and write one message for one person, sent from your own Gmail or Outlook inbox, and handle the replies.
+- Voice: an AI phone agent answers calls to your business number, day and night, qualifies callers, texts them your booking link and transfers live calls to a person. It only answers: Dialvo never makes outbound calls. The live demo includes a receptionist, a new enquiry and a customer line, with a choice of voice styles.
+- Email: agents research each account and write one message for one person, sent from your own mailbox, with up to five follow-ups in the language you choose; replies are sorted and answers drafted for you.
 - Chat: a website chat agent that answers visitors straight away and qualifies them without a form.
-- Social: agents start and continue conversations on professional networks from your reps' own profiles.
-- SMS and WhatsApp: follow-up by message with people who opted in.
+- LinkedIn: messages written by Dialvo as tasks, which a person on your team sends from their own profile. Dialvo doesn't log in to LinkedIn.
+- Text messages: sequence steps sent only to people who agreed to texts, with STOP honoured on every channel.
 
 ## Four motions
 
 - [Inbound](https://trydialvo.com/inbound): speed to lead within seconds, qualification against your criteria, lead routing, meeting scheduling, follow-up across channels.
-- [Outbound](https://trydialvo.com/outbound): prospect data, live signals (funding, hiring, job changes, new tools, site visits, review-site research), deep research, personalised multi-channel sequences and reply handling. Cold email is sent from the customer's own inboxes and domains, with authentication, gradual warm-up, daily limits, sender details and an unsubscribe link. LinkedIn messages are drafted by the agent and sent from the rep's own profile after the rep approves them. Dialvo never makes calls to prospects.
+- [Outbound](https://trydialvo.com/outbound): prospect data, lists with research columns, always-on sourcing, signals (company news such as funding, launches and leadership hires, site visits, review-site research), deep research, personalised multi-channel sequences and reply handling. Cold email is sent from the customer's own inboxes and domains, with DNS checks, a gradual ramp-up, daily limits, an automatic pause, sender details and an unsubscribe link. LinkedIn messages are drafted by the agent and sent from the rep's own profile after the rep approves them. Dialvo never makes calls to prospects.
 - [Closing](https://trydialvo.com/closing): simple sales with a clear price, finished in the conversation. The agent recognises a clear yes, confirms the offer and price from your knowledge base, answers the last questions, and sends a secure payment link, a booking or an agreement to sign, then logs the sale and hands off. You set which offers it may close, the price limits and the discount rules. Complex, negotiated or high-value deals always go to your team. The agent never takes or reads out card details and never invents prices or terms. Works on voice, chat, SMS, WhatsApp and email replies.
 - [Expansion](https://trydialvo.com/expansion): upsell, cross-sell, renewal check-ins and onboarding with existing customers who opted in.
 
@@ -26,7 +26,7 @@ All plays: [https://trydialvo.com/plays](https://trydialvo.com/plays). Each play
 ### Inbound plays
 
 - [Speed to lead](https://trydialvo.com/plays/speed-to-lead): Every form fill gets an email or chat reply within seconds, at any hour.
-- [Automated meeting scheduling](https://trydialvo.com/plays/automated-meeting-scheduling): Meetings booked on the right rep's calendar during the first conversation.
+- [Automated meeting scheduling](https://trydialvo.com/plays/automated-meeting-scheduling): Your booking link offered the moment a lead wants to talk, in email or the website chat.
 - [Customer onboarding operations](https://trydialvo.com/plays/customer-onboarding-operations): A live onboarding conversation for every new customer, not only the big ones.
 
 ### Outbound plays
@@ -48,47 +48,63 @@ All plays: [https://trydialvo.com/plays](https://trydialvo.com/plays). Each play
 
 ## Platform
 
-Overview: [https://trydialvo.com/platform](https://trydialvo.com/platform). Governance on every feature: readable agent instructions, approval thresholds, escalation rules, send windows and consent checks.
+Overview: [https://trydialvo.com/platform](https://trydialvo.com/platform). Each feature has its own page: what it does, how it works step by step, what it needs, its limits, and questions. Governance on every feature: approval per play and sequence, sending limits, a never-contact list, consent checks, and handoffs to a person.
 
 ### Data and lead generation
 
 - [Real-time company and lead database](https://trydialvo.com/platform/company-and-lead-database): Companies and contacts checked at the moment you reach out, not when you bought the list.
 - [Live web search and AI prospecting](https://trydialvo.com/platform/live-web-search-prospecting): Describe the accounts you want in a sentence; get a list with the reason for each.
-- [Lead qualification](https://trydialvo.com/platform/lead-qualification): Every lead checked against your criteria before a single message goes out.
+- [Lists and research columns](https://trydialvo.com/platform/lists-and-research): A spreadsheet of companies or people, with a question researched for every row.
+- [Always-on market sourcing](https://trydialvo.com/platform/market-sourcing): A saved search that keeps adding new companies on a schedule.
+- [CRM enrichment](https://trydialvo.com/platform/crm-enrichment): Missing emails, titles and company details filled in, and job changes spotted.
 - [Website visitor tracking](https://trydialvo.com/platform/website-visitor-tracking): See which companies are on your site and what they read, then act on it.
+- [Company news signals](https://trydialvo.com/platform/company-news): Funding, launches and leadership hires at the companies you track, with the source.
+
+### Scoring and accounts
+
+- [Lead qualification](https://trydialvo.com/platform/lead-qualification): Every lead checked against your criteria before a single message goes out.
+- [Lead scoring and tiers](https://trydialvo.com/platform/lead-scoring): Fit and engagement scores, and a tier from 1 to 3 on every lead.
+- [Account-based target lists](https://trydialvo.com/platform/account-based-lists): Target accounts with their buying committee, and one view per company.
+- [Territory planning](https://trydialvo.com/platform/territory-planning): Territories and reps, with accounts shared out fairly.
+- [Saved audiences](https://trydialvo.com/platform/saved-audiences): Segments of your leads that keep themselves up to date.
+- [Ad audiences](https://trydialvo.com/platform/ad-audiences): Upload files for LinkedIn, Meta and Google ads, and suppression lists, from your leads.
 
 ### Outreach and workflows
 
 - [Multi-channel sequences](https://trydialvo.com/platform/multi-channel-sequences): Email, LinkedIn and texts as one conversation that remembers.
-- [Sequence builder](https://trydialvo.com/platform/sequence-builder): Steps, timing, channels and branches in one place, with limits you set.
-- [Smart replies](https://trydialvo.com/platform/smart-replies): Replies sorted and answered within minutes; meetings booked; opt-outs honoured.
-- [Multilingual outreach](https://trydialvo.com/platform/multilingual-outreach): Agents write and speak in your buyer's language, from knowledge you add per market.
-
-### Analytics and deliverability
-
-- [Analytics](https://trydialvo.com/platform/analytics): Conversations, replies, qualified leads and meetings by channel and by play.
-- [Deliverability and mailbox health](https://trydialvo.com/platform/deliverability-and-mailbox-health): Authenticated domains, gradual warm-up, daily limits and rotation for your inboxes.
-- [Phone number management](https://trydialvo.com/platform/call-deliverability-and-number-management): Local business numbers your phone agent answers, day and night.
+- [Sequence builder](https://trydialvo.com/platform/sequence-builder): A first email and up to five follow-ups, each with its own wait, language and approval.
+- [Smart replies](https://trydialvo.com/platform/smart-replies): Replies sorted within minutes, answers drafted, your booking link offered, opt-outs honoured.
+- [Multilingual outreach](https://trydialvo.com/platform/multilingual-outreach): Emails in your buyer's language, set per sequence or picked from their website.
+- [Workflows](https://trydialvo.com/platform/workflows): When something happens to a lead, the next steps run by themselves.
 
 ### Research and messaging
 
 - [Deep research](https://trydialvo.com/platform/deep-research): A sourced brief on every account, with the angle worth leading with.
+- [Account briefs](https://trydialvo.com/platform/account-briefs): A sourced brief before every meeting, and a short note on why a deal was lost.
+- [Saved recipes](https://trydialvo.com/platform/saved-recipes): Research questions and scores you write once and use on any list or play.
 - [AI personalisation](https://trydialvo.com/platform/ai-personalisation): One message for one person, written from the research. No merge fields.
-- [Playbooks](https://trydialvo.com/platform/playbooks): Ready-made plays with their own audience, research and follow-up logic.
+- [Playbooks](https://trydialvo.com/platform/playbooks): Ready-made plays, and your own: who to pick, what to say and which sequence follows.
 - [Knowledge base](https://trydialvo.com/platform/knowledge-base): Your site, documents, pricing and call notes: what every agent answers from.
 
 ### Inbound handling
 
-- [AI phone agent](https://trydialvo.com/platform/ai-phone-agent): Answers your line day and night, qualifies, books and transfers.
+- [AI phone agent](https://trydialvo.com/platform/ai-phone-agent): Answers your line day and night, qualifies, sends your booking link and transfers.
 - [Inbound lead qualification](https://trydialvo.com/platform/inbound-lead-qualification): Your qualifying questions asked in the first conversation, with the answers recorded.
-- [Intelligent lead routing](https://trydialvo.com/platform/intelligent-lead-routing): Territory, owner, seniority or round robin, applied while the lead is still talking.
+- [Intelligent lead routing](https://trydialvo.com/platform/intelligent-lead-routing): Rules by country, size, source or play hand each new lead to the right teammate.
+
+### Analytics and deliverability
+
+- [Analytics](https://trydialvo.com/platform/analytics): Leads found, emails sent, replies, meetings and chats, by play, search and mailbox.
+- [Deliverability and mailbox health](https://trydialvo.com/platform/deliverability-and-mailbox-health): DNS checks, a gradual ramp-up, daily limits and an automatic pause for every mailbox.
+- [Phone number management](https://trydialvo.com/platform/call-deliverability-and-number-management): Local business numbers your phone agent answers, day and night.
 
 ### Integrations
 
-- [CRM integration](https://trydialvo.com/platform/crm-integration): Two-way sync with Salesforce, HubSpot, Pipedrive and Zoho, field by field.
+- [CRM integration](https://trydialvo.com/platform/crm-integration): HubSpot or Pipedrive: leads, conversations and meetings written in, its contacts kept out of cold email.
 - [Slack integration](https://trydialvo.com/platform/slack-integration): A note in the right channel when a lead qualifies, books or needs a person.
-- [Review-site intent integration](https://trydialvo.com/platform/review-site-intent): Buyer-intent signals from software review sites, turned into timely outreach.
-- [API](https://trydialvo.com/platform/api): Trigger agents from your own systems and pull every outcome back out.
+- [API](https://trydialvo.com/platform/api): A REST API and signed webhooks: leads, plays, meetings and product events in and out.
+- [MCP server for reps](https://trydialvo.com/platform/mcp-server): Use Dialvo from Claude, Cursor and other AI tools: leads, history, contacts and briefs.
+- [Review-site intent integration](https://trydialvo.com/platform/review-site-intent): Companies researching your category on review sites, from your own intent data.
 
 ## Control
 
@@ -107,10 +123,10 @@ Dialvo never makes outbound calls: its phone agent only answers calls people mak
 
 ## Key pages
 
-- [Home](https://trydialvo.com/): the problem, inbound, outbound and closing, the live voice demo, channels, control, what it replaces, trust, pricing, FAQ
+- [Home](https://trydialvo.com/): the problem, inbound, outbound, closing and expansion, the live voice demo, channels, the whole platform, control, what it replaces, trust, pricing, FAQ
 - [Inbound](https://trydialvo.com/inbound), [Outbound](https://trydialvo.com/outbound), [Closing](https://trydialvo.com/closing), [Expansion](https://trydialvo.com/expansion): the four motions in full
 - [Plays](https://trydialvo.com/plays): every play as a card
-- [Platform](https://trydialvo.com/platform): the six feature groups
+- [Platform](https://trydialvo.com/platform): every feature group and feature
 - [Pricing](https://trydialvo.com/pricing): plans and a full comparison
 - Start free: https://trydialvo.com/signup
 - [Privacy](https://trydialvo.com/privacy) (draft)

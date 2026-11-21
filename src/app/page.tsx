@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { FEATURE_SLUGS, FEATURES } from "@/lib/content/catalog";
 import { jsonLd, pageMetadata } from "@/lib/seo";
 import {
   CONTACT_EMAIL,
@@ -20,6 +21,7 @@ import {
   Compliance,
   FinalCall,
   Jobs,
+  PlatformOverview,
   Problem,
   Replaces,
 } from "./_site/sections";
@@ -53,17 +55,13 @@ const STRUCTURED = [
     operatingSystem: "Web",
     description: DESCRIPTION,
     featureList: [
-      "Inbound: every lead answered, qualified and booked within a minute",
-      "Outbound: lead lists, research, cold email and LinkedIn outreach",
+      "Inbound: every lead answered, qualified and offered a booking within a minute",
+      "Outbound: lead lists, research, cold email and LinkedIn tasks sent from your own profile",
       "AI closer for simple sales: payment links, bookings and agreements",
       "Expansion: onboarding, renewals and upgrades with existing customers",
-      "AI phone agent that answers your calls",
-      "AI email agents",
-      "Website chat agents",
-      "Social agents",
-      "SMS and WhatsApp follow-up",
-      "Lead qualification, routing and meeting scheduling",
-      "CRM sync",
+      "AI phone agent that answers your calls (inbound only; Dialvo never makes outbound calls)",
+      "Website chat agent with your booking link",
+      ...FEATURE_SLUGS.map((s) => FEATURES[s].title),
     ],
     offers: [PLANS.starter, PLANS.pro, PLANS.scale].map((p) => ({
       "@type": "Offer",
@@ -94,6 +92,7 @@ export default function Home() {
         <Jobs />
         <VoiceSection />
         <Channels />
+        <PlatformOverview />
         <ControlSection />
         <Replaces />
         <Compliance />

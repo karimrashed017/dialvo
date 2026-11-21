@@ -92,10 +92,10 @@ function PlayColumns({ compact }: { compact?: boolean }) {
   );
 }
 
-/** The six platform groups and their links. */
+/** The platform groups and their links, four to a row on a wide screen. */
 function PlatformColumns({ compact }: { compact?: boolean }) {
   return (
-    <div className={cn("grid gap-x-4 gap-y-6", !compact && "grid-cols-3")}>
+    <div className={cn("grid gap-x-4 gap-y-6", !compact && "grid-cols-4")}>
       {GROUPS.map((g) => (
         <div key={g.id}>
           <p className="flex items-center gap-2 px-2.5 text-[13.5px] font-medium text-[#0B0B0C]">

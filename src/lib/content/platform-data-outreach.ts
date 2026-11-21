@@ -258,65 +258,61 @@ export const DATA_OUTREACH_FEATURES = {
   "website-visitor-tracking": {
     tagline: "Know which companies are on your site, and what they came for.",
     intro:
-      "Most visitors leave without telling you who they are. Dialvo matches visits to companies, shows which pages they read and lets your agents act the same day, while the question that brought them is still open.",
+      "Most visitors leave without telling you who they are. Dialvo records which pages are read, recognises your own leads when they come back, names the companies behind business networks, and lets the retargeting play write to them while the question that brought them is still open.",
     description:
-      "Dialvo's website visitor tracking matches visits to companies, shows which pages they read and triggers researched outreach or a rep alert the same day.",
+      "Dialvo's website visitor tracking records page views with consent, recognises known leads from chats, forms and email links, identifies companies by their network, and feeds the retargeting play, which drafts a note for your approval without mentioning the visit.",
     capabilities: [
       {
-        title: "Company identification",
-        body: "A small script matches visits to businesses. Traffic from home connections and mobile networks, which can't be tied to a company, is ignored.",
+        title: "One snippet",
+        body: "The website chat's code does the tracking too. There's nothing else to install.",
       },
       {
-        title: "Known contacts recognised",
-        body: "When someone arrives from a link in your email or has filled in a form before, the visit is added to that person's history.",
+        title: "Known leads recognised",
+        body: "Once someone chats, fills in a form or clicks a link in your email, their later visits are added to their lead.",
       },
       {
-        title: "Pages weighted by intent",
-        body: "Mark pricing, comparison and booking pages as high intent. A visit there counts for more than a read of the blog.",
+        title: "Companies by network",
+        body: "Visits from business networks are matched to the company. Home and mobile connections, which can't be, are left anonymous.",
       },
       {
-        title: "Fit checked first",
-        body: "Visiting companies go through lead qualification, so agents only act on accounts that match your ideal customer.",
+        title: "Pricing visits stand out",
+        body: "Website visitors shows who read your pricing page in the last two weeks, at the top.",
       },
       {
-        title: "Straight into a play",
-        body: "A qualified visit can start the visitor follow-up play, raise the lead's score in nurture or alert the owner of an open deal.",
-      },
-      {
-        title: "A live view",
-        body: "See today's visiting accounts, what they read and what Dialvo did about each one.",
+        title: "Into the retargeting play",
+        body: "For a company, Dialvo finds a named person and drafts a first email; for a known lead, a short check-in. Each waits for you.",
       },
     ],
     fit: [
-      "Visitor data is one of the signals every agent shares. The research agent uses the pages read to choose an angle; and the chat agent greets a returning account differently.",
-      "The outreach that follows is about the topic, not the tracking. Agents write about the problem the page covers and never quote the visit back at the prospect.",
+      "Visits are one more signal next to replies, chats and news. Lead scoring counts them toward engagement, and the retargeting play acts on them.",
+      "The outreach that follows is about the topic, not the tracking: no email ever says the person was on your site.",
     ],
     visual: {
       kind: "list",
-      title: "Visiting now",
-      note: "last 24 hours",
+      title: "Website visitors",
+      note: "last 14 days",
       rows: [
         {
           name: "Fernhill Logistics",
-          detail: "Pricing, Integrations · 3rd visit this week",
-          tag: "High intent",
+          detail: "Pricing, then two case pages",
+          tag: "Company",
           strong: true,
         },
         {
-          name: "Juniper Payroll",
-          detail: "Compare page · open deal",
-          tag: "Owner alerted",
+          name: "Dana Reyes · Northgate",
+          detail: "Known lead · read pricing twice",
+          tag: "Lead",
           strong: true,
         },
         {
-          name: "Calder & Pine",
-          detail: "Two blog posts",
-          tag: "Watching",
+          name: "Tidewater Clinics",
+          detail: "Home page and blog",
+          tag: "Company",
         },
         {
-          name: "Brightwell Foods",
-          detail: "Careers page",
-          tag: "Ignored",
+          name: "12 anonymous visits",
+          detail: "Home or mobile networks",
+          tag: "Not named",
         },
       ],
       foot: "Sample visitors. All made up.",
@@ -324,91 +320,91 @@ export const DATA_OUTREACH_FEATURES = {
     controls: [
       {
         title: "Consent first",
-        body: "The script follows your cookie banner. Visitors who decline tracking are not recorded.",
+        body: "Visits are recorded only with consent, and never from browsers that send Do Not Track.",
       },
       {
         title: "Companies, not strangers",
-        body: "Dialvo does not unmask anonymous individuals. A person is only named when they are already known to you.",
+        body: "Dialvo doesn't unmask anonymous people. A person is named only when they're already one of your leads.",
       },
       {
-        title: "Local rules apply",
-        body: "Tracking law differs by country. You decide where the script runs, and you can turn it off by region.",
+        title: "Little is kept",
+        body: "Not the IP address, not the page's query string, not the full referrer: only what's needed to show the visit.",
+      },
+      {
+        title: "Company lookup is a separate step",
+        body: "Naming companies needs Dialvo's company-lookup service switched on; without it you still see your known leads.",
       },
     ],
-    related: [
-      "lead-qualification",
-      "review-site-intent",
-      "multi-channel-sequences",
-    ],
+    related: ["lead-scoring", "review-site-intent", "ad-audiences"],
     plays: ["retargeting-website-visitors", "lead-nurture"],
   },
 
   "multi-channel-sequences": {
-    tagline: "One conversation, carried across every channel.",
+    tagline: "Email, texts and LinkedIn as one conversation.",
     intro:
-      "Buyers don't live in one inbox. Dialvo runs email, LinkedIn, texts, WhatsApp, chat and calls as a single sequence in which every touch knows what happened on the others, so nobody is asked the same thing twice.",
+      "Some people answer email; some answer a text; some only notice a message on LinkedIn. Dialvo adds text and LinkedIn steps to an email sequence, and a reply on any of them stops the rest, so nobody hears from you three ways about the same thing.",
     description:
-      "Dialvo's multi-channel sequences coordinate email, LinkedIn, SMS, WhatsApp, chat and calls in one conversation, with shared context and automatic fallback between channels.",
+      "Dialvo's multi-channel sequences add text messages (to people who agreed to them) and LinkedIn messages (sent by your team from their own profiles) to email sequences, and stop every step when the person replies on any channel. Dialvo never makes outbound calls.",
     capabilities: [
       {
-        title: "Every channel in one sequence",
-        body: "Email from your inbox, LinkedIn from your rep's profile, and SMS and WhatsApp for people who opted in. Dialvo never makes outbound calls.",
+        title: "Email at the centre",
+        body: "Every sequence has a first email and its follow-ups, sent from your own mailbox.",
       },
       {
-        title: "Each touch builds on the last",
-        body: "The follow-up email refers to the LinkedIn message; the text after a missed call says what the call was about. The thread stays intact.",
+        title: "Text steps, with consent",
+        body: "A text on the day you choose, only to people with a recorded opt-in, ending with how to stop.",
       },
       {
-        title: "Automatic fallback",
-        body: "If an email bounces, the sequence moves to LinkedIn. If a call isn't answered, a text follows. You set the order; the agent handles the switch.",
+        title: "LinkedIn, sent by a person",
+        body: "Dialvo writes the LinkedIn message and gives it to the right person as a task. They send it from their own profile.",
       },
       {
-        title: "Stops when it should",
-        body: "A reply on any channel pauses the rest. A booked meeting ends the sequence. An opt-out removes the person everywhere at once.",
+        title: "One reply stops it all",
+        body: "A reply by email, text or LinkedIn ends every remaining step for that person.",
       },
       {
-        title: "The right channel for the motion",
-        body: "Cold outbound uses email and LinkedIn, with calls made by reps. Inbound and customer sequences can add AI voice, SMS and WhatsApp, because those people asked or agreed.",
+        title: "Opt-outs everywhere at once",
+        body: "Someone who replies STOP to a text, or unsubscribes from an email, hears nothing more on any channel.",
       },
       {
-        title: "Follows the buyer's preference",
-        body: "Once someone answers on a channel, the conversation continues there.",
+        title: "No call steps",
+        body: "Sequences never include calls. Dialvo never makes outbound calls; its phone agent only answers.",
       },
     ],
     fit: [
-      "Sequences are how plays are delivered. A play supplies the audience and the research; the sequence decides what goes out, where and when. The same engine runs a three-step speed-to-lead follow-up and a six-week outbound campaign.",
-      "Agents write each step when it's due, not in advance, so a message sent in week three reflects what has happened since week one.",
+      "Plays decide who hears from you and why; the sequence decides when and where. The same steps can follow a speed-to-lead reply, a nurture email or an outbound first touch.",
+      "Each step is written when it's due, from what's happened so far, so a text sent on day six doesn't repeat what the email said on day one.",
     ],
     visual: {
       kind: "timeline",
       title: "Sequence · Marcus Hale",
-      note: "outbound",
+      note: "email, LinkedIn and text",
       steps: [
         {
           when: "Day 1",
           channel: "Email",
-          text: "Opening note about the second site. Opened.",
+          text: "First email about the second site, approved and sent.",
           done: true,
         },
         {
           when: "Day 3",
           channel: "LinkedIn",
-          text: "Connection note approved by Priya and sent.",
+          text: "Connection note written; Priya sent it from her profile.",
           done: true,
         },
         {
-          when: "Day 6",
+          when: "Day 5",
           channel: "Email",
-          text: "Short follow-up with a relevant example. Clicked.",
+          text: "Short follow-up with one useful example.",
           done: true,
         },
         {
-          when: "Day 8",
-          channel: "LinkedIn",
-          text: "Follow-up message drafted for Priya to send.",
+          when: "Day 7",
+          channel: "Text",
+          text: "A two-line text. Marcus agreed to texts on your form.",
         },
         {
-          when: "Day 12",
+          when: "Day 10",
           channel: "Email",
           text: "Last note, only if there's still no reply.",
         },
@@ -417,20 +413,20 @@ export const DATA_OUTREACH_FEATURES = {
     },
     controls: [
       {
-        title: "Consent rules per channel",
-        body: "SMS, WhatsApp and AI voice steps are skipped for anyone who hasn't opted in. The sequence can't override that.",
+        title: "Consent on every text",
+        body: "A text step is skipped for anyone without a recorded opt-in. The sequence can't override it.",
       },
       {
-        title: "Frequency caps",
-        body: "Set the most touches per person per week across all channels combined.",
+        title: "A few LinkedIn tasks a day",
+        body: "LinkedIn tasks are handed out in small numbers each day, because each one is sent by hand and LinkedIn limits invitations.",
       },
       {
-        title: "Send windows",
-        body: "Each channel has its own hours, in the recipient's time zone.",
+        title: "Short by design",
+        body: "Texts and LinkedIn notes have length limits, so a step reads like a person wrote it.",
       },
       {
-        title: "LinkedIn approval",
-        body: "Messages from a rep's profile wait for that rep's approval unless they choose otherwise.",
+        title: "Email, text and LinkedIn only",
+        body: "WhatsApp and social messages other than LinkedIn aren't sequence steps.",
       },
     ],
     related: ["sequence-builder", "smart-replies", "ai-personalisation"],
@@ -438,93 +434,88 @@ export const DATA_OUTREACH_FEATURES = {
   },
 
   "sequence-builder": {
-    tagline: "Design the outreach once. The agents run every step.",
+    tagline: "A first email and up to five follow-ups, set up your way.",
     intro:
-      "The sequence builder is where you decide what happens and when: which channel, how long to wait, what to do if they open, click, reply or stay silent. The agents then carry it out without creating a task list for your team.",
+      "A sequence is the first email and what follows when there's no reply. In the builder you decide how many follow-ups, how long each waits, what each should say, which language they're in and whether they wait for your approval. Dialvo writes each one when it's due.",
     description:
-      "Dialvo's sequence builder sets the steps, timing, channels and branches for outreach, with send limits and approvals. Agents write and send every step.",
+      "Dialvo's sequence builder sets a first email and up to five follow-ups: add, remove and reorder steps, each with its own wait, instructions, language and approval setting. Every sequence stops when the person replies.",
     capabilities: [
       {
-        title: "Steps and waits",
-        body: "Add a step, pick the channel, set the gap. Timings can be fixed or relative to an event such as a webinar date or a renewal.",
+        title: "Up to five follow-ups",
+        body: "After the first email, add, remove and reorder follow-ups. Each is shorter than the one before.",
       },
       {
-        title: "Branches on behaviour",
-        body: 'Opened but no reply, clicked a link, visited the pricing page, said "not now": each can lead to a different next step.',
+        title: "A wait per step",
+        body: "Each follow-up waits the number of days you choose after the email before it, up to 60.",
       },
       {
-        title: "Guidance, not templates",
-        body: "For each step you write what the message should achieve and any points to include. The agent writes it for each person from their research.",
+        title: "Instructions, not templates",
+        body: "For each step, say what it should do: add an example, ask a question, close politely. The agent writes it for each person.",
       },
       {
-        title: "Preview with real leads",
-        body: "Before launch, see the actual messages the sequence would send to a sample of your audience, and adjust.",
+        title: "A language per sequence",
+        body: "Choose the language, or leave it on auto to use the language of the company's own website.",
       },
       {
-        title: "Start from a playbook",
-        body: "Every playbook comes with a sequence you can use as it is or edit.",
+        title: "Approval per sequence",
+        body: "Have each email wait for you, or let it send within your mailbox limits.",
       },
       {
-        title: "Test two versions",
-        body: "Split the audience between two openings or two timings and compare replies and meetings, not just opens.",
+        title: "Ready-made to start",
+        body: "Plays come with a sequence you can use as it is or change.",
       },
     ],
     fit: [
-      "The builder gives the outbound and follow-up agents their shape. It doesn't replace their judgement: within a step, the agent still decides the angle and the wording for each person from the research and the conversation so far.",
-      "Rep steps appear as a task or an approval request. Everything else runs without anyone on your team touching it.",
+      "Every play and playbook runs on a sequence. Change it once and every lead that starts it afterwards gets the new version.",
+      "Text and LinkedIn steps sit alongside the emails, under Sequences, channels. A reply on any channel ends the sequence.",
     ],
     visual: {
       kind: "timeline",
       title: "Builder · Closed-lost revisit",
-      note: "5 steps",
+      note: "first email and 3 follow-ups",
       steps: [
         {
-          when: "Step 1",
-          channel: "Email",
+          when: "Email",
+          channel: "First",
           text: "Pick up the thread: what's changed since the deal closed.",
           done: true,
         },
         {
-          when: "+3 days",
-          channel: "LinkedIn",
-          text: "If opened, no reply: short note from the original owner.",
-          done: true,
-        },
-        {
           when: "+4 days",
-          channel: "Email",
-          text: "If clicked pricing: send the two-year cost comparison.",
+          channel: "Follow-up 1",
+          text: "One new example that fits their business.",
           done: true,
-        },
-        {
-          when: "+5 days",
-          channel: "LinkedIn",
-          text: "If still engaged: a LinkedIn task for the owner.",
         },
         {
           when: "+7 days",
-          channel: "Email",
-          text: "Otherwise: a polite close, back to watching.",
+          channel: "Follow-up 2",
+          text: "A single question about timing.",
+          done: true,
+        },
+        {
+          when: "+14 days",
+          channel: "Follow-up 3",
+          text: "A polite close. Waits for approval.",
         },
       ],
       foot: "Sample sequence design.",
     },
     controls: [
       {
-        title: "Daily send limits",
-        body: "Per inbox, per profile and per play, so no account sends more than is healthy.",
+        title: "Stops on a reply",
+        body: "Any reply ends the sequence for that person. Steps don't branch on opens or clicks, which Dialvo doesn't track.",
       },
       {
-        title: "Approval per step",
-        body: 'Mark any step as "needs approval" and it waits for a person before going out.',
+        title: "Mailbox limits apply",
+        body: "However many leads start a sequence, each mailbox sends only its daily limit.",
       },
       {
-        title: "Version history",
-        body: "Changes are saved as versions. Leads already in a sequence finish on the version they started on unless you move them.",
+        title: "Kept short",
+        body: "Follow-ups have word limits, and one that runs too long is thrown away rather than sent.",
       },
     ],
-    related: ["multi-channel-sequences", "playbooks", "ai-personalisation"],
-    plays: ["event-registration", "closed-lost", "lead-nurture"],
+    related: ["multi-channel-sequences", "playbooks", "multilingual-outreach"],
+    plays: ["closed-lost", "lead-nurture", "customer-onboarding-operations"],
   },
 
   "smart-replies": {
@@ -532,35 +523,35 @@ export const DATA_OUTREACH_FEATURES = {
     intro:
       "A reply that sits for a day is a meeting half lost. Dialvo reads each one as it arrives, works out what the person means and takes the next step: an answer, a booking, a handoff or a clean opt-out.",
     description:
-      "Dialvo's smart replies read every response as it arrives, classify the intent, answer questions and objections from your knowledge base, book meetings and honour opt-outs.",
+      "Dialvo's smart replies read every response as it arrives, sort it (interested, question, not now, not interested, unsubscribe), draft an answer from your knowledge base for you to send, offer your booking link and honour opt-outs.",
     capabilities: [
       {
         title: "Sorted by intent",
-        body: "Interested, has a question, raised an objection, not now, wrong person, out of office, unsubscribe. Each reply is labelled, with the reason.",
+        body: "Interested, has a question, not now, not interested or unsubscribe. Each reply is labelled and the sequence stops for that person.",
       },
       {
-        title: "Questions answered",
-        body: "Pricing, integrations, how it works: the agent answers from your knowledge base in your tone, and says so when it doesn't know.",
+        title: "Answers drafted for you",
+        body: "Pricing, integrations, how it works: an answer is drafted from your knowledge base in your tone, waiting in the Inbox for you to send.",
       },
       {
         title: "Common objections handled",
         body: '"We already use something", "no budget until next year", "send me more information": answered with your positioning, without pushing.',
       },
       {
-        title: "Meetings booked in the thread",
-        body: "When someone says yes, the agent offers times from the right rep's calendar and sends the invite.",
+        title: "Your booking link offered",
+        body: "When someone wants to talk, the answer offers your booking link and your team is told.",
       },
       {
-        title: "Referrals followed",
-        body: '"Talk to my colleague" starts a new, properly introduced conversation with that person. Out-of-office replies reschedule the next touch.',
+        title: "Out-of-office left alone",
+        body: "Automatic out-of-office replies aren't treated as answers and aren't written to your CRM.",
       },
       {
         title: "Opt-outs honoured at once",
-        body: 'Any form of "stop" removes the person from every sequence and records it in Dialvo and your CRM.',
+        body: 'Any form of "stop" ends every sequence for that person and is recorded in Dialvo and, where connected, your CRM.',
       },
     ],
     fit: [
-      "Smart replies close the loop on every outbound and nurture play. The email and social agents start conversations; this is what keeps them moving at any hour, so a reply at 7pm gets its answer at 7pm.",
+      "Smart replies close the loop on every outbound and nurture play. The inbox is read every few minutes, so a reply at 7pm is sorted and has a drafted answer waiting by 7:05.",
       "It also decides when to stop being an agent. Sensitive, angry or unusual replies go to a person with the thread and a suggested response.",
     ],
     visual: {
@@ -570,8 +561,8 @@ export const DATA_OUTREACH_FEATURES = {
       rows: [
         {
           name: "Marcus Hale",
-          detail: '"Thursday works. Can you send an invite?"',
-          tag: "Booked",
+          detail: '"Thursday works. How do I book?"',
+          tag: "Link sent",
           strong: true,
         },
         {
@@ -600,16 +591,12 @@ export const DATA_OUTREACH_FEATURES = {
     },
     controls: [
       {
-        title: "Approve before send",
-        body: "Have every reply wait for approval, only certain kinds, or none. Many teams approve pricing answers and let the rest go.",
-      },
-      {
-        title: "Escalation rules",
-        body: "Choose the topics that always go to a person: legal, complaints, discounts, named accounts.",
+        title: "You send the answers",
+        body: "Answers to replies are drafts. You read, edit and send them from the Inbox.",
       },
       {
         title: "Grounded answers only",
-        body: "The agent answers from your knowledge base. If the answer isn't there, it hands over; it doesn't improvise.",
+        body: "Drafts state only facts from your knowledge base: no invented prices, discounts or promises.",
       },
     ],
     related: [
@@ -623,9 +610,9 @@ export const DATA_OUTREACH_FEATURES = {
   "multilingual-outreach": {
     tagline: "Sell in your buyer's language without hiring in every market.",
     intro:
-      "A message in a buyer's own language gets read; a translated template gets deleted. Dialvo's agents research, write and speak in the language of the person they're contacting, working from the knowledge you provide for each market.",
+      "A message in a buyer's own language gets read; a translated template gets deleted. Choose a language for each sequence, play or playbook, or leave it on auto, and Dialvo writes in the language of the company's own website.",
     description:
-      "Dialvo's agents research, write and speak in your buyer's language, using market-specific knowledge you add, with reporting across regions in one place.",
+      "Dialvo writes first emails and follow-ups in the language you choose per sequence, play or playbook, or automatically in the language of the company's own website; the website chat replies in the visitor's language.",
     capabilities: [
       {
         title: "Written in the language, not translated into it",
@@ -633,28 +620,24 @@ export const DATA_OUTREACH_FEATURES = {
       },
       {
         title: "The same depth of research",
-        body: "Agents read local-language news and company pages, so a prospect abroad gets the same quality of opening as one at home.",
+        body: "The company's own website is read in its own language, so a prospect abroad gets the same quality of opening as one at home.",
       },
       {
-        title: "Voice and text",
-        body: "The phone agent answers calls in supported languages; email, chat, SMS and WhatsApp agents write in them.",
+        title: "Chat in the visitor's language",
+        body: "The website chat answers in the language the visitor writes in.",
       },
       {
-        title: "Knowledge per market",
-        body: "Add pricing, product names, case examples and legal wording for each market. The agent uses the right version for the person's region.",
+        title: "A setting, not a product",
+        body: "Language is chosen per sequence, play or playbook, so one market can run in German while another runs in English.",
       },
       {
-        title: "Language chosen automatically",
-        body: "The language is set from the contact's location and profile, and switches if they reply in another one.",
-      },
-      {
-        title: "One report across regions",
-        body: "Replies, meetings and outcomes by language and country, side by side.",
+        title: "Auto, from the company's site",
+        body: "Left on auto, emails use the language of the company's own website.",
       },
     ],
     fit: [
       "Language is a setting on a play, not a separate product. The same sequences, qualification questions and routing rules apply; the agents carry them out in the buyer's language and write the summary for your team in yours.",
-      "Routing can send a lead to a rep who speaks the language, or to any rep with the translated transcript attached.",
+      "Routing rules can match leads by country, so leads from one market go to the teammate who covers it.",
     ],
     visual: {
       kind: "email",
@@ -673,16 +656,12 @@ export const DATA_OUTREACH_FEATURES = {
     },
     controls: [
       {
-        title: "Choose your markets",
-        body: "Turn on only the languages and countries you can serve. Leads elsewhere are held back.",
-      },
-      {
         title: "Review by a native speaker",
         body: "Require approval for the first messages in a new language until someone you trust has checked the tone.",
       },
       {
         title: "Local rules differ",
-        body: "Consent, opt-out and calling rules vary by country. Send windows and channel rules can be set per region; what's lawful where you sell is yours to confirm.",
+        body: "Consent and opt-out rules vary by country. What's lawful where you sell is yours to confirm.",
       },
     ],
     related: ["knowledge-base", "ai-personalisation", "analytics"],

@@ -15,7 +15,7 @@ type Column = { title: string; links: { href: string; label: string }[] };
 
 // Every page on the site, grouped: the motions (closing among them), the
 // plays under each motion,
-// the six platform groups, then pricing, trust and contact.
+// the platform groups, then pricing, trust and contact.
 const COLUMNS: Column[] = [
   {
     title: "Use cases",

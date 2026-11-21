@@ -111,3 +111,16 @@ export type MotionContent = {
   features: FeatureSlug[];
   faqs: Faq[];
 };
+
+/**
+ * The rest of a feature page: how it works, what it needs and its questions.
+ * Kept apart from FeatureContent (in platform-details.ts) so every feature
+ * page has the same sections, whichever file holds its main copy.
+ */
+export type FeatureDetails = {
+  /** How it works: three to five steps, in order. */
+  steps: Point[];
+  /** What it needs before it works. */
+  needs: string[];
+  faqs: Faq[];
+};

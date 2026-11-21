@@ -12,6 +12,7 @@ import {
   CalendarCheck,
   CalendarClock,
   CalendarX,
+  Bot,
   Code2,
   Database,
   DatabaseZap,
@@ -20,6 +21,7 @@ import {
   Filter,
   FlaskConical,
   Gauge,
+  GitBranch,
   Globe,
   GraduationCap,
   Handshake,
@@ -32,9 +34,12 @@ import {
   Mail,
   MailCheck,
   Map as MapIcon,
+  Megaphone,
   MessageCircle,
   MessageSquareReply,
   MessageSquareText,
+  Newspaper,
+  NotebookText,
   Phone,
   PhoneIncoming,
   Radar,
@@ -49,6 +54,7 @@ import {
   Star,
   Swords,
   Table2,
+  Target,
   Ticket,
   TrendingUp,
   UserCheck,
@@ -138,7 +144,7 @@ export const PLAYS = {
     motion: "inbound",
     icon: CalendarCheck,
     blurb:
-      "Meetings booked on the right rep's calendar during the first conversation.",
+      "Your booking link offered the moment a lead wants to talk, in email or the website chat.",
   },
   "customer-onboarding-operations": {
     title: "Customer onboarding operations",
@@ -261,6 +267,7 @@ export const MENU_PLAYS: Record<MotionId, PlaySlug[]> = {
 
 export type GroupId =
   | "data"
+  | "targeting"
   | "outreach"
   | "analytics"
   | "research"
@@ -291,7 +298,7 @@ export const FEATURES = {
   },
   "lead-qualification": {
     title: "Lead qualification",
-    group: "data",
+    group: "targeting",
     icon: Filter,
     blurb:
       "Every lead checked against your criteria before a single message goes out.",
@@ -314,35 +321,35 @@ export const FEATURES = {
     group: "outreach",
     icon: ListTree,
     blurb:
-      "Steps, timing, channels and branches in one place, with limits you set.",
+      "A first email and up to five follow-ups, each with its own wait, language and approval.",
   },
   "smart-replies": {
     title: "Smart replies",
     group: "outreach",
     icon: MessageSquareReply,
     blurb:
-      "Replies sorted and answered within minutes; meetings booked; opt-outs honoured.",
+      "Replies sorted within minutes, answers drafted, your booking link offered, opt-outs honoured.",
   },
   "multilingual-outreach": {
     title: "Multilingual outreach",
     group: "outreach",
     icon: Languages,
     blurb:
-      "Agents write and speak in your buyer's language, from knowledge you add per market.",
+      "Emails in your buyer's language, set per sequence or picked from their website.",
   },
   analytics: {
     title: "Analytics",
     group: "analytics",
     icon: BarChart3,
     blurb:
-      "Conversations, replies, qualified leads and meetings by channel and by play.",
+      "Leads found, emails sent, replies, meetings and chats, by play, search and mailbox.",
   },
   "deliverability-and-mailbox-health": {
     title: "Deliverability and mailbox health",
     group: "analytics",
     icon: MailCheck,
     blurb:
-      "Authenticated domains, gradual warm-up, daily limits and rotation for your inboxes.",
+      "DNS checks, a gradual ramp-up, daily limits and an automatic pause for every mailbox.",
   },
   "call-deliverability-and-number-management": {
     title: "Phone number management",
@@ -369,7 +376,7 @@ export const FEATURES = {
     group: "research",
     icon: LayoutList,
     blurb:
-      "Ready-made plays with their own audience, research and follow-up logic.",
+      "Ready-made plays, and your own: who to pick, what to say and which sequence follows.",
   },
   "knowledge-base": {
     title: "Knowledge base",
@@ -382,7 +389,8 @@ export const FEATURES = {
     title: "AI phone agent",
     group: "inbound-handling",
     icon: PhoneIncoming,
-    blurb: "Answers your line day and night, qualifies, books and transfers.",
+    blurb:
+      "Answers your line day and night, qualifies, sends your booking link and transfers.",
   },
   "inbound-lead-qualification": {
     title: "Inbound lead qualification",
@@ -396,14 +404,14 @@ export const FEATURES = {
     group: "inbound-handling",
     icon: Route,
     blurb:
-      "Territory, owner, seniority or round robin, applied while the lead is still talking.",
+      "Rules by country, size, source or play hand each new lead to the right teammate.",
   },
   "crm-integration": {
     title: "CRM integration",
     group: "integrations",
     icon: RefreshCw,
     blurb:
-      "Two-way sync with Salesforce, HubSpot, Pipedrive and Zoho, field by field.",
+      "HubSpot or Pipedrive: leads, conversations and meetings written in, its contacts kept out of cold email.",
   },
   "slack-integration": {
     title: "Slack integration",
@@ -417,14 +425,14 @@ export const FEATURES = {
     group: "integrations",
     icon: Star,
     blurb:
-      "Buyer-intent signals from software review sites, turned into timely outreach.",
+      "Companies researching your category on review sites, from your own intent data.",
   },
   api: {
     title: "API",
     group: "integrations",
     icon: Code2,
     blurb:
-      "Trigger agents from your own systems and pull every outcome back out.",
+      "A REST API and signed webhooks: leads, plays, meetings and product events in and out.",
   },
   "lists-and-research": {
     title: "Lists and research columns",
@@ -448,7 +456,7 @@ export const FEATURES = {
   },
   "saved-audiences": {
     title: "Saved audiences",
-    group: "outreach",
+    group: "targeting",
     icon: UsersRound,
     blurb: "Segments of your leads that keep themselves up to date.",
   },
@@ -461,22 +469,57 @@ export const FEATURES = {
   },
   "account-based-lists": {
     title: "Account-based target lists",
-    group: "research",
+    group: "targeting",
     icon: Building2,
     blurb:
       "Target accounts with their buying committee, and one view per company.",
   },
   "lead-scoring": {
     title: "Lead scoring and tiers",
-    group: "inbound-handling",
+    group: "targeting",
     icon: Gauge,
     blurb: "Fit and engagement scores, and a tier from 1 to 3 on every lead.",
   },
   "territory-planning": {
     title: "Territory planning",
-    group: "inbound-handling",
+    group: "targeting",
     icon: MapIcon,
     blurb: "Territories and reps, with accounts shared out fairly.",
+  },
+  "company-news": {
+    title: "Company news signals",
+    group: "data",
+    icon: Newspaper,
+    blurb:
+      "Funding, launches and leadership hires at the companies you track, with the source.",
+  },
+  "account-briefs": {
+    title: "Account briefs",
+    group: "research",
+    icon: NotebookText,
+    blurb:
+      "A sourced brief before every meeting, and a short note on why a deal was lost.",
+  },
+  workflows: {
+    title: "Workflows",
+    group: "outreach",
+    icon: GitBranch,
+    blurb:
+      "When something happens to a lead, the next steps run by themselves.",
+  },
+  "ad-audiences": {
+    title: "Ad audiences",
+    group: "targeting",
+    icon: Megaphone,
+    blurb:
+      "Upload files for LinkedIn, Meta and Google ads, and suppression lists, from your leads.",
+  },
+  "mcp-server": {
+    title: "MCP server for reps",
+    group: "integrations",
+    icon: Bot,
+    blurb:
+      "Use Dialvo from Claude, Cursor and other AI tools: leads, history, contacts and briefs.",
   },
 } as const satisfies Record<string, FeatureEntry>;
 
@@ -508,11 +551,25 @@ export const GROUPS: {
     items: [
       f("company-and-lead-database"),
       f("live-web-search-prospecting"),
-      f("lead-qualification"),
-      f("website-visitor-tracking"),
       f("lists-and-research"),
       f("market-sourcing"),
       f("crm-enrichment"),
+      f("website-visitor-tracking"),
+      f("company-news"),
+    ],
+  },
+  {
+    id: "targeting",
+    title: "Scoring & accounts",
+    icon: Target,
+    blurb: "Which leads and accounts come first, and who owns them.",
+    items: [
+      f("lead-qualification"),
+      f("lead-scoring"),
+      f("account-based-lists"),
+      f("territory-planning"),
+      f("saved-audiences"),
+      f("ad-audiences"),
     ],
   },
   {
@@ -526,10 +583,35 @@ export const GROUPS: {
       f("sequence-builder"),
       f("smart-replies"),
       f("multilingual-outreach"),
-      f("saved-audiences"),
+      f("workflows"),
       p("event-registration"),
       p("event-follow-up"),
       p("event-no-show"),
+    ],
+  },
+  {
+    id: "research",
+    title: "Research & messaging",
+    icon: FileSearch,
+    blurb: "What each agent knows before it writes or speaks.",
+    items: [
+      f("deep-research"),
+      f("account-briefs"),
+      f("saved-recipes"),
+      f("ai-personalisation"),
+      f("playbooks"),
+      f("knowledge-base"),
+    ],
+  },
+  {
+    id: "inbound-handling",
+    title: "Inbound handling",
+    icon: AudioLines,
+    blurb: "The first conversation, done properly.",
+    items: [
+      f("ai-phone-agent"),
+      f("inbound-lead-qualification"),
+      f("intelligent-lead-routing"),
     ],
   },
   {
@@ -544,33 +626,6 @@ export const GROUPS: {
     ],
   },
   {
-    id: "research",
-    title: "Research & messaging",
-    icon: FileSearch,
-    blurb: "What each agent knows before it writes or speaks.",
-    items: [
-      f("deep-research"),
-      f("ai-personalisation"),
-      f("playbooks"),
-      f("knowledge-base"),
-      f("saved-recipes"),
-      f("account-based-lists"),
-    ],
-  },
-  {
-    id: "inbound-handling",
-    title: "Inbound handling",
-    icon: AudioLines,
-    blurb: "The first conversation, done properly.",
-    items: [
-      f("ai-phone-agent"),
-      f("inbound-lead-qualification"),
-      f("intelligent-lead-routing"),
-      f("lead-scoring"),
-      f("territory-planning"),
-    ],
-  },
-  {
     id: "integrations",
     title: "Integrations",
     icon: Globe,
@@ -578,8 +633,9 @@ export const GROUPS: {
     items: [
       f("crm-integration"),
       f("slack-integration"),
-      f("review-site-intent"),
       f("api"),
+      f("mcp-server"),
+      f("review-site-intent"),
     ],
   },
 ];
