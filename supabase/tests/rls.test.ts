@@ -5,6 +5,7 @@ import { CONTACT_TABLES } from "./contact-tables";
 import { CRM_TABLES } from "./crm-tables";
 import { OUTBOUND_TABLES } from "./outbound-tables";
 import { PLAYS_SECRET_TABLES, PLAYS_TABLES } from "./plays-tables";
+import { CHANNEL_TABLES } from "./channel-tables";
 
 // The isolation rules, proved against the real migrations:
 //   * a member of workspace A cannot read or write any row of workspace B,
@@ -278,6 +279,7 @@ const ALL_TABLES = [
   ...CONTACT_TABLES,
   ...CRM_TABLES,
   ...PLAYS_TABLES,
+  ...CHANNEL_TABLES,
 ];
 
 /** A write that must change nothing: refused outright, or zero rows. */
