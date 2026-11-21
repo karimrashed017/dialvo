@@ -70,7 +70,7 @@ async function Settings() {
           Lead routing
         </Link>
         <Link href="/app/settings/api" className={cn(btn.ghost, btn.small)}>
-          API keys
+          API and webhooks
         </Link>
         <Link href="/app/features" className={cn(btn.secondary, btn.small)}>
           All features
@@ -445,6 +445,40 @@ async function Settings() {
               className={cn(btn.secondary, btn.small)}
             >
               Open CRM
+            </Link>
+          </div>
+        </section>
+
+        <section id="slack" className={cn(panel, "scroll-mt-28")}>
+          <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+            <p className="min-w-0 flex-1 text-[13px] leading-[1.5] text-[#0B0B0C]/70">
+              <span className="font-medium text-[#0B0B0C]">Slack</span>: post
+              hot replies, chats that need a person, meetings and a daily
+              approvals digest to a channel.
+            </p>
+            <Link
+              href="/app/settings/slack"
+              className={cn(btn.secondary, btn.small)}
+            >
+              Open Slack
+            </Link>
+          </div>
+        </section>
+
+        <section id="api" className={cn(panel, "scroll-mt-28")}>
+          <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+            <p className="min-w-0 flex-1 text-[13px] leading-[1.5] text-[#0B0B0C]/70">
+              <span className="font-medium text-[#0B0B0C]">
+                API and webhooks
+              </span>
+              : keys, the REST API&apos;s reference, and signed webhooks to your
+              own systems.
+            </p>
+            <Link
+              href="/app/settings/api"
+              className={cn(btn.secondary, btn.small)}
+            >
+              Open API
             </Link>
           </div>
         </section>

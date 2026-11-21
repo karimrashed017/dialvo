@@ -806,6 +806,8 @@ const PLAY_BADGE: Record<string, string> = {
   accounts: "Target account",
   lookalike: "Lookalike",
   signal: "Buying signal",
+  retargeting: "Website visitor",
+  intent: "Review-site intent",
 };
 
 function DraftCard({ d }: { d: DraftWithProspect }) {

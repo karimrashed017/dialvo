@@ -9,6 +9,22 @@
  * widget's don't touch each other. No cookies; the visitor's chat is
  * remembered in localStorage on this site only. Text from the server is only
  * ever set as text, never as HTML.
+ *
+ * Website visitors (off unless the workspace switches it on in Dialvo): the
+ * same script can count page views on this site. It never does when the
+ * browser sends Do Not Track or Global Privacy Control. By default it waits
+ * until the site says the visitor agreed, with either
+ *
+ *   <script src=".../widget.js?id=..." data-consent="granted" async></script>
+ *   (when your consent tool only adds the tag after a yes), or
+ *   window.dialvo = window.dialvo || function () {
+ *     (window.dialvo.q = window.dialvo.q || []).push(arguments); };
+ *   dialvo("consent", true);   // on every page, once the visitor agreed
+ *
+ * What it sends: the page's path (never its query string), its title, the
+ * referring site's name, a random id kept in localStorage and a session id,
+ * and the email typed into a form on this site when it is submitted. Never
+ * passwords or any other field.
  */
 (function () {
   "use strict";
@@ -409,7 +425,204 @@
     }
   }
 
+  // --- Website visitors -------------------------------------------------------
+  function tracker() {
+    var nav = window.navigator || {};
+    // The browser asked sites not to track it: nothing is sent, ever.
+    if (
+      nav.doNotTrack === "1" ||
+      window.doNotTrack === "1" ||
+      nav.msDoNotTrack === "1" ||
+      nav.globalPrivacyControl === true
+    )
+      return;
+    var granted = script.getAttribute("data-consent") === "granted";
+    var config = null; // { on, consent }
+    var started = false;
+    var lastPath = "";
+    var linkToken = "";
+    try {
+      var here = new URL(location.href);
+      var dvl = here.searchParams.get("dvl") || "";
+      if (/^[A-Za-z0-9]{16}$/.test(dvl)) {
+        linkToken = dvl;
+        // Tidy the address bar: the token has done its job.
+        here.searchParams.delete("dvl");
+        history.replaceState(history.state, "", here.toString());
+      }
+    } catch {
+      // An old browser: no link token.
+    }
+
+    function rand(n) {
+      var bytes = new Uint8Array(n);
+      if (window.crypto && window.crypto.getRandomValues)
+        window.crypto.getRandomValues(bytes);
+      else
+        for (var b = 0; b < n; b++) bytes[b] = Math.floor(Math.random() * 256);
+      var out = "";
+      var abc =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+      for (var i = 0; i < n; i++) out += abc[bytes[i] % 64];
+      return out;
+    }
+    function stored(key, make) {
+      try {
+        var v = localStorage.getItem(key);
+        if (!v) {
+          v = make();
+          localStorage.setItem(key, v);
+        }
+        return v;
+      } catch {
+        return make();
+      }
+    }
+    function session() {
+      var now = Date.now();
+      try {
+        var s = JSON.parse(localStorage.getItem("dialvo-sid") || "null");
+        if (!s || typeof s.id !== "string" || now - s.at > 30 * 60 * 1000)
+          s = { id: rand(16) };
+        s.at = now;
+        localStorage.setItem("dialvo-sid", JSON.stringify(s));
+        return s.id;
+      } catch {
+        return rand(16);
+      }
+    }
+    function send(body) {
+      try {
+        fetch(api + "/track", {
+          method: "POST",
+          headers: { "content-type": "text/plain" },
+          body: JSON.stringify(body),
+          credentials: "omit",
+          keepalive: true,
+        })
+          .then(function (res) {
+            return res.json();
+          })
+          .then(function (data) {
+            // Switched off for this site: stop for this page.
+            if (data && data.track === false) config = { on: false };
+          })
+          .catch(function () {});
+      } catch {
+        // No fetch options: nothing is sent.
+      }
+    }
+    function allowed() {
+      return config && config.on && (config.consent === "notice" || granted);
+    }
+    function view() {
+      if (!allowed()) return;
+      var path = location.pathname || "/";
+      if (path === lastPath) return;
+      lastPath = path;
+      var ref = "";
+      try {
+        ref = document.referrer ? new URL(document.referrer).hostname : "";
+        if (ref === location.hostname) ref = "";
+      } catch {
+        ref = "";
+      }
+      var body = {
+        t: "view",
+        v: stored("dialvo-vid", function () {
+          return rand(22);
+        }),
+        s: session(),
+        p: path,
+        ti: String(document.title || "").slice(0, 200),
+        r: ref,
+      };
+      if (chat) {
+        body.c = chat.c;
+        body.k = chat.k;
+      }
+      if (linkToken) {
+        body.l = linkToken;
+        linkToken = "";
+      }
+      send(body);
+    }
+    function begin() {
+      if (started || !allowed()) return;
+      started = true;
+      view();
+      // Pages that change without loading (single-page apps).
+      ["pushState", "replaceState"].forEach(function (name) {
+        var original = history[name];
+        history[name] = function () {
+          var out = original.apply(this, arguments);
+          setTimeout(view, 0);
+          return out;
+        };
+      });
+      window.addEventListener("popstate", view);
+      // A form on this site with an email in it: that visitor is that lead.
+      document.addEventListener(
+        "submit",
+        function (event) {
+          var form = event.target;
+          if (!form || !form.querySelectorAll || !allowed()) return;
+          var fields = [];
+          try {
+            fields = form.querySelectorAll(
+              'input[type="email"], input[name*="email" i], input[id*="email" i]',
+            );
+          } catch {
+            fields = form.querySelectorAll('input[type="email"]');
+          }
+          for (var i = 0; i < fields.length; i++) {
+            var value = String(fields[i].value || "").trim();
+            if (/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value) && value.length <= 254) {
+              send({
+                t: "identify",
+                v: stored("dialvo-vid", function () {
+                  return rand(22);
+                }),
+                e: value,
+              });
+              return;
+            }
+          }
+        },
+        true,
+      );
+    }
+
+    // The site's own calls: dialvo("consent", true | false).
+    function command(args) {
+      if (args && args[0] === "consent") {
+        granted = args[1] === true;
+        begin();
+      }
+    }
+    var queued = (window.dialvo && window.dialvo.q) || [];
+    window.dialvo = function () {
+      command(arguments);
+    };
+    for (var q = 0; q < queued.length; q++) command(queued[q]);
+
+    fetch(api + "/track", { credentials: "omit" })
+      .then(function (res) {
+        return res.json();
+      })
+      .then(function (data) {
+        config = { on: Boolean(data && data.on), consent: data && data.consent };
+        begin();
+      })
+      .catch(function () {});
+  }
+
   function start() {
+    try {
+      tracker();
+    } catch {
+      // The chat must never depend on the tracker.
+    }
     // The widget only appears if its id is known and switched on.
     call("")
       .then(function (info) {

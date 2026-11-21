@@ -68,7 +68,7 @@ Plain text, under ${EMAIL_TARGET_WORDS} words, in short paragraphs. The subject 
 ${UNTRUSTED}`;
 
 /** What each play's email is for. Our words; nothing in them comes from outside. */
-const PURPOSE: Record<Exclude<PlayKind, "takeout">, string> = {
+const PURPOSE: Record<Exclude<PlayKind, "takeout" | "intent">, string> = {
   speed_to_lead:
     "They have just contacted the business, through a form on its website or its website chat. Thank them briefly and answer what they asked if the Knowledge answers it; if it doesn't, say someone will come back to them on it. Ask one short question that moves things forward. If they want to talk or meet and a booking link is given, offer it once.",
   reactivation:
@@ -90,6 +90,8 @@ const PURPOSE: Record<Exclude<PlayKind, "takeout">, string> = {
     "They registered for the event below but didn't attend. Don't make them feel bad about it. Share the event link if one is given (the replay or the next date) and keep it short.",
   playbook:
     "They are one of the business's own leads, picked by a playbook the team wrote. The team's goal for this email is in <playbook_goal> below: follow it where it doesn't conflict with the rules above, which always win. Mention only what the Knowledge and the <lead> material support.",
+  retargeting:
+    "They are one of the business's leads and have recently been reading its website, including the pricing page (the <lead> material says which pages). NEVER say or hint that you know they visited, which pages they read, or that anyone is watching: write as if the timing is a coincidence. Write a brief, helpful note about what those pages cover, from the Knowledge only, and offer to answer questions or, if a booking link is given, to talk. No pressure and no invented offers or discounts.",
 };
 
 export function playSystem(context: PlayContext): Anthropic.TextBlockParam[] {
@@ -121,7 +123,7 @@ export function playSystem(context: PlayContext): Anthropic.TextBlockParam[] {
 }
 
 export function playUser(
-  play: Exclude<PlayKind, "takeout">,
+  play: Exclude<PlayKind, "takeout" | "intent">,
   lead: PlayLead,
   event: PlayEvent | null,
   extra: { guidance?: string; language?: string | null } = {},

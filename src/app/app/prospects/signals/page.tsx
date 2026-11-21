@@ -32,6 +32,7 @@ import {
 } from "../../_ui/kit";
 import { addMonitor, decideSignal, deleteMonitor } from "../../plays/actions";
 import { FindTabs } from "../tabs";
+import { IntentSection } from "./intent";
 
 export const metadata: Metadata = { title: "Signals" };
 
@@ -57,7 +58,7 @@ async function Content() {
     <>
       <PageHead
         title="Find leads"
-        note="Buying signals: a new hire, a job change, or someone posting about what you solve. Keep one and Dialvo finds that person's email and drafts a first email that opens with the signal."
+        note="Buying signals: a new hire, a job change, someone posting about what you solve, or a company researching your category on review sites. Keep one and Dialvo finds the right person and drafts a first email for your approval."
       />
       <FindTabs current="signals" />
     </>
@@ -331,6 +332,10 @@ async function Content() {
           )}
         </div>
       </div>
+      <IntentSection
+        workspaceId={workspace.id}
+        admin={workspace.role !== "member"}
+      />
     </>
   );
 }

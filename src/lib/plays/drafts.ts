@@ -26,6 +26,7 @@ const LEAD_PLAYS = new Set<string>([
   "event_followup",
   "event_no_show",
   "playbook",
+  "retargeting",
 ]);
 
 export type PlayDraftResult = {
@@ -67,7 +68,7 @@ export async function advancePlayDrafts(
         const written = await writeEmail(client, {
           system: playSystem(claim.context),
           user: playUser(
-            play as Exclude<PlayKind, "takeout">,
+            play as Exclude<PlayKind, "takeout" | "intent">,
             lead,
             event && event.name ? event : null,
             { guidance: extra?.guidance, language: extra?.language },

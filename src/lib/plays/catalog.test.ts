@@ -33,6 +33,6 @@ describe("the app's catalog", () => {
       if (p.status === "partly") expect(p.note).toBeTruthy();
       expect(p.needs.length).toBeGreaterThan(0);
     }
-    expect(APP_PLAYS["retargeting-website-visitors"].status).toBe("building");
+    expect(APP_PLAYS["retargeting-website-visitors"].status).toBe("live");
   });
 });

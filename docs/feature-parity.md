@@ -385,3 +385,18 @@ Where the app differs on purpose: every play's email waits for a person's
 approval (speed to lead may send on its own only if an owner chooses it),
 plays to customers need their email consent or an earlier conversation,
 and nothing on a "being built" page shows data.
+
+## 16. Slack, the API, website visitors and review-site intent (21 Nov 2026)
+
+Now **Live** in `src/lib/plays/catalog.ts`: Slack integration (a pasted
+incoming webhook: hot replies, chats needing a person, meetings, a daily
+approvals digest, finished plays), API (REST v1 with workspace keys, plus
+signed webhooks for lead.created, reply.received and meeting.booked),
+website visitor tracking (consent-respecting, known leads always, anonymous
+companies once the ipapi.is key is set), review-site intent (CSV, webhook or
+the customer's own G2 Buyer Intent token, on Signals) and the retargeting
+website visitors play. Where it differs on purpose: approving from Slack
+isn't offered, tracking is off until the customer switches it on and waits
+for consent by default, and no email says the person visited or was seen on
+a review site. Details: `docs/app-setup.md`, "Slack, the public API and
+webhooks".

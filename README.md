@@ -140,7 +140,12 @@ settings and the manual test checklist.**
   `calls`, `activity_events`, `lead_forms`, `chat_widgets`,
   `message_drafts`, `workspace_setup` (the "Get started" checklist),
   `agent_test_messages` ("Try your agent" chats, never leads) and
-  `team_alerts` (emails to the team, queued and sent). Every table has row-level
+  `team_alerts` (emails to the team, queued and sent); for integrations
+  (21 Nov 2026) `slack_connections`, `webhook_endpoints`,
+  `integration_deliveries` (the Slack and webhook outbox), `site_tracking`,
+  `site_companies`, `site_visitors`, `site_page_views`, `site_ip_lookups`,
+  `site_link_tokens`, `intent_sources` and `intent_signals` (see
+  `docs/app-setup.md`, "Slack, the public API and webhooks"). Every table has row-level
   security from its first migration, policies go through `private.*` helper
   functions, and child tables use `(parent_id, workspace_id)` foreign keys.
   `npm test` applies the migrations to an in-memory Postgres (PGlite) and

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import {
   BarChart3,
   BookOpen,
+  Eye,
   House,
   Inbox,
   LayoutGrid,
@@ -31,6 +32,7 @@ const NAV: { href: string; icon: LucideIcon; label: string }[] = [
   { href: "/app/sequences", icon: ListOrdered, label: "Sequences" },
   { href: "/app/inbox", icon: Inbox, label: "Inbox" },
   { href: "/app/chat", icon: MessageCircle, label: "Website chat" },
+  { href: "/app/visitors", icon: Eye, label: "Website visitors" },
   { href: "/app/calls", icon: Phone, label: "Calls" },
   { href: "/app/leads", icon: Users, label: "Leads" },
   { href: "/app/analytics", icon: BarChart3, label: "Analytics" },

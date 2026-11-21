@@ -41,7 +41,9 @@ export type PlayKind =
   | "onboarding"
   | "expansion"
   | "plg"
-  | "playbook";
+  | "playbook"
+  | "retargeting"
+  | "intent";
 
 export type AppPlay = {
   slug: PlaySlug;
@@ -70,7 +72,7 @@ export const APP_PLAYS: Record<PlaySlug, AppPlay> = {
       "A connected mailbox with sending switched on",
       "Your website chat or a form on your site",
     ],
-    note: "Calls and SMS replies aren't built yet: speed to lead answers by email and in the chat.",
+    note: "Answers by email and in the chat straight away. To follow up by text or a call as well, add those steps under Sequences, channels (texts and calls only to leads who agreed to them).",
     kinds: ["speed_to_lead"],
   },
   "automated-meeting-scheduling": {
@@ -135,13 +137,17 @@ export const APP_PLAYS: Record<PlaySlug, AppPlay> = {
   },
   "retargeting-website-visitors": {
     slug: "retargeting-website-visitors",
-    status: "building",
-    what: "Will tell you which companies are reading your site, especially your pricing page, and draft outreach to the right person there while it's still on their mind.",
-    who: "Companies identified from visits to your website.",
+    status: "live",
+    what: "Shows which companies and known leads are reading your site, especially your pricing page. For companies it finds a named person and drafts a first email; for known leads, a short check-in. No email says they visited, and each waits for your approval.",
+    who: "Companies identified from visits to your site, and your own leads (not customers) who read your pricing page in the last two weeks.",
     needs: [
-      "A visitor-identification data provider, which isn't connected yet",
+      "Website visitor tracking switched on, with the website chat's code on your site",
+      "The contact database (Findymail) switched on, for companies",
+      "A connected mailbox",
     ],
-    kinds: [],
+    note: "Known leads are tracked as they chat, fill in a form or click a link in your email. Identifying anonymous companies also needs the company-lookup key on Dialvo's side.",
+    kinds: ["retargeting"],
+    elsewhere: { href: "/app/visitors", label: "Open Website visitors" },
   },
   "closed-lost": {
     slug: "closed-lost",
@@ -244,6 +250,8 @@ export type AppFeature = {
   needs?: string[];
 };
 
+// A "building" feature's own page. Kept for features not yet live.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const building = (slug: FeatureSlug) => `/app/features/${slug}`;
 
 export const APP_FEATURES: Record<FeatureSlug, AppFeature> = {
@@ -263,13 +271,9 @@ export const APP_FEATURES: Record<FeatureSlug, AppFeature> = {
     note: "Each company found is checked against your description; ones that don't fit, competitors and very large companies are left out with the reason.",
   },
   "website-visitor-tracking": {
-    status: "building",
-    href: building("website-visitor-tracking"),
-    note: "Will show which companies visit your site. It needs a visitor-identification data provider, which isn't connected.",
-    needs: [
-      "A visitor-identification data provider (a paid service the founder chooses)",
-      "A small tracking snippet on your site",
-    ],
+    status: "live",
+    href: "/app/visitors",
+    note: "Page views from your site, with consent and never with Do Not Track; known leads from chats, forms and email links; companies by network once the company-lookup key (ipapi.is) is set on Dialvo's side.",
   },
   "multi-channel-sequences": {
     status: "live",
@@ -352,21 +356,19 @@ export const APP_FEATURES: Record<FeatureSlug, AppFeature> = {
     note: "HubSpot or Pipedrive: leads, conversations and meetings written to your CRM, and its contacts never emailed cold.",
   },
   "slack-integration": {
-    status: "building",
-    href: building("slack-integration"),
-    note: "Will post alerts and approvals to a Slack channel. Alerts go by email today.",
-    needs: ["A Slack app for Dialvo, connected per workspace"],
+    status: "live",
+    href: "/app/settings/slack",
+    note: "Paste a Slack webhook: hot replies, chats that need a person, meetings booked, a daily approvals digest and finished plays go to your channel. Approving stays in the app.",
   },
   "review-site-intent": {
-    status: "building",
-    href: building("review-site-intent"),
-    note: "Will show companies researching your category on review sites. It needs a review-site intent data provider, which isn't connected.",
-    needs: ["A review-site intent data provider (a paid service)"],
+    status: "live",
+    href: "/app/prospects/signals",
+    note: "Companies researching your category on review sites, from your own export (CSV), a webhook or your G2 Buyer Intent token, on Signals; keep one to find a contact and draft an email.",
   },
   api: {
-    status: "partly",
+    status: "live",
     href: "/app/settings/api",
-    note: "Send product events from your app (POST /api/v1/events) with a workspace API key. A wider API isn't built.",
+    note: "A REST API with workspace keys: leads, conversations, plays, meetings and product events, plus signed webhooks for new leads, replies and meetings.",
   },
 };
 

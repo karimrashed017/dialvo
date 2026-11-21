@@ -19,8 +19,11 @@ export function ActionForm({
   confirm,
   quiet = false,
   onDone,
+  id,
 }: {
   action: (form: FormData) => Promise<ActionResult>;
+  /** For fields elsewhere on the page that join it with form="<id>". */
+  id?: string;
   children: React.ReactNode;
   className?: string;
   /** Clear the fields after a successful save (for "add" forms). */
@@ -63,7 +66,13 @@ export function ActionForm({
 
   const show = result?.message && !(result.ok && quiet);
   return (
-    <form ref={ref} onSubmit={submit} className={className} noValidate={false}>
+    <form
+      ref={ref}
+      id={id}
+      onSubmit={submit}
+      className={className}
+      noValidate={false}
+    >
       <Pending value={pending}>{children}</Pending>
       {show && (
         <p

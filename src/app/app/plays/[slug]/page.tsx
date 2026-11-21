@@ -23,6 +23,8 @@ import {
   prospectRuntimeStatus,
 } from "@/lib/prospects/config";
 import { createClient } from "@/lib/supabase/server";
+import { integrationReads } from "@/lib/integrations/read";
+import { visitorIdStatus } from "@/lib/visitors/identify";
 import { cn } from "@/lib/utils";
 import { ActionForm, SubmitButton } from "../../_ui/form";
 import {
@@ -144,6 +146,59 @@ function CampaignList({
   );
 }
 
+/** The play's two sources and where each is started (Website visitors). */
+async function RetargetingPanel({ workspaceId }: { workspaceId: string }) {
+  const reads = integrationReads(await createClient(), workspaceId);
+  const [tracking, companies, known] = await Promise.all([
+    reads.tracking(),
+    reads.companies(),
+    reads.knownVisitors(),
+  ]);
+  const ident = visitorIdStatus();
+  const fresh = companies.filter((c) => c.status === "new");
+  const pricing = known.filter((k) => k.pricing_views > 0);
+  return (
+    <section className={panel}>
+      <h2 className={panelHead}>
+        Who is on your site
+        <Badge tone={tracking.enabled ? "ink" : "outline"}>
+          {tracking.enabled ? "Tracking on" : "Tracking off"}
+        </Badge>
+      </h2>
+      <div className="space-y-3 p-4 text-[13px] leading-[1.5]">
+        <ul className="space-y-1 text-[#0B0B0C]/75">
+          <li>
+            <span className="font-medium text-[#0B0B0C] tabular-nums">
+              {fresh.length}
+            </span>{" "}
+            identified {fresh.length === 1 ? "company" : "companies"} not yet
+            followed up
+            {fresh.filter((c) => c.pricing_views > 0).length > 0 &&
+              ` (${fresh.filter((c) => c.pricing_views > 0).length} read your pricing page)`}
+            {!ident.on &&
+              `: identifying companies needs ${ident.envName} on Dialvo's side`}
+          </li>
+          <li>
+            <span className="font-medium text-[#0B0B0C] tabular-nums">
+              {pricing.length}
+            </span>{" "}
+            known {pricing.length === 1 ? "lead" : "leads"} who read your
+            pricing page
+          </li>
+        </ul>
+        <p className={hint}>
+          Companies: Dialvo finds a named person at each and drafts a first
+          email. Known leads: a short, helpful check-in. Neither email says they
+          visited, and every one waits for your approval.
+        </p>
+        <GoLink href="/app/visitors" primary>
+          {tracking.enabled ? "Open Website visitors" : "Switch tracking on"}
+        </GoLink>
+      </div>
+    </section>
+  );
+}
+
 async function Content({ slug }: { slug: PlaySlug }) {
   const { workspace, user, preview, repo } = await getAppContext();
   const play = APP_PLAYS[slug];
@@ -190,7 +245,9 @@ async function Content({ slug }: { slug: PlaySlug }) {
       ? ["event"]
       : slug === "speed-to-lead"
         ? ["speed_to_lead"]
-        : [];
+        : slug === "retargeting-website-visitors"
+          ? ["retargeting"]
+          : [];
   const [
     counts,
     boxes,
@@ -625,6 +682,10 @@ async function Content({ slug }: { slug: PlaySlug }) {
                 </section>
               )}
             </>
+          )}
+
+          {slug === "retargeting-website-visitors" && (
+            <RetargetingPanel workspaceId={workspace.id} />
           )}
 
           {slug === "plg-conversion" && (

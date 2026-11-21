@@ -115,6 +115,7 @@ for (const [label, width] of [
           "Sequences",
           "Inbox",
           "Website chat",
+          "Website visitors",
           "Calls",
           "Leads",
           "Analytics",
@@ -130,7 +131,10 @@ for (const [label, width] of [
     const plays = await page.goto(`${BASE}/app/plays`);
     ok(
       "plays page lists 14 plays",
-      plays && (await page.locator("[data-play]").count()) === 14,
+      plays &&
+        (await page
+          .locator("[data-play]:not([data-play=playbooks])")
+          .count()) === 14,
     );
     await page.goto(`${BASE}/app/features`);
     ok(
