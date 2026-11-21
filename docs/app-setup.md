@@ -1555,3 +1555,109 @@ email, the API key and events endpoint against the live database, and the
 signal scheduler: this machine has no `SUPABASE_SECRET_KEY`,
 `ANTHROPIC_API_KEY` or `FINDYMAIL_API_KEY`, so those buttons show "not
 switched on" here. Test data left: none.
+
+## Slack, the public API and webhooks, website visitors, review-site intent (21 Nov 2026)
+
+**Where things are.** Settings, Slack (`/app/settings/slack`); Settings, API
+and webhooks (`/app/settings/api`: keys, the API reference, webhook
+endpoints and their deliveries); Website visitors (`/app/visitors`, in the
+sidebar, and the play at `/app/plays/retargeting-website-visitors`);
+review-site intent at the bottom of Find leads, Signals. Code:
+`src/lib/integrations` (Slack, webhooks, the outbox step, safe POSTs),
+`src/lib/api` and `src/app/api/v1` (the REST API), `src/lib/visitors` and
+`public/widget.js` (tracking), `src/lib/intent` (CSV, webhook and G2 intent).
+
+**What it needs.** Nothing new for Slack, the API, webhooks, known-lead
+tracking or intent: `SUPABASE_SECRET_KEY` only. Secrets (Slack URLs, webhook
+signing secrets, G2 tokens) are in Supabase Vault per workspace, read only by
+functions the secret key may call. One optional key:
+
+| Variable           | What it adds                                                                                                                                                            | Price (checked 21 Nov 2026)                                                                                    |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `IPAPI_IS_API_KEY` | Anonymous companies on Website visitors (IP to company, ipapi.is). Without it the page says exactly that and shows known leads only (chat, form and email-link visits). | Free: 1,000 lookups a day with a key, no card. Paid from $20 a month (20,000 a day), shared by all workspaces. |
+
+Why ipapi.is: it was the cheapest IP-to-company API with a self-serve key.
+IPinfo sells its company API to enterprise customers only; Snitcher's
+IP-to-company API is sales-provisioned (no public price); Clearbit Reveal is
+gone. ipapi.is returns the network's registered organisation (WHOIS) with a
+type: only `business` networks that aren't a data centre, VPN, proxy, Tor,
+crawler or mobile network become a company. That finds companies with their
+own networks, not people working from home. If identification quality
+matters more than price, a sales-led provider (Snitcher and similar) is the
+next step; the adapter is one file (`src/lib/visitors/identify.ts`).
+
+**Review-site intent: no provider is self-serve.** G2 Buyer Intent (G2 now
+also runs Capterra, GetApp and Software Advice) needs a paid G2 plan that
+includes it; TrustRadius intent is sold through their sales team. So intent
+comes in three ways, all with the customer's own data: a CSV export upload, a
+webhook (`POST /api/intent/<token>`, the address shown once), and the
+customer's own G2 API token (pulled daily from
+`https://data.g2.com/api/v2/buyer_intent`). Nothing needs a contract with
+Dialvo; the customer needs their own G2 Buyer Intent plan for the G2 pull.
+
+**How it runs.**
+
+- Events are queued by triggers (team_alerts for hot replies and chats
+  needing a person, meetings, leads, messages from leads on non-chat
+  channels, campaigns finishing) into `integration_deliveries`, only for a
+  workspace that asked. `dialvo-integration-steps` (pg_cron, every minute)
+  calls `POST /api/integrations/step?job=deliver` with the Vault token when
+  something is due, and queues each workspace's daily approvals digest.
+  `dialvo-intent-steps` (hourly) calls `?job=intent` when a G2 pull is due.
+  `dialvo-site-cleanup` (daily, SQL only) keeps 180 days of page views.
+- Webhooks: JSON `{ id, type, created_at, data }` with `Dialvo-Signature:
+t=<unix>,v1=<HMAC-SHA256 of "t.body">`, retried 8 times (1 minute to 12
+  hours), switched off after 50 failures in a row. Endpoints must be public
+  HTTPS on 443; the connection goes to the checked address (no redirects).
+- The API: `Authorization: Bearer dv_live_...` (the existing keys). Every
+  route goes through `authorise()` in `src/lib/api/v1.ts`, which turns the
+  key into its workspace and gives the route a query builder already
+  filtered to it; writes set `workspace_id` from the key. 120 requests a
+  minute per key (counted in the database), cursor pages of up to 100.
+- Tracking: off until an owner or admin switches it on. Never with Do Not
+  Track or Global Privacy Control; by default it waits for
+  `dialvo("consent", true)` or `data-consent="granted"`. Paths only (no
+  query strings), the referrer's host, a random id in localStorage. IP
+  addresses are never stored (a SHA-256 with the widget's token, to cache a
+  lookup for 30 days).
+- The retargeting play: companies go into a target-accounts campaign marked
+  `source: retargeting` (Findymail finds a person, about 2 credits a
+  company); known leads who read the pricing page in 14 days get a
+  `retargeting` lead play. Drafts are marked `retargeting`; the prompt
+  forbids saying they visited. Kept intent signals do the same with
+  `source: intent`.
+- Approving from Slack is not built on purpose: a Slack message can be
+  forwarded or seen by people outside the workspace, so approvals need a
+  signed-in person in the app.
+
+**Cookie notice guidance for customers** (also on the Website visitors
+page): Dialvo keeps a random visitor id and a session id in local storage,
+and records pages read, the referring site and emails typed into the site's
+forms, to show who is interested and follow up. List Dialvo as a processor
+in the privacy policy. In the UK and EU keep "wait for consent".
+
+**The database** (applied to the live project 21 Nov 2026, files renamed to
+the recorded versions and checked byte for byte against the stored
+statements): `20261121005004_integrations`, `20261121005112_public_api`,
+`20261121005609_site_visitors`, `20261121005741_review_intent`. The
+site_visitors migration widens `outbound_campaigns.kind` and
+`outbound_drafts.play` by reading the live check and adding to it, so values
+other migrations added (for example `playbook`) are kept. Isolation and
+behaviour tests: `supabase/tests/integrations.test.ts`.
+
+**What was tested.** `npm run check` (PGlite tests of every new table and
+function, including cross-workspace isolation, Vault-only secrets, the
+outbox's lease, retries and disabling, the digest, tracking, form and chat
+identification, link tagging, both retargeting paths and intent import;
+unit tests of signing, Slack text, SSRF checks, the API's lead parsing,
+pages and workspace scoping, CSV and G2 parsing, ipapi.is parsing and the
+tracker) and `npm run build`. The new pages were opened against a local
+production build: `scripts/e2e-integrations.mjs` signed in as a test
+account made for it in the live database (deleted afterwards with its
+workspace; nothing left), with a little seeded data, and opened Slack, API
+and webhooks, Website visitors, the retargeting play, Signals, All features
+and Settings at 1440 and 390 px (19 of 19 checks, no sideways scrolling);
+screenshots read by eye. **Not tested:** a real Slack post, a real
+webhook delivery, a real ipapi.is or G2 call, the scheduler calling the app,
+and the tracker on a real customer site: this machine has no
+`SUPABASE_SECRET_KEY`, and nothing was signed up for.
