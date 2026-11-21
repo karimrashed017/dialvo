@@ -145,7 +145,14 @@ settings and the manual test checklist.**
   `integration_deliveries` (the Slack and webhook outbox), `site_tracking`,
   `site_companies`, `site_visitors`, `site_page_views`, `site_ip_lookups`,
   `site_link_tokens`, `intent_sources` and `intent_signals` (see
-  `docs/app-setup.md`, "Slack, the public API and webhooks"). Every table has row-level
+  `docs/app-setup.md`, "Slack, the public API and webhooks"); for lists and
+  data (21 Nov 2026) `data_lists`, `data_list_rows`, `data_list_columns`,
+  `data_cells`, `data_recipes`, `data_usage`, `scoring_settings`,
+  `accounts`, `territories`, `territory_reps`, `audiences`,
+  `enrichment_settings`, `lead_enrichment`, `enrichment_events`,
+  `enrichment_usage` and `sourcing_schedules`, plus score, tier and account
+  columns on `leads` (see `docs/app-setup.md`, "Lists, recipes, scoring,
+  enrichment, sourcing, territories, accounts and audiences"). Every table has row-level
   security from its first migration, policies go through `private.*` helper
   functions, and child tables use `(parent_id, workspace_id)` foreign keys.
   `npm test` applies the migrations to an in-memory Postgres (PGlite) and
@@ -155,6 +162,12 @@ settings and the manual test checklist.**
   phone agent on Twilio (inbound only: Dialvo never makes outbound calls),
   number buying, SMS with STOP handling, and LinkedIn (done by a person) and
   text steps that stop on a reply anywhere. See `docs/app-setup.md`, "Calls".
+- **Lists and data** (`/app/lists`, `/app/accounts`, `/app/leads/scoring`,
+  `/app/leads/audiences`, `/app/settings/territories`,
+  `/app/settings/enrichment`, `/app/prospects/sourcing`, `src/lib/data`):
+  research columns, recipes, lead scoring and tiers, enrichment, always-on
+  sourcing, territories, target accounts and audiences. Caps and cost notes
+  in `src/lib/data/config.ts`; the scheduler calls `/api/data/step`.
 - **Design preview:** `DIALVO_DEV_FIXTURES=1 npm run dev` draws the shell
   with made-up data and no database. Development only; it is compiled out of
   production builds (`scripts/check-no-preview-data.mjs`).
