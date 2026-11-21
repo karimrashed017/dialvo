@@ -21,8 +21,9 @@ npm test        # the tests alone (vitest)
 
 - `src/app/page.tsx`: the home page, built from the sections in `src/app/_site/`.
   In order: hero, the problem, the four jobs (inbound, outbound, closing,
-  expansion), the live voice demo, the channel tabs, control, what it
-  replaces, trust, pricing, FAQ, last call.
+  expansion), the live voice demo, the channel tabs, the whole platform
+  (every group and feature, from the catalog), control, what it replaces,
+  trust, pricing, FAQ, last call.
   - `hero.tsx` and `dashboard.tsx`: the hero and its example workspace.
   - `sections.tsx`: the problem, the four jobs, what it replaces (with the
     tools Dialvo connects to), trust, last call.
@@ -39,12 +40,15 @@ npm test        # the tests alone (vitest)
 - `src/app/plays`: every play as a card (the grid that used to be on the home
   page), and `src/app/plays/[slug]`: one page per play (14).
 - `src/app/platform` and `src/app/platform/[slug]`: the platform overview and
-  one page per feature (23).
+  one page per feature (36, in seven groups).
 - `src/lib/content/`: all the copy for those pages, typed. `catalog.ts` is the
   map (motions, plays, feature groups, one-liners) that the menus, footer,
   sitemap and cards read; the `plays-*.ts`, `platform-*.ts` and `motions.ts`
-  files hold each page's copy. To add a page, add it to the catalog and write
-  its entry: TypeScript fails until both exist.
+  files hold each page's copy, and `platform-details.ts` holds every feature
+  page's steps, needs and questions. To add a page, add it to the catalog and
+  write its entries: TypeScript fails until all exist. A feature page shows
+  "Available in the app" only once `src/lib/plays/catalog.ts` has an entry
+  for it (`appFeature()`); until then it shows no status line.
 - `src/app/_site/pages/`: the templates those pages render through
   (`play-page`, `feature-page`, `motion-page`, `platform-page`), the shared
   parts and the sample panels (`visual.tsx`).
