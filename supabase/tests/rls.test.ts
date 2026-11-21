@@ -11,6 +11,7 @@ import {
   INTEGRATION_SECRET_TABLES,
   INTEGRATION_TABLES,
 } from "./integrations-tables";
+import { DATA_TABLES } from "./data-tables";
 
 // The isolation rules, proved against the real migrations:
 //   * a member of workspace A cannot read or write any row of workspace B,
@@ -287,6 +288,7 @@ const ALL_TABLES = [
   ...ENGINE_TABLES,
   ...CHANNEL_TABLES,
   ...INTEGRATION_TABLES,
+  ...DATA_TABLES,
 ];
 
 /** A write that must change nothing: refused outright, or zero rows. */
