@@ -1252,6 +1252,13 @@ async function Content({
       note="Dialvo finds companies that fit who you sell to, reads their websites and drafts a first email for the ones you keep. You don't need to bring a list."
     >
       <Link
+        href="/app/lists"
+        title="Make a list from a search's results, then research every company with a question or a saved recipe"
+        className={cn(btn.ghost, btn.small)}
+      >
+        Results to a list
+      </Link>
+      <Link
         href={view === "never" ? "/app/prospects" : "/app/prospects?view=never"}
         className={cn(btn.ghost, btn.small)}
       >

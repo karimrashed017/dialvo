@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { FileUp, Search, Telescope, Users } from "lucide-react";
 import { getAppContext } from "@/lib/app/context";
 import { ago } from "@/lib/app/time";
-import { LEAD_STATUSES, STATUS_LABEL } from "@/lib/app/types";
+import { LEAD_STATUSES, STATUS_LABEL, type Lead } from "@/lib/app/types";
 import { cn } from "@/lib/utils";
 import {
   Badge,
@@ -18,8 +18,24 @@ import {
   StatusBadge,
 } from "../_ui/kit";
 import { AddLead } from "./add-lead";
+import { LEAD_TABS, SectionTabs } from "../_ui/tabs";
 
 export const metadata: Metadata = { title: "Leads" };
+
+function TierCell({ lead }: { lead: Lead }) {
+  if (!lead.tier) return <span className="text-[#0B0B0C]/35">–</span>;
+  return (
+    <span
+      title={`Fit ${lead.fit_score ?? "not set"}, engagement ${lead.engagement_score ?? 0}`}
+      className="inline-flex items-center gap-1.5"
+    >
+      <Badge tone={lead.tier === 1 ? "ink" : "outline"}>Tier {lead.tier}</Badge>
+      <span className="text-[#0B0B0C]/50 tabular-nums">
+        {lead.fit_score ?? "–"} / {lead.engagement_score ?? 0}
+      </span>
+    </span>
+  );
+}
 
 async function Leads({
   searchParams,
@@ -33,9 +49,12 @@ async function Leads({
     (LEAD_STATUSES as readonly string[]).includes(params.status)
       ? params.status
       : "";
+  const tier = [1, 2, 3].includes(Number(params.tier))
+    ? Number(params.tier)
+    : 0;
   const { repo } = await getAppContext();
-  const leads = await repo.leads({ q, status });
-  const filtered = Boolean(q || status);
+  const leads = await repo.leads({ q, status, tier });
+  const filtered = Boolean(q || status || tier);
 
   return (
     <>
@@ -53,6 +72,7 @@ async function Leads({
           Find leads
         </Link>
       </PageHead>
+      <SectionTabs label="Leads" tabs={LEAD_TABS} current="leads" />
 
       <form
         action="/app/leads"
@@ -86,6 +106,19 @@ async function Leads({
                 {STATUS_LABEL[s]}
               </option>
             ))}
+          </select>
+        </label>
+        <label>
+          <span className="sr-only">Tier</span>
+          <select
+            name="tier"
+            defaultValue={tier || ""}
+            className={cn(input, "h-9 w-auto rounded-full py-0 pr-8")}
+          >
+            <option value="">Any tier</option>
+            <option value="1">Tier 1</option>
+            <option value="2">Tier 2</option>
+            <option value="3">Tier 3</option>
           </select>
         </label>
         <button type="submit" className={btn.secondary}>
@@ -160,6 +193,7 @@ async function Leads({
                     </span>
                     <span className="mt-2 flex flex-wrap items-center gap-1.5">
                       <StatusBadge status={l.status} />
+                      {l.tier && <Badge tone="outline">Tier {l.tier}</Badge>}
                       {l.do_not_contact && (
                         <Badge tone="warn">Do not contact</Badge>
                       )}
@@ -174,11 +208,17 @@ async function Leads({
             <table className="hidden w-full text-left text-[13px] md:table">
               <thead>
                 <tr className="border-b border-black/[0.06] text-[11.5px] text-[#0B0B0C]/50">
-                  {["Lead", "Contact", "Status", "Source", "Added"].map((h) => (
-                    <th key={h} scope="col" className="px-4 py-2.5 font-medium">
-                      {h}
-                    </th>
-                  ))}
+                  {["Lead", "Contact", "Status", "Tier", "Source", "Added"].map(
+                    (h) => (
+                      <th
+                        key={h}
+                        scope="col"
+                        className="px-4 py-2.5 font-medium"
+                      >
+                        {h}
+                      </th>
+                    ),
+                  )}
                 </tr>
               </thead>
               <tbody>
@@ -217,6 +257,9 @@ async function Leads({
                           <Badge tone="warn">Do not contact</Badge>
                         )}
                       </span>
+                    </td>
+                    <td className="px-4 py-2.5 text-[12.5px] whitespace-nowrap">
+                      <TierCell lead={l} />
                     </td>
                     <td className="max-w-[160px] truncate px-4 py-2.5 text-[12.5px] text-[#0B0B0C]/55">
                       {l.source}

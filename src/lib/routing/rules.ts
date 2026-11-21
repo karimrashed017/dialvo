@@ -9,6 +9,8 @@ export type RoutingMatch = {
   size_max?: number | null;
   sources?: string[];
   plays?: string[];
+  /** Lead tiers (1 to 3), from lead scoring. */
+  tiers?: number[];
 };
 
 /** The plays a rule can match, by the name the database gives them. */
@@ -40,6 +42,7 @@ export function describeMatch(m: RoutingMatch): string {
   else if (m.size_max != null)
     parts.push(`at companies of up to ${m.size_max} people`);
   if (m.sources?.length) parts.push(`from ${m.sources.join(" or ")}`);
+  if (m.tiers?.length) parts.push(`in tier ${m.tiers.join(" or ")}`);
   if (m.plays?.length)
     parts.push(
       `written to by ${m.plays.map((p) => ROUTING_PLAYS[p] ?? p).join(" or ")}`,

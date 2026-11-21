@@ -10,6 +10,8 @@ import { cn } from "@/lib/utils";
 import { ActionForm, SubmitButton } from "../../_ui/form";
 import { hint, input, labelCls } from "../../_ui/kit";
 import { savePlaybook } from "./actions";
+import { LeadFilterFields } from "../../_ui/lead-filters";
+import type { AudienceRef, ListRef, RecipeRef } from "@/lib/data/read";
 
 // A playbook's settings: who it picks, what its first email is for, the
 // sequence after it, the language and whether its emails wait for approval.
@@ -32,11 +34,17 @@ export function PlaybookForm({
   sequences,
   sources,
   admin,
+  lists = [],
+  audiences = [],
+  recipes = [],
 }: {
   playbook: Playbook | null;
   sequences: Sequence[];
   sources: string[];
   admin: boolean;
+  lists?: ListRef[];
+  audiences?: AudienceRef[];
+  recipes?: RecipeRef[];
 }) {
   const f = playbook?.filters ?? {};
   const fallback = sequences.find((q) => q.is_default);
@@ -123,6 +131,29 @@ export function PlaybookForm({
                 ` Your leads' sources: ${sources.slice(0, 8).join(", ")}.`}
             </span>
           </label>
+          <details
+            open={Boolean(
+              f.tiers?.length ||
+              f.min_fit != null ||
+              f.min_engagement != null ||
+              f.list_id ||
+              f.audience_id ||
+              f.recipe,
+            )}
+          >
+            <summary className="cursor-pointer text-[12.5px] font-medium text-[#0B0B0C]/75">
+              Tier, scores, an audience, a list or a recipe {optional}
+            </summary>
+            <div className="mt-2">
+              <LeadFilterFields
+                filters={f}
+                lists={lists}
+                audiences={audiences}
+                recipes={recipes}
+                basic={false}
+              />
+            </div>
+          </details>
         </fieldset>
 
         <label className={labelCls}>

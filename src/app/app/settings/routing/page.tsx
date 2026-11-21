@@ -132,6 +132,23 @@ function RuleForm({
             />
           </label>
         </div>
+        <fieldset>
+          <legend className={labelCls}>Lead tier {optional}</legend>
+          <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1.5 text-[13px]">
+            {[1, 2, 3].map((t) => (
+              <label key={t} className="flex items-center gap-1.5">
+                <input
+                  type="checkbox"
+                  name="tiers"
+                  value={t}
+                  defaultChecked={m.tiers?.includes(t) ?? false}
+                  className="size-4 accent-[#0B0B0C]"
+                />
+                Tier {t}
+              </label>
+            ))}
+          </div>
+        </fieldset>
         <details>
           <summary className="cursor-pointer text-[12.5px] font-medium text-[#0B0B0C]/75">
             Only leads written to by these plays {optional}
@@ -373,6 +390,27 @@ async function Content() {
                 The person gets an email alert if they have alerts on, the lead
                 shows them as its owner, and its conversations are assigned to
                 them in the Inbox.
+              </li>
+              <li>
+                Before the rules: a lead at a target account with an owner goes
+                to that owner, and a lead in one of your{" "}
+                <Link
+                  href="/app/settings/territories"
+                  className="underline decoration-black/25 underline-offset-2"
+                >
+                  territories
+                </Link>{" "}
+                goes to its rep with the fewest open leads.
+              </li>
+              <li>
+                Tiers come from{" "}
+                <Link
+                  href="/app/leads/scoring"
+                  className="underline decoration-black/25 underline-offset-2"
+                >
+                  lead scoring
+                </Link>
+                ; a new lead is scored before it is routed.
               </li>
               <li>Leads that already have an owner are never moved.</li>
             </ul>

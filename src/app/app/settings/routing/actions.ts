@@ -46,6 +46,10 @@ export async function saveRule(form: FormData): Promise<ActionResult> {
           .getAll("plays")
           .map(String)
           .filter((p) => Object.hasOwn(ROUTING_PLAYS, p)),
+        tiers: form
+          .getAll("tiers")
+          .map(Number)
+          .filter((t) => t === 1 || t === 2 || t === 3),
         size_min: size(form.get("size_min"), "size_min"),
         size_max: size(form.get("size_max"), "size_max"),
       };

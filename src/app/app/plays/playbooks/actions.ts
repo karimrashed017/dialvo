@@ -16,6 +16,7 @@ import {
   type PlaybookFilters,
 } from "@/lib/plays/playbooks";
 import { prospectRuntimeStatus } from "@/lib/prospects/config";
+import { readFilters as readLeadFilters } from "@/lib/data/filters";
 
 // Making, changing and running a playbook. Saving goes through
 // playbook_save as the signed-in owner or admin (the database checks again);
@@ -47,11 +48,21 @@ function readFilters(form: FormData): PlaybookFilters {
     .map((s) => cleanText(s, 80))
     .filter(Boolean)
     .slice(0, 10);
+  // Tiers, scores, a saved audience, a list and a recipe's answer.
+  const more = readLeadFilters(form);
   return {
     statuses,
     sources,
     inactive_days: days(form.get("inactive_days"), "inactive_days"),
     added_within_days: days(form.get("added_within_days"), "added_within_days"),
+    ...(more.tiers ? { tiers: more.tiers } : {}),
+    ...(more.min_fit != null ? { min_fit: more.min_fit } : {}),
+    ...(more.min_engagement != null
+      ? { min_engagement: more.min_engagement }
+      : {}),
+    ...(more.list_id ? { list_id: more.list_id } : {}),
+    ...(more.audience_id ? { audience_id: more.audience_id } : {}),
+    ...(more.recipe ? { recipe: more.recipe } : {}),
   };
 }
 
