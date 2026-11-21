@@ -1,15 +1,15 @@
 import type { Faq, Point } from "./types";
 
-// The copy for /platform. The six groups and their features come from the
-// catalog.
+// The copy for /platform. The groups and their features come from the
+// catalog, so no count is written here.
 
 export const PLATFORM_PAGE = {
   title: "Platform · The data, research, rules and reporting under every agent",
   description:
-    "Dialvo's platform: prospect data, deep research, sequences, inbound handling, deliverability, analytics and integrations, shared by every agent on every channel.",
+    "Dialvo's platform: prospect data, lists and research, scoring and accounts, sequences and workflows, inbound handling, deliverability, analytics and integrations, shared by every agent on every channel.",
   headline: "One platform under every agent.",
   intro:
-    "Dialvo's agents are only as good as what they know and the rules they follow. The platform is that shared ground: who to talk to, what to say, how to send it, where to log it and how to tell whether it worked. Twenty-three features in six groups, each with its own page.",
+    "Dialvo's agents are only as good as what they know and the rules they follow. The platform is that shared ground: who to talk to, what to say, how to send it, where to log it and how to tell whether it worked. Every feature has its own page.",
   context: {
     title: "Every agent works from the same picture",
     lead: "The phone agent, the email agent and your reps all see the same account, so nobody asks a question twice or contradicts the last conversation.",
@@ -32,7 +32,7 @@ export const PLATFORM_PAGE = {
       },
       {
         title: "Outside signals",
-        body: "Funding, hiring, job changes, new tools and review-site research, checked as they happen.",
+        body: "Funding, launches, leadership hires, job changes and review-site research, each with its source.",
       },
       {
         title: "Company and contact data",
@@ -49,31 +49,31 @@ export const PLATFORM_PAGE = {
         body: "Each agent's guidance is plain language: tone, what to ask, what never to say, when to hand over.",
       },
       {
-        title: "Approval thresholds",
-        body: "Approve every message, only first touches, only certain topics, or nothing. Set it per play and per channel.",
+        title: "Approval your way",
+        body: "Approve every email, or let a play send within your limits. Set it per play, playbook and sequence.",
       },
       {
-        title: "Escalation rules",
-        body: "The situations that always go to a person: complaints, discounts, legal questions, named accounts.",
+        title: "Handoffs to a person",
+        body: "The chat hands visitors to your team when they need someone, and the phone agent transfers calls.",
       },
       {
-        title: "Send windows and caps",
-        body: "Hours, daily volumes and how often any one person may hear from you, across all channels.",
+        title: "Limits on sending",
+        body: "Daily limits per mailbox and per workspace, a gradual ramp-up, and a small daily number of LinkedIn tasks.",
       },
       {
         title: "Consent enforced",
-        body: "Dialvo never makes outbound calls. SMS and WhatsApp only go to people with a recorded opt-in. Opt-outs apply everywhere at once.",
+        body: "Dialvo never makes outbound calls. Texts only go to people with a recorded opt-in. Opt-outs apply everywhere at once.",
       },
       {
-        title: "Automatic checks",
-        body: "Conversations are checked for unsupported answers and off-script moments, and flagged for your review.",
+        title: "A never-contact list",
+        body: "People and domains on it are never written to, by any play, playbook or workflow.",
       },
     ] satisfies Point[],
   },
   faqs: [
     {
       q: "Do I need every feature to start?",
-      a: "No. A speed-to-lead setup needs the phone agent, your qualifying questions and a calendar. Add data, sequences and integrations as you add plays.",
+      a: "No. Speed to lead needs a connected mailbox and your website chat or a form. Add data, sequences and integrations as you add plays.",
     },
     {
       q: "Which features are on which plan?",
@@ -81,7 +81,7 @@ export const PLATFORM_PAGE = {
     },
     {
       q: "Is everything available today?",
-      a: "Not all of it yet. The website chat agent is live today, and the other channels and integrations are being switched on in stages. Write to us and we'll tell you plainly what's ready.",
+      a: "Each feature page says whether it's available in the app today, what it needs, and its limits. Write to us and we'll tell you plainly what's ready for your setup.",
     },
   ] satisfies Faq[],
 };
