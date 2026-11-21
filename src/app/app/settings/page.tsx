@@ -483,6 +483,24 @@ async function Settings() {
           </div>
         </section>
 
+        <section id="mcp" className={cn(panel, "scroll-mt-28")}>
+          <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+            <p className="min-w-0 flex-1 text-[13px] leading-[1.5] text-[#0B0B0C]/70">
+              <span className="font-medium text-[#0B0B0C]">
+                Assistants (MCP)
+              </span>
+              : let Claude or another assistant search leads, read briefs and
+              add leads, with read-only or write keys.
+            </p>
+            <Link
+              href="/app/settings/mcp"
+              className={cn(btn.secondary, btn.small)}
+            >
+              Open MCP
+            </Link>
+          </div>
+        </section>
+
         <section id="forms" className={cn(panel, "scroll-mt-28 lg:col-span-2")}>
           <h2 className={panelHead}>
             Lead-capture forms

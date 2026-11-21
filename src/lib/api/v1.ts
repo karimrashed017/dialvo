@@ -31,6 +31,11 @@ export type ApiContext = {
   /** A select on one table, already scoped to the key's workspace. */
   from: ReturnType<typeof scoped>;
   remaining: number;
+  /** "read" keys may look but not change anything. */
+  scope: "read" | "write";
+  /** A personal key's person, and their role in the workspace now. */
+  userId: string | null;
+  role: "owner" | "admin" | "member" | null;
 };
 
 const perAddress = createLimiter({ windowMs: 60_000, max: 300 });
@@ -55,7 +60,9 @@ export const apiError = (
 /** The key's workspace, or the answer to send instead. */
 export async function authorise(
   request: Request,
+  options: { perMinute?: number; readOnPost?: boolean } = {},
 ): Promise<{ ok: true; ctx: ApiContext } | { ok: false; response: Response }> {
+  const perMinute = options.perMinute ?? API_REQUESTS_PER_MINUTE;
   const address =
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
   const wait = perAddress.take(address);
@@ -80,7 +87,7 @@ export async function authorise(
   if (!supabase) return { ok: false, response: apiError(503, "unavailable") };
   const { data, error } = await supabase.rpc("api_key_authorise", {
     p_key_hash: hashApiKey(key),
-    p_max_per_minute: API_REQUESTS_PER_MINUTE,
+    p_max_per_minute: perMinute,
   });
   if (error) {
     console.error("[api] authorise failed:", error.message);
@@ -90,6 +97,9 @@ export async function authorise(
     status: string;
     workspace_id?: string;
     remaining?: number;
+    scope?: string;
+    user_id?: string | null;
+    role?: string | null;
   };
   if (r.status === "rate_limited")
     return {
@@ -97,7 +107,7 @@ export async function authorise(
       response: apiError(
         429,
         "rate_limited",
-        `At most ${API_REQUESTS_PER_MINUTE} requests a minute per key.`,
+        `At most ${perMinute} requests a minute per key.`,
         {
           "Retry-After": "60",
         },
@@ -106,6 +116,22 @@ export async function authorise(
   if (r.status !== "ok" || !r.workspace_id)
     return { ok: false, response: apiError(401, "unauthorised") };
   const workspaceId = r.workspace_id;
+  const scope = r.scope === "read" ? "read" : "write";
+  // A read-only key can't change anything: every method but GET writes.
+  if (
+    scope === "read" &&
+    request.method !== "GET" &&
+    request.method !== "HEAD" &&
+    !options.readOnPost
+  )
+    return {
+      ok: false,
+      response: apiError(
+        403,
+        "read_only_key",
+        "This key is read-only. Make a key with write access in Settings, API.",
+      ),
+    };
   return {
     ok: true,
     ctx: {
@@ -113,6 +139,12 @@ export async function authorise(
       supabase,
       from: scoped(supabase, workspaceId),
       remaining: r.remaining ?? 0,
+      scope,
+      userId: r.user_id ?? null,
+      role:
+        r.role === "owner" || r.role === "admin" || r.role === "member"
+          ? r.role
+          : null,
     },
   };
 }

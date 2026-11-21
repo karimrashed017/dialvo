@@ -4,6 +4,7 @@ import { hashApiKey, keyFromHeader } from "@/lib/plays/api-key";
 import { API_EVENT_MAX_BYTES } from "@/lib/plays/config";
 import { readEventBody } from "@/lib/plays/events";
 import { createPlayStore } from "@/lib/plays/store";
+import { createServiceClient } from "@/lib/supabase/service";
 
 // POST /api/v1/events: a workspace's own app records a product event on one
 // of its leads, by email, for the trial-users play (PLG conversion).
@@ -60,6 +61,18 @@ export async function POST(request: Request) {
   if (!read.ok) return json({ error: "invalid", message: read.error }, 422);
 
   try {
+    // A read-only key can't record events (the key itself is checked below).
+    const scopes = createServiceClient();
+    if (scopes) {
+      const { data } = await scopes.rpc("api_key_scope", {
+        p_key_hash: hashApiKey(key),
+      });
+      if (data === "read")
+        return json(
+          { error: "read_only_key", message: "This key is read-only." },
+          403,
+        );
+    }
     const result = await store.recordEvent(hashApiKey(key), {
       email: read.value.email,
       event: read.value.event,

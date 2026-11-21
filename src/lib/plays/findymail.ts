@@ -315,7 +315,11 @@ export interface PlaysFindymail {
   company(
     name: string,
   ): Promise<Result<{ domain: string; name: string } | null>>;
-  employees(domain: string, titles: string[]): Promise<Result<Employee[]>>;
+  employees(
+    domain: string,
+    titles: string[],
+    count?: number,
+  ): Promise<Result<Employee[]>>;
   email(name: string, domain: string): Promise<Result<string | null>>;
   technology(
     domain: string,
@@ -376,12 +380,12 @@ export function createPlaysFindymail(
         then(await call("POST", "/api/search/company", { name }), readCompany),
       );
     },
-    async employees(domain, titles) {
+    async employees(domain, titles, count = 1) {
       return then(
         await call("POST", "/api/search/employees", {
           website: domain,
           job_titles: titles.slice(0, 10),
-          count: 1,
+          count: Math.min(Math.max(count, 1), 5),
         }),
         readEmployees,
       );
