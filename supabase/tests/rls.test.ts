@@ -11,6 +11,10 @@ import {
   INTEGRATION_SECRET_TABLES,
   INTEGRATION_TABLES,
 } from "./integrations-tables";
+import {
+  ACTIVATION_SECRET_TABLES,
+  ACTIVATION_TABLES,
+} from "./activation-tables";
 
 // The isolation rules, proved against the real migrations:
 //   * a member of workspace A cannot read or write any row of workspace B,
@@ -287,6 +291,7 @@ const ALL_TABLES = [
   ...ENGINE_TABLES,
   ...CHANNEL_TABLES,
   ...INTEGRATION_TABLES,
+  ...ACTIVATION_TABLES,
 ];
 
 /** A write that must change nothing: refused outright, or zero rows. */
@@ -321,6 +326,7 @@ describe("the migrations", () => {
         ...PLAYS_SECRET_TABLES,
         ...ENGINE_SECRET_TABLES,
         ...INTEGRATION_SECRET_TABLES,
+        ...ACTIVATION_SECRET_TABLES,
       ].sort(),
     );
     for (const r of rows) expect(r.relrowsecurity, r.relname).toBe(true);
