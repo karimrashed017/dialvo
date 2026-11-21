@@ -13,6 +13,7 @@ import {
   companyName,
   dealTitle,
   emailNote,
+  enrichmentNote,
   marker,
   meetingInput,
   optOutNote,
@@ -28,6 +29,7 @@ import {
   type CrmClient,
   type Credentials,
   type EmailDetail,
+  type EnrichmentDetail,
   type Job,
   type LinkUpdate,
   type MeetingDetail,
@@ -194,6 +196,22 @@ export async function processJob(
           stageId: job.connection.deal_stage_id,
         }));
       link.deal_id = id;
+      return { outcome: "done", externalId: id };
+    }
+
+    case "enrichment": {
+      const detail = job.detail as EnrichmentDetail;
+      if (detail.type !== "enrichment")
+        throw new Skip("What this was about has been deleted in Dialvo.");
+      const earlier = retrying ? await client.findNote(contactId, ref) : null;
+      const id =
+        earlier ??
+        (await client.createNote(
+          contactId,
+          companyId,
+          enrichmentNote(detail, ref),
+          detail.at,
+        ));
       return { outcome: "done", externalId: id };
     }
 
